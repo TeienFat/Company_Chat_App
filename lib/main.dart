@@ -1,8 +1,6 @@
-import 'package:company_chat_app_demo/screens/Splash/splash_screen.dart';
-import 'package:company_chat_app_demo/screens/Splash/welcome_screen.dart';
-import 'package:company_chat_app_demo/screens/chat_home.dart';
-import 'package:company_chat_app_demo/screens/main_screen.dart';
-import 'package:company_chat_app_demo/screens/profile.dart';
+import 'package:company_chat_app_demo/screens/splash/splash_screen.dart';
+import 'package:company_chat_app_demo/screens/splash/welcome_screen.dart';
+import 'package:company_chat_app_demo/screens/auth/register.dart';
 import 'package:flutter/material.dart';
 
 var kColorScheme =
@@ -43,7 +41,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: kColorScheme,
         appBarTheme: const AppBarTheme().copyWith(
-          backgroundColor: kColorScheme.onPrimaryContainer,
+          backgroundColor: kColorScheme.primary,
           foregroundColor: kColorScheme.primaryContainer,
         ),
         cardTheme: const CardTheme().copyWith(
@@ -69,7 +67,7 @@ class MyApp extends StatelessWidget {
       // home: const MyHomePage(title: "Chat"),
       home: const SplashScreen(),
       routes: <String, WidgetBuilder>{
-        '/Login': (BuildContext context) => new MainScreen(),
+        '/Login': (BuildContext context) => new RegisterScreen(),
         '/Welcome': (BuildContext context) => new WelcomeScreen()
       },
     );

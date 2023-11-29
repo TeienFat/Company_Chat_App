@@ -1,7 +1,4 @@
 import 'dart:async';
-
-import 'package:company_chat_app_demo/screens/chat_home.dart';
-import 'package:company_chat_app_demo/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
