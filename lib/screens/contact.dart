@@ -1,11 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
+import 'package:company_chat_app_demo/models/user_model.dart';
 // import 'package:company_chat_app_demo/models/user.dart';
 import 'package:company_chat_app_demo/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 
-class ContactScreen extends StatelessWidget {
+class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
+
+  @override
+  State<ContactScreen> createState() => _ContactScreenState();
+}
+
+class _ContactScreenState extends State<ContactScreen> {
+  List<User> _list = [];
 
   void _runFilter(){
 
@@ -19,7 +28,7 @@ class ContactScreen extends StatelessWidget {
         children: [
           searchBar(_runFilter),
           StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('user').snapshots(),
+              stream: APIs.getAllUser(),
               builder: (ctx, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -40,19 +49,17 @@ class ContactScreen extends StatelessWidget {
                     ),
                   );
                 }
-                final loadedUser = userSnapshot.data!.docs;
+                final data = userSnapshot.data!.docs;
+                _list = data.map((e) => User.fromMap(e.data())).toList();
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: loadedUser.length,
+                    itemCount: _list.length,
                     itemBuilder: (ctx, index) {
-                      final user = loadedUser[index].data();
                       return Column(
                         children: [
                           UserCard(
-                            username: user['username'],
-                            isOnline: user['isOnline'],
-                            userImage: user['imageUrl'],
+                            user: _list[index],
                           ),
                           const Divider(height: 3,)
                         ],
