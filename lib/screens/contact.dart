@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
-// import 'package:company_chat_app_demo/models/user.dart';
 import 'package:company_chat_app_demo/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 
