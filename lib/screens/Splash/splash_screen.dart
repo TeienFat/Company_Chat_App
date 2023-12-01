@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (firstTime) {
       Navigator.of(context).pushReplacementNamed("/Welcome");
     } else {
-      Navigator.of(context).pushReplacementNamed("/Login");
+      Navigator.of(context).pushReplacementNamed("/Auth");
     }
   }
 
