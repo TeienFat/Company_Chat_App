@@ -1,17 +1,23 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:company_chat_app_demo/models/user.dart';
+import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class APIs {
   static FirebaseStorage fireStorage = FirebaseStorage.instance;
+
+  static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUser() {
     return firestore
         .collection('user')
-        .where('id', isNotEqualTo: '111')
+        .where('id', isNotEqualTo: firebaseAuth.currentUser!.uid)
         .snapshots();
   }
 
@@ -26,7 +32,7 @@ class APIs {
 
   static Future<void> createNewUser(
       String userId, String imageUrl, String userName, String email) async {
-    final user = User(
+    final user = UserChat(
         id: userId,
         imageUrl: imageUrl,
         username: userName,

@@ -12,12 +12,20 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  List<User> _list = [];
+  List<UserChat> _list = [];
+  List<UserChat> _searchList = [];
 
-  void _runFilter(){
-
+  void _runFilter(String _enteredKeyword){
+    _searchList.clear();
+      for(var user in _list){
+        if(user.username!.toLowerCase().contains(_enteredKeyword.toLowerCase())){
+          _searchList.add(user);
+        }
+      }
+    setState(() {
+      _searchList;
+    });
   }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -48,16 +56,16 @@ class _ContactScreenState extends State<ContactScreen> {
                   );
                 }
                 final data = userSnapshot.data!.docs;
-                _list = data.map((e) => User.fromMap(e.data())).toList();
+                _list = data.map((e) => UserChat.fromMap(e.data())).toList();
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: _list.length,
+                    itemCount: _searchList.isEmpty ? _list.length : _searchList.length,
                     itemBuilder: (ctx, index) {
                       return Column(
                         children: [
                           UserCard(
-                            user: _list[index],
+                            user: _searchList.isEmpty ? _list[index] : _searchList[index],
                           ),
                           const Divider(height: 3,)
                         ],

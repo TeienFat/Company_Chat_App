@@ -1,11 +1,11 @@
-class User {
+class UserChat{
   String? id;
   String? imageUrl;
   String? username;
   bool? isOnline;
   String? email;
 
-  User({
+  UserChat({
     required this.id,
     required this.imageUrl,
     required this.username,
@@ -13,7 +13,7 @@ class User {
     required this.email
   });
 
-  User.fromMap(Map<String, dynamic> map) {
+  UserChat.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     imageUrl = map['imageUrl'];
     username = map['username'];

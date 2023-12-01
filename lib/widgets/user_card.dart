@@ -7,7 +7,7 @@ class UserCard extends StatelessWidget {
     required this.user
   });
 
-  final User user;
+  final UserChat user;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,11 @@ class UserCard extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: NetworkImage(user.imageUrl!), fit: BoxFit.fill),
+                        fit: BoxFit.cover,
+                        image: user.imageUrl!.isNotEmpty
+                          ? NetworkImage(user.imageUrl!)
+                          : AssetImage('assets/images/user.png') as ImageProvider
+                      ),
                       borderRadius: BorderRadius.circular(16)),
                   )
                 ),
