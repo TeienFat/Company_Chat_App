@@ -27,6 +27,9 @@ dependencies:
   shared_preferences: ^2.2.2
   firebase_storage: ^11.5.3
   cloud_firestore: ^4.13.3
+  image_picker: ^1.0.4
+  firebase_auth: ^4.9.0
+  firebase_messaging: ^14.6.7
 
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
@@ -63,6 +66,8 @@ flutter:
   assets:
     - assets/images/bg-logo.png
     - assets/images/w.png
+    - assets/images/logoWiChat.png
+    - assets/images/user.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

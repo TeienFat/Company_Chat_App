@@ -1,20 +1,20 @@
+import 'package:company_chat_app_demo/screens/auth/auth.dart';
 import 'package:company_chat_app_demo/screens/main_screen.dart';
 import 'package:company_chat_app_demo/screens/splash/splash_screen.dart';
+import 'package:company_chat_app_demo/screens/splash/waitting_auth.dart';
 import 'package:company_chat_app_demo/screens/splash/welcome_screen.dart';
-import 'package:company_chat_app_demo/screens/auth/register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:company_chat_app_demo/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-
-
 
 var kColorScheme =
     ColorScheme.fromSeed(seedColor: const Color.fromARGB(1, 207, 46, 46));
 var kDarkColorScheme =
     ColorScheme.fromSeed(seedColor: const Color.fromARGB(1, 207, 46, 46));
-void main() async{
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
@@ -75,10 +75,21 @@ class MyApp extends StatelessWidget {
             ),
       ),
       // home: const MyHomePage(title: "Chat"),
-      home: const MainScreen(),
+      home: const SplashScreen(),
       routes: <String, WidgetBuilder>{
-        '/Login': (BuildContext context) => new RegisterScreen(),
-        '/Welcome': (BuildContext context) => new WelcomeScreen()
+        '/Auth': (BuildContext context) => new StreamBuilder(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Authenticating();
+                }
+                if (snapshot.hasData) {
+                  return const MainScreen();
+                }
+                return const AuthScreen();
+              },
+            ),
+        '/Welcome': (BuildContext context) => new WelcomeScreen(),
       },
     );
   }

@@ -1,6 +1,7 @@
 import 'package:company_chat_app_demo/screens/chat_home.dart';
 import 'package:company_chat_app_demo/screens/contact.dart';
 import 'package:company_chat_app_demo/screens/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
@@ -40,6 +41,16 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            icon: Icon(
+              Icons.logout_sharp,
+            ),
+          ),
+        ],
       ),
       body: pages[currentIndex],
       bottomNavigationBar: Container(
