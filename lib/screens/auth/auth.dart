@@ -28,7 +28,7 @@ class _AuthScreenState extends State<AuthScreen> {
   var _isAuthenticating = false;
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
-    if (!isValid || !isValid && _selectedImage == null) {
+    if (!isValid) {
       return;
     }
     _formKey.currentState!.save();
@@ -42,10 +42,15 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final userCredential = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        final imageUrl = APIs.saveImage(
-            userCredential.user!.uid, _selectedImage!, 'user_images');
-        APIs.createNewUser(userCredential.user!.uid, await imageUrl,
-            _enteredUserName, _enteredEmail);
+        if (_selectedImage != null) {
+          final imageUrl = APIs.saveImage(
+              userCredential.user!.uid, _selectedImage!, 'user_images');
+          APIs.createNewUser(userCredential.user!.uid, await imageUrl,
+              _enteredUserName, _enteredEmail);
+        } else {
+          APIs.createNewUser(
+              userCredential.user!.uid, "", _enteredUserName, _enteredEmail);
+        }
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
@@ -70,14 +75,18 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             children: [
               Container(
-                margin: EdgeInsets.only(top: 60, bottom: 30, right: 10),
+                margin: EdgeInsets.only(
+                    top: _isLogin ? 60 : 30,
+                    bottom: _isLogin ? 30 : 0,
+                    right: 10),
                 width: 300,
                 child: Image.asset("assets/images/logoWiChat.png"),
               ),
               Card(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.only(
+                        top: 10, right: 20, left: 20, bottom: 0),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -91,6 +100,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           TextFormField(
                             style: TextStyle(fontSize: 18),
                             decoration: InputDecoration(
+                              errorStyle: TextStyle(fontSize: 14),
                               hintText: "Email",
                             ),
                             keyboardType: TextInputType.emailAddress,
@@ -108,12 +118,13 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           if (!_isLogin)
                             TextFormField(
                               style: TextStyle(fontSize: 18),
                               decoration: InputDecoration(
+                                errorStyle: TextStyle(fontSize: 14),
                                 hintText: "Tên tài khoản",
                               ),
                               enableSuggestions: false,
@@ -128,11 +139,14 @@ class _AuthScreenState extends State<AuthScreen> {
                               },
                             ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           TextFormField(
                             style: TextStyle(fontSize: 18),
-                            decoration: InputDecoration(hintText: "Mật khẩu"),
+                            decoration: InputDecoration(
+                              hintText: "Mật khẩu",
+                              errorStyle: TextStyle(fontSize: 14),
+                            ),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.trim().length < 6) {
@@ -140,29 +154,34 @@ class _AuthScreenState extends State<AuthScreen> {
                               }
                               return null;
                             },
+                            onFieldSubmitted: (value) {
+                              _enteredPassword = value;
+                            },
                             onSaved: (value) {
                               _enteredPassword = value!;
                             },
                           ),
-                          // SizedBox(
-                          //   height: 20,
-                          // ),
-                          // if (!_isLogin)
-                          //   TextFormField(
-                          //     style: TextStyle(fontSize: 18),
-                          //     decoration: InputDecoration(
-                          //         hintText: "Nhập lại mật khẩu"),
-                          //     obscureText: true,
-                          //     validator: (value) {
-                          //       if (value != _enteredPassword) {
-                          //         return "Nhập lại mật khẩu không đúng.";
-                          //       }
-                          //       return null;
-                          //     },
-                          //     onSaved: (value) {
-                          //       _enteredRePassword = value!;
-                          //     },
-                          //   ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          if (!_isLogin)
+                            TextFormField(
+                              style: TextStyle(fontSize: 18),
+                              decoration: InputDecoration(
+                                hintText: "Nhập lại mật khẩu",
+                                errorStyle: TextStyle(fontSize: 14),
+                              ),
+                              obscureText: true,
+                              validator: (value) {
+                                if (value != _enteredPassword) {
+                                  return "Nhập lại mật khẩu không đúng.";
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                _enteredRePassword = value!;
+                              },
+                            ),
                           SizedBox(
                             height: 15,
                           ),
