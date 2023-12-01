@@ -1,16 +1,13 @@
+import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:flutter/material.dart';
 
 class UserCard extends StatelessWidget {
   const UserCard({
     super.key,
-    required this.username,
-    required this.isOnline,
-    required this.userImage,
+    required this.user
   });
 
-  final String username;
-  final bool isOnline;
-  final String userImage;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +25,11 @@ class UserCard extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: NetworkImage(userImage), fit: BoxFit.fill),
+                          image: NetworkImage(user.imageUrl!), fit: BoxFit.fill),
                       borderRadius: BorderRadius.circular(16)),
                   )
                 ),
-                if (isOnline)
+                if (user.isOnline!)
                   Positioned(
                     right: -1,
                     top: -1,
@@ -54,8 +51,8 @@ class UserCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(username,style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w600),),
-                isOnline
+                Text(user.username!,style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w600),),
+                user.isOnline!
                   ? const Text(
                   'Online',
                   style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,color: Color.fromRGBO(173, 181, 189, 1)),

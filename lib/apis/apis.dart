@@ -6,7 +6,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class APIs {
   static FirebaseStorage fireStorage = FirebaseStorage.instance;
-  static FirebaseFirestore fireStore = FirebaseFirestore.instance;
+  static FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUser() {
+    return firestore
+        .collection('user')
+        .where('id', isNotEqualTo: '111')
+        .snapshots();
+  }
 
   static Future<String> saveImage(
       String imageName, File imageFile, String path) async {
@@ -25,6 +32,6 @@ class APIs {
         username: userName,
         isOnline: false,
         email: email);
-    return await fireStore.collection('user').doc(userId).set(user.toMap());
+    return await firestore.collection('user').doc(userId).set(user.toMap());
   }
 }
