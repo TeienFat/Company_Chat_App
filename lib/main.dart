@@ -89,6 +89,7 @@ class MyApp extends StatelessWidget {
                 return const AuthScreen();
               },
             ),
+        '/Login': (BuildContext context) => new AuthScreen(),
         '/Welcome': (BuildContext context) => new WelcomeScreen(),
       },
     );
