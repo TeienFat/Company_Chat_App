@@ -12,20 +12,25 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
+  bool isSearching = false;
   List<UserChat> _list = [];
   List<UserChat> _searchList = [];
 
-  void _runFilter(String _enteredKeyword){
+  void _runFilter(String _enteredKeyword) {
     _searchList.clear();
-      for(var user in _list){
-        if(user.username!.toLowerCase().contains(_enteredKeyword.toLowerCase())){
-          _searchList.add(user);
-        }
+    for (var user in _list) {
+      if (user.username!
+          .toLowerCase()
+          .contains(_enteredKeyword.toLowerCase())) {
+        _searchList.add(user);
       }
+    }
     setState(() {
+      isSearching = true;
       _searchList;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -38,11 +43,13 @@ class _ContactScreenState extends State<ContactScreen> {
               builder: (ctx, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
+                    heightFactor: 10,
                     child: CircularProgressIndicator(),
                   );
                 }
                 if (!userSnapshot.hasData || userSnapshot.data!.docs.isEmpty) {
                   return const Center(
+                    heightFactor: 10,
                     child: Text(
                       'No user found.',
                     ),
@@ -50,6 +57,7 @@ class _ContactScreenState extends State<ContactScreen> {
                 }
                 if (userSnapshot.hasError) {
                   return const Center(
+                    heightFactor: 10,
                     child: Text(
                       'Something went wrong...',
                     ),
@@ -60,14 +68,19 @@ class _ContactScreenState extends State<ContactScreen> {
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: _searchList.isEmpty ? _list.length : _searchList.length,
+                    itemCount: isSearching
+                        ? (_searchList.isEmpty 
+                          ? 1 
+                          : _searchList.length)
+                        : _list.length,
                     itemBuilder: (ctx, index) {
                       return Column(
                         children: [
-                          UserCard(
-                            user: _searchList.isEmpty ? _list[index] : _searchList[index],
-                          ),
-                          const Divider(height: 3,)
+                          isSearching
+                              ? (_searchList.isEmpty
+                                ? Text('No user found')
+                                : UserCard(user: _searchList[index]))
+                              : UserCard(user: _list[index])
                         ],
                       );
                     },
