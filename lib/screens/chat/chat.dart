@@ -1,16 +1,20 @@
+import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat_setting.dart';
 import 'package:company_chat_app_demo/widgets/chat_message.dart';
 import 'package:company_chat_app_demo/widgets/new_message.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  ChatScreen({super.key, required this.user});
+
+  final UserChat user;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+
   bool isSearching = false;
 
   @override
@@ -18,7 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'username',
+          widget.user.username!,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         actions: [
@@ -31,7 +35,12 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       body: Column(
-        children: [Expanded(child: ChatMessage()), NewMessage()],
+        children: [
+          Expanded(
+            child: ChatMessage()
+          ),
+          NewMessage()
+        ],
       ),
     );
   }
