@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,8 +12,6 @@ class APIs {
   static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUser() {
     return firestore
@@ -39,5 +38,28 @@ class APIs {
         isOnline: false,
         email: email);
     return await firestore.collection('user').doc(userId).set(user.toMap());
+  }
+
+  static Future<bool> checkHasChatRoom(String userid) async {
+    QuerySnapshot querySnapshot = await firestore.collection('chatrooms').get();
+
+    for (QueryDocumentSnapshot document in querySnapshot.docs) {
+      List<String> listParticipants = List<String>.from(document['participants']);
+      if (listParticipants.contains(firebaseAuth.currentUser!.uid) && listParticipants.contains(userid)) {
+        return true;
+      }
+    }
+    return false;
+}
+
+  static Future<void> createDirectChatroom (String userId,String chatRoomId) async{
+    final chatroom = ChatRoom(
+      chatroomid: chatRoomId,
+      chatroomname: '',
+      imageUrl: '',
+      participants: [firebaseAuth.currentUser!.uid,userId],
+      type: 'Direct'
+    );
+    return await firestore.collection('chatrooms').doc(chatRoomId).set(chatroom.toMap());
   }
 }
