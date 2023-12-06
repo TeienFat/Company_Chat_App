@@ -122,7 +122,13 @@ class _NewGroupChatState extends State<NewGroupChat> {
                   padding: const EdgeInsets.only(left: 10),
                   child: TextField(
                     controller: _groupNameController,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
                     decoration: InputDecoration(
+                      hintStyle: TextStyle(
+                        fontSize: 18,
+                      ),
                       hintText: "Tên nhóm (không bắt buộc)",
                       border: InputBorder.none,
                     ),

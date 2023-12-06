@@ -44,22 +44,41 @@ class APIs {
     QuerySnapshot querySnapshot = await firestore.collection('chatrooms').get();
 
     for (QueryDocumentSnapshot document in querySnapshot.docs) {
-      List<String> listParticipants = List<String>.from(document['participants']);
-      if (listParticipants.contains(firebaseAuth.currentUser!.uid) && listParticipants.contains(userid)) {
+      List<String> listParticipants =
+          List<String>.from(document['participants']);
+      if (listParticipants.contains(firebaseAuth.currentUser!.uid) &&
+          listParticipants.contains(userid)) {
         return true;
       }
     }
     return false;
-}
+  }
 
-  static Future<void> createDirectChatroom (String userId,String chatRoomId) async{
+  static Future<void> createDirectChatroom(
+      String userId, String chatRoomId) async {
     final chatroom = ChatRoom(
-      chatroomid: chatRoomId,
-      chatroomname: '',
-      imageUrl: '',
-      participants: [firebaseAuth.currentUser!.uid,userId],
-      type: 'Direct'
-    );
-    return await firestore.collection('chatrooms').doc(chatRoomId).set(chatroom.toMap());
+        chatroomid: chatRoomId,
+        chatroomname: '',
+        imageUrl: '',
+        participants: [firebaseAuth.currentUser!.uid, userId],
+        type: true);
+    return await firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .set(chatroom.toMap());
+  }
+
+  static Future<void> createGroupChatroom(
+      String userId, String chatRoomId) async {
+    final chatroom = ChatRoom(
+        chatroomid: chatRoomId,
+        chatroomname: '',
+        imageUrl: '',
+        participants: [firebaseAuth.currentUser!.uid, userId],
+        type: false);
+    return await firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .set(chatroom.toMap());
   }
 }
