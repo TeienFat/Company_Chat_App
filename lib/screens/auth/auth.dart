@@ -184,7 +184,10 @@ class _AuthScreenState extends State<AuthScreen> {
                             height: 15,
                           ),
                           if (_isAuthenticating)
-                            const CircularProgressIndicator(),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: const CircularProgressIndicator(),
+                            ),
                           if (!_isAuthenticating)
                             ElevatedButton(
                               child: Text(

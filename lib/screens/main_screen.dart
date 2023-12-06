@@ -1,5 +1,6 @@
 import 'package:company_chat_app_demo/screens/chat_home.dart';
 import 'package:company_chat_app_demo/screens/contact.dart';
+import 'package:company_chat_app_demo/screens/new_group.dart';
 import 'package:company_chat_app_demo/screens/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
 
   String title = 'Chats';
 
-  void onTab(int index) {
+  void _onTab(int index) {
     setState(() {
       currentIndex = index;
       switch (currentIndex) {
@@ -35,6 +36,15 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _openAddGroupOverlay() {
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) => NewGroupChat(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +52,10 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: Text(title),
         actions: [
+          IconButton(
+            onPressed: _openAddGroupOverlay,
+            icon: Icon(Icons.group_add_sharp),
+          ),
           IconButton(
             onPressed: () {
               FirebaseAuth.instance.signOut();
@@ -57,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
         padding: const EdgeInsets.only(top: 0),
         height: 83,
         child: BottomNavigationBar(
-          onTap: onTab,
+          onTap: _onTab,
           currentIndex: currentIndex,
           showSelectedLabels: false,
           showUnselectedLabels: false,
