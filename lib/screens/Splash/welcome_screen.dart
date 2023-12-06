@@ -35,7 +35,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
                         ),
                         Text(
-                          "Trò chuyện trực tiếp!",
+                          "Trò chuyện trực tuyến",
                           style: GoogleFonts.lobster(
                             color: kColorScheme.primary,
                             fontSize: 32,
@@ -57,7 +57,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
                         ),
                         Text(
-                          "Kết nối với đồng đội!",
+                          "Kết nối với đồng đội",
                           style: GoogleFonts.lobster(
                             color: kColorScheme.primary,
                             fontSize: 32,
@@ -79,7 +79,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
                         ),
                         Text(
-                          "Kết nối với đồng đội!",
+                          "Sẵn sàng trò chuyện mọi nơi",
                           style: GoogleFonts.lobster(
                             color: kColorScheme.primary,
                             fontSize: 32,
