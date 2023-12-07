@@ -68,13 +68,14 @@ class APIs {
         .set(chatroom.toMap());
   }
 
-  static Future<void> createGroupChatroom(
-      String userId, String chatRoomId) async {
+  static Future<void> createGroupChatroom(List<String> participantsId,
+      String chatRoomId, String chatRoomName) async {
+    participantsId.add(firebaseAuth.currentUser!.uid);
     final chatroom = ChatRoom(
         chatroomid: chatRoomId,
-        chatroomname: '',
+        chatroomname: chatRoomName,
         imageUrl: '',
-        participants: [firebaseAuth.currentUser!.uid, userId],
+        participants: participantsId,
         type: false);
     return await firestore
         .collection('chatrooms')
