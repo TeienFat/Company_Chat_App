@@ -2,6 +2,7 @@ import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat_setting.dart';
 import 'package:company_chat_app_demo/widgets/chat_message.dart';
 import 'package:company_chat_app_demo/widgets/new_message.dart';
+import 'package:company_chat_app_demo/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -21,9 +22,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.user.username!,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: widget.user.imageUrl!.isNotEmpty ? NetworkImage(widget.user.imageUrl!) : AssetImage('assets/images/user.png') as ImageProvider,
+            ),
+            SizedBox(width: 10,),
+            Text(
+              widget.user.username!,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+          ],
         ),
         actions: [
           IconButton(

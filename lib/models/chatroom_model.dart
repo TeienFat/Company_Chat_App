@@ -3,7 +3,7 @@ class ChatRoom{
   String? chatroomname;
   String? imageUrl;
   List<String>? participants;
-  String? type;
+  bool? type;
 
   ChatRoom({
     required this.chatroomid,
@@ -17,7 +17,7 @@ class ChatRoom{
     chatroomid = map['chatroomid'];
     chatroomname = map['chatroomname'];
     imageUrl = map['imageUrl'];
-    participants = map['participants'];
+    participants = List<String>.from(map['participants']);
     type = map['type'];
   }
 
