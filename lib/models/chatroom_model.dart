@@ -16,7 +16,7 @@ class ChatRoom {
     chatroomid = map['chatroomid'];
     chatroomname = map['chatroomname'];
     imageUrl = map['imageUrl'];
-    participants = map['participants'];
+    participants = List<String>.from(map['participants']);
     type = map['type'];
   }
 
