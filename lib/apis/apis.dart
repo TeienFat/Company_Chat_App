@@ -20,6 +20,13 @@ class APIs {
         .snapshots();
   }
 
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllChatroom() {
+    return firestore
+        .collection('chatrooms')
+        .where('participants', arrayContains: firebaseAuth.currentUser!.uid)
+        .snapshots();
+  }
+
   static Future<String> saveImage(
       String imageName, File imageFile, String path) async {
     final storageRef =
@@ -44,13 +51,16 @@ class APIs {
     QuerySnapshot querySnapshot = await firestore.collection('chatrooms').get();
 
     for (QueryDocumentSnapshot document in querySnapshot.docs) {
-      List<String> listParticipants = List<String>.from(document['participants']);
-      if (listParticipants.contains(firebaseAuth.currentUser!.uid) && listParticipants.contains(userid)) {
-        return true;
+      bool isDirect = document['type'];
+      if(isDirect){
+        List<String> listParticipants = List<String>.from(document['participants']);
+        if (listParticipants.contains(firebaseAuth.currentUser!.uid) && listParticipants.contains(userid)) {
+          return true;
+        }
       }
     }
     return false;
-}
+  }
 
   static Future<void> createDirectChatroom (String userId,String chatRoomId) async{
     final chatroom = ChatRoom(
@@ -58,8 +68,18 @@ class APIs {
       chatroomname: '',
       imageUrl: '',
       participants: [firebaseAuth.currentUser!.uid,userId],
-      type: 'Direct'
+      type: true
     );
     return await firestore.collection('chatrooms').doc(chatRoomId).set(chatroom.toMap());
+  }
+
+  static Future<UserChat> getUserFormId(String uid) async{
+    UserChat userchat;
+
+    DocumentSnapshot docSnap = await firestore.collection('user').doc(uid).get();
+
+    userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
+
+    return userchat;
   }
 }
