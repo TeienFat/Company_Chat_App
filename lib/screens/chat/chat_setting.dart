@@ -38,14 +38,14 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
           ),
           TextButton(
             onPressed: () async {
-              await APIs.leaveTheGroupChat(
-                  widget.chatRoom, APIs.firebaseAuth.currentUser!.uid);
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => MainScreen(),
-                ),
-              );
+              // await APIs.leaveTheGroupChat(
+              //     widget.chatRoom, APIs.firebaseAuth.currentUser!.uid);
+              // Navigator.pop(context);
+              // Navigator.of(context).push(
+              //   MaterialPageRoute(
+              //     builder: (context) => MainScreen(),
+              //   ),
+              // );
             },
             child: Text(
               'Rời',
@@ -123,15 +123,15 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                                       Spacer(),
                                       IconButton(
                                         onPressed: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ListUserInGroup(
-                                                      listUserId: widget
-                                                          .chatRoom
-                                                          .participants!),
-                                            ),
-                                          );
+                                          // Navigator.of(context).push(
+                                          //   MaterialPageRoute(
+                                          //     builder: (context) =>
+                                          //         ListUserInGroup(
+                                          //             listUserId: widget
+                                          //                 .chatRoom
+                                          //                 .participants!),
+                                          //   ),
+                                          // );
                                         },
                                         icon: Icon(Icons.arrow_forward_ios),
                                       ),

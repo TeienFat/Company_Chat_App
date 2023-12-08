@@ -1,5 +1,7 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
+import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,12 +13,10 @@ class UserCard extends StatelessWidget {
   final UserChat user;
 
   Future<void> goToChatScreen(BuildContext ctx) async {
-    final hasChatRoom = await APIs.checkHasChatRoom(user.id!);
-    if (!hasChatRoom) {
       final chatRoomId = uuid.v4();
-      await APIs.createDirectChatroom(user.id!, chatRoomId);
-    }
-    // Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen(user: user,)));
+      
+      ChatRoom chatRoom = await APIs.createDirectChatroom(user.id!, chatRoomId);
+    Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen.direct(chatRoom: chatRoom)));
   }
 
   @override
