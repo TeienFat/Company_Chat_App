@@ -89,10 +89,11 @@ class APIs {
     return chatroom;
   }
 
-  static Future<UserChat> getUserFormId(String uid) async{
+  static Future<UserChat> getUserFormId(String uid) async {
     UserChat userchat;
 
-    DocumentSnapshot docSnap = await firestore.collection('user').doc(uid).get();
+    DocumentSnapshot docSnap =
+        await firestore.collection('user').doc(uid).get();
 
     userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
 
@@ -110,4 +111,55 @@ class APIs {
       } else return false;
     } else return false;
   }
+  static _getLastWordOfName(String name) {
+    List<String> words = name.split(" ");
+    return words[words.length - 1];
+  }
+
+  // static Future<String> getChatRoomName(ChatRoom chatRoom) async {
+  //   List<String> listId = chatRoom.participants!;
+  //   int numOfParticipants = listId.length;
+  //   listId = listId.sublist(1, 3);
+  //   String name = "";
+  //   for (var i = 0; i <= 1; i++) {
+  //     UserChat userchat;
+
+  //     DocumentSnapshot docSnap =
+  //         await firestore.collection('user').doc(listId[i]).get();
+
+  //     userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
+  //     if (i == 0) {
+  //       name = name + _getLastWordOfName(userchat.username!) + ", ";
+  //     } else {
+  //       name = name + _getLastWordOfName(userchat.username!);
+  //     }
+  //   }
+  //   return name + " và " + (numOfParticipants - 3).toString() + " người khác";
+  // }
+
+  // static Future<ChatRoom> createGroupChatroom(List<String> participantsId,
+  //     String chatRoomId, String chatRoomName) async {
+  //   participantsId.insert(0, firebaseAuth.currentUser!.uid);
+  //   final chatroom = ChatRoom(
+  //       chatroomid: chatRoomId,
+  //       chatroomname: chatRoomName,
+  //       imageUrl: '',
+  //       participants: participantsId,
+  //       type: false);
+  //   await firestore
+  //       .collection('chatrooms')
+  //       .doc(chatRoomId)
+  //       .set(chatroom.toMap());
+  //   return chatroom;
+  // }
+
+  // static Future<void> leaveTheGroupChat(
+  //     ChatRoom chatRoom, String userId) async {
+  //   List<String> participants = chatRoom.participants!;
+  //   participants.removeWhere((element) => element == userId);
+  //   return await firestore
+  //       .collection('chatrooms')
+  //       .doc(chatRoom.chatroomid)
+  //       .update({'participants': participants});
+  // }
 }

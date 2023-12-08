@@ -1,30 +1,28 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
-import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
-import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 var uuid = Uuid();
 
-class UserCard extends StatelessWidget {
-  const UserCard({super.key, required this.user});
+class UserCardSetting extends StatelessWidget {
+  const UserCardSetting({super.key, required this.user});
 
   final UserChat user;
 
-  Future<void> goToChatScreen(BuildContext ctx) async {
-      final chatRoomId = uuid.v4();
-      
-      ChatRoom chatRoom = await APIs.createDirectChatroom(user.id!, chatRoomId);
-    Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen.direct(chatRoom: chatRoom)));
-  }
+  // Future<void> goToChatScreen(BuildContext ctx) async {
+  //   final hasChatRoom = await APIs.checkHasChatRoom(user.id!);
+  //   if (!hasChatRoom) {
+  //     final chatRoomId = uuid.v4();
+  //     await APIs.createDirectChatroom(user.id!, chatRoomId);
+  //   }
+  //   // Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen(user: user,)));
+  // }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        await goToChatScreen(context);
-      },
+      onLongPress: () {},
       child: Container(
         margin: const EdgeInsets.only(bottom: 12, top: 16),
         child: Row(
@@ -69,27 +67,13 @@ class UserCard extends StatelessWidget {
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   user.username!,
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w600),
                 ),
-                user.isOnline!
-                    ? const Text(
-                        'Online',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: Color.fromRGBO(173, 181, 189, 1)),
-                      )
-                    : const Text(
-                        'Offline',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: Color.fromRGBO(173, 181, 189, 1)),
-                      )
               ],
             )
           ],

@@ -1,4 +1,4 @@
-class ChatRoom{
+class ChatRoom {
   String? chatroomid;
   String? chatroomname;
   String? imageUrl;
@@ -21,7 +21,7 @@ class ChatRoom{
     type = map['type'];
   }
 
-  Map<String, dynamic> toMap(){
+  Map<String, dynamic> toMap() {
     return ({
       'chatroomid': chatroomid,
       'chatroomname': chatroomname,

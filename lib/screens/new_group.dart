@@ -1,9 +1,14 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
+import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:company_chat_app_demo/widgets/user_avatar.dart';
 import 'package:company_chat_app_demo/widgets/user_card_checkbox.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
 
 class NewGroupChat extends StatefulWidget {
   const NewGroupChat({super.key});
@@ -15,16 +20,7 @@ class NewGroupChat extends StatefulWidget {
 class _NewGroupChatState extends State<NewGroupChat> {
   List<UserChat> _list = [];
   List<UserChat> _searchList = [];
-  List<UserChat> _listUser = [
-    // UserChat(
-    //   id: "TmNKDtjggqbJcVuSwG3gQQcwnKy2",
-    //   imageUrl:
-    //       "https://firebasestorage.googleapis.com/v0/b/companychatapp-9fa5b.appspot.com/o/user_images%2FTmNKDtjggqbJcVuSwG3gQQcwnKy2.jpg?alt=media&token=c4760f80-c074-4c04-bbb7-6bab25d1f0ce",
-    //   username: "Thi Boi",
-    //   isOnline: false,
-    //   email: "thiboi@gmail.com",
-    // ),
-  ];
+  List<UserChat> _listUser = [];
   final _groupNameController = TextEditingController();
   bool _canCreate = false;
   String tb = "";
@@ -77,6 +73,25 @@ class _NewGroupChatState extends State<NewGroupChat> {
     return false;
   }
 
+  // Future<void> goToChatGroupScreen(BuildContext ctx) async {
+  //   String chatRoomName = _groupNameController.text.trim();
+  //   List<String> participantsId =
+  //       _listUser.map((e) => e.id.toString()).toList();
+  //   final chatRoomId = uuid.v4();
+  //   ChatRoom chatRoom = await APIs.createGroupChatroom(participantsId,
+  //       chatRoomId, chatRoomName.trim().isNotEmpty ? chatRoomName : '');
+  //   String groupName = await APIs.getChatRoomName(chatRoom);
+  //   Navigator.of(ctx).pop();
+  //   Navigator.of(ctx).push(
+  //     MaterialPageRoute(
+  //       builder: (context) => ChatScreen.group(
+  //         chatRoom: chatRoom,
+  //         groupName: groupName,
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -107,8 +122,8 @@ class _NewGroupChatState extends State<NewGroupChat> {
                     ),
                     TextButton(
                       onPressed: _canCreate
-                          ? () {
-                              Navigator.pop(context);
+                          ? () async {
+                              // await goToChatGroupScreen(context);
                             }
                           : null,
                       child: Text(
@@ -122,7 +137,13 @@ class _NewGroupChatState extends State<NewGroupChat> {
                   padding: const EdgeInsets.only(left: 10),
                   child: TextField(
                     controller: _groupNameController,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
                     decoration: InputDecoration(
+                      hintStyle: TextStyle(
+                        fontSize: 18,
+                      ),
                       hintText: "Tên nhóm (không bắt buộc)",
                       border: InputBorder.none,
                     ),
@@ -211,7 +232,7 @@ class _NewGroupChatState extends State<NewGroupChat> {
                                 isNotChecked:
                                     _checkContains(userChat) ? true : false,
                               ),
-                              const Divider(
+                              Divider(
                                 height: 3,
                               )
                             ],
