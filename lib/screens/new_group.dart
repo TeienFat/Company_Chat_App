@@ -1,6 +1,8 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
+import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:company_chat_app_demo/widgets/user_avatar.dart';
 import 'package:company_chat_app_demo/widgets/user_card_checkbox.dart';
 import 'package:flutter/material.dart';
@@ -72,16 +74,22 @@ class _NewGroupChatState extends State<NewGroupChat> {
   }
 
   Future<void> goToChatGroupScreen(BuildContext ctx) async {
-    String chatRoomName = _groupNameController.text;
+    String chatRoomName = _groupNameController.text.trim();
     List<String> participantsId =
         _listUser.map((e) => e.id.toString()).toList();
     final chatRoomId = uuid.v4();
-    await APIs.createGroupChatroom(participantsId, chatRoomId,
-        chatRoomName.trim().isNotEmpty ? chatRoomName : '');
-    // Navigator.of(ctx).push(MaterialPageRoute(
-    //     builder: (context) => ChatScreen(
-    //           user: user,
-    //         )));
+    ChatRoom chatRoom = await APIs.createGroupChatroom(participantsId,
+        chatRoomId, chatRoomName.trim().isNotEmpty ? chatRoomName : '');
+    String groupName = await APIs.getChatRoomName(chatRoom);
+    Navigator.of(ctx).pop();
+    Navigator.of(ctx).push(
+      MaterialPageRoute(
+        builder: (context) => ChatScreen.group(
+          chatRoom: chatRoom,
+          groupName: groupName,
+        ),
+      ),
+    );
   }
 
   @override
@@ -224,7 +232,7 @@ class _NewGroupChatState extends State<NewGroupChat> {
                                 isNotChecked:
                                     _checkContains(userChat) ? true : false,
                               ),
-                              const Divider(
+                              Divider(
                                 height: 3,
                               )
                             ],
