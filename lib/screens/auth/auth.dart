@@ -112,7 +112,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               return null;
                             },
                             onSaved: (value) {
-                              _enteredEmail = value!;
+                              _enteredEmail = value!.trim();
                             },
                           ),
                           SizedBox(
@@ -133,7 +133,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                _enteredUserName = value!;
+                                _enteredUserName = value!.trim();
                               },
                             ),
                           SizedBox(
@@ -153,10 +153,10 @@ class _AuthScreenState extends State<AuthScreen> {
                               return null;
                             },
                             onFieldSubmitted: (value) {
-                              _enteredPassword = value;
+                              _enteredPassword = value.trim();
                             },
                             onSaved: (value) {
-                              _enteredPassword = value!;
+                              _enteredPassword = value!.trim();
                             },
                           ),
                           SizedBox(
@@ -177,7 +177,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                _enteredRePassword = value!;
+                                _enteredRePassword = value!.trim();
                               },
                             ),
                           SizedBox(

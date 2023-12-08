@@ -1,17 +1,25 @@
+import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
-import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoomGroupChat extends StatelessWidget {
-  ChatRoomGroupChat({super.key,required this.chatroom});
+  ChatRoomGroupChat(
+      {super.key, required this.chatRoom, required this.groupName});
 
-  final ChatRoom chatroom;
+  final ChatRoom chatRoom;
+  final String groupName;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell (
+    return InkWell(
       onTap: () {
-        
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) =>
+                ChatScreen.group(chatRoom: chatRoom, groupName: groupName),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12, top: 16),
@@ -20,18 +28,22 @@ class ChatRoomGroupChat extends StatelessWidget {
             Stack(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
-                  padding: const EdgeInsets.all(4),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage('assets/images/user.png')
+                    width: 60,
+                    height: 60,
+                    padding: const EdgeInsets.all(4),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: kColorScheme.primaryContainer,
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: chatRoom.imageUrl != ''
+                              ? NetworkImage(chatRoom.imageUrl!)
+                              : AssetImage('assets/images/group.png')
+                                  as ImageProvider,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      borderRadius: BorderRadius.circular(16)),
-                  )
-                ),
+                    )),
                 // if (userchat.isOnline!)
                 //   Positioned(
                 //     right: -1,
@@ -54,7 +66,13 @@ class ChatRoomGroupChat extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Nhóm1",style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w600),),
+                Text(
+                  chatRoom.chatroomname != ''
+                      ? chatRoom.chatroomname!
+                      : groupName,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w600),
+                ),
               ],
             )
           ],

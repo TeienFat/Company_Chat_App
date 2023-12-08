@@ -18,8 +18,8 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
 
   void _runFilter(String enteredKeyword) {}
 
-  int _getIndex(String id, List<String> list){
-      return list.indexOf(id);
+  int _getIndex(String id, List<String> list) {
+    return list.indexOf(id);
   }
 
   @override
@@ -30,58 +30,78 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
         children: [
           searchBar(_runFilter),
           StreamBuilder(
-              stream: APIs.getAllChatroom(),
-              builder: (ctx, chatroomSnapshot) {
-                if (chatroomSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Center(
-                    heightFactor: 10,
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (!chatroomSnapshot.hasData ||
-                    chatroomSnapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    heightFactor: 10,
-                    child: Text(
-                      'Không tìm thấy đoạn chat nào',
-                    ),
-                  );
-                }
-                if (chatroomSnapshot.hasError) {
-                  return const Center(
-                    heightFactor: 10,
-                    child: Text(
-                      'Có gì đó sai sai',
-                    ),
-                  );
-                }
-                final data = chatroomSnapshot.data!.docs;
-                _listChatroom = data
-                    .map<ChatRoom>((e) => ChatRoom.fromMap(e.data()))
-                    .toList();
-
-                return Expanded(
-                  child: ListView.builder(
-                      itemCount: _listChatroom.length,
-                      itemBuilder: (ctx, index) {
-                        bool typeRoom = _listChatroom[index].type!;
-                        int indexId = _getIndex(APIs.firebaseAuth.currentUser!.uid, _listChatroom[index].participants!);
-                        var userid = indexId == 0 ? _listChatroom[index].participants!.elementAt(1) : _listChatroom[index].participants!.elementAt(0);
-                        return FutureBuilder(
-                            future: APIs.getUserFormId(userid.toString()),
-                            builder: (ctx, usersnapshot) {
-                              if (usersnapshot.connectionState == ConnectionState.done) {
-                                  UserChat userchat = usersnapshot.data!;
-                                  return typeRoom ? ChatRoomCard(
-                                      chatroom: _listChatroom[index],
-                                      userchat: userchat): ChatRoomGroupChat(chatroom: _listChatroom[index]) ;
-                              } else
-                                return Container();
-                            });
-                      }),
+            stream: APIs.getAllChatroom(),
+            builder: (ctx, chatroomSnapshot) {
+              if (chatroomSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  heightFactor: 10,
+                  child: CircularProgressIndicator(),
                 );
-              })
+              }
+              if (!chatroomSnapshot.hasData ||
+                  chatroomSnapshot.data!.docs.isEmpty) {
+                return const Center(
+                  heightFactor: 10,
+                  child: Text(
+                    'Không tìm thấy đoạn chat nào',
+                  ),
+                );
+              }
+              if (chatroomSnapshot.hasError) {
+                return const Center(
+                  heightFactor: 10,
+                  child: Text(
+                    'Có gì đó sai sai',
+                  ),
+                );
+              }
+              final data = chatroomSnapshot.data!.docs;
+              _listChatroom = data
+                  .map<ChatRoom>((e) => ChatRoom.fromMap(e.data()))
+                  .toList();
+              return Expanded(
+                child: ListView.builder(
+                  itemCount: _listChatroom.length,
+                  itemBuilder: (ctx, index) {
+                    bool typeRoom = _listChatroom[index].type!;
+                    int indexId = _getIndex(APIs.firebaseAuth.currentUser!.uid,
+                        _listChatroom[index].participants!);
+                    var userid = indexId == 0
+                        ? _listChatroom[index].participants!.elementAt(1)
+                        : _listChatroom[index].participants!.elementAt(0);
+                    if (typeRoom) {
+                      return FutureBuilder(
+                        future: APIs.getUserFormId(userid.toString()),
+                        builder: (ctx, usersnapshot) {
+                          if (usersnapshot.connectionState ==
+                              ConnectionState.done) {
+                            UserChat userchat = usersnapshot.data!;
+                            return ChatRoomCard(
+                                chatroom: _listChatroom[index],
+                                userchat: userchat);
+                          } else
+                            return Container();
+                        },
+                      );
+                    }
+                    return FutureBuilder(
+                        future: APIs.getChatRoomName(_listChatroom[index]),
+                        builder: (ctx, usersnapshot) {
+                          if (usersnapshot.connectionState ==
+                              ConnectionState.done) {
+                            String groupName = usersnapshot.data!;
+                            return ChatRoomGroupChat(
+                              chatRoom: _listChatroom[index],
+                              groupName: groupName,
+                            );
+                          } else
+                            return Container();
+                        });
+                  },
+                ),
+              );
+            },
+          )
         ],
       ),
     );

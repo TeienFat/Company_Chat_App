@@ -74,6 +74,7 @@ flutter:
     - assets/images/wel-1.png
     - assets/images/wel-2.png
     - assets/images/wel-3.png
+    - assets/images/group.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

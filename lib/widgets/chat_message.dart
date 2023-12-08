@@ -7,7 +7,12 @@ class ChatMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        Text('hello'),
+        Container(
+          height: 700,
+          child: Center(
+            child: Text('Say something!'),
+          ),
+        ),
       ],
     );
   }
