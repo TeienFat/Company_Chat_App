@@ -1,17 +1,19 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/list_user_in_group.dart';
 import 'package:company_chat_app_demo/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
 class ChatSettingScreen extends StatefulWidget {
-  const ChatSettingScreen.direct({super.key, required this.chatRoom})
+  const ChatSettingScreen.direct({super.key, required this.chatRoom, required this.userChat})
       : groupName = "";
   const ChatSettingScreen.group(
-      {super.key, required this.chatRoom, required this.groupName});
+      {super.key, required this.chatRoom, required this.groupName}): this.userChat = null;
   final ChatRoom chatRoom;
   final String groupName;
+  final UserChat? userChat;
   @override
   State<ChatSettingScreen> createState() => _ChatSettingScreenState();
 }
@@ -76,7 +78,13 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
               child: Column(
                 children: [
                   widget.chatRoom.type!
-                      ? CircleAvatar()
+                      ? CircleAvatar(
+                        radius: 60,
+                          backgroundImage: widget.userChat!.imageUrl!.isNotEmpty
+                              ? NetworkImage(widget.userChat!.imageUrl!)
+                              : AssetImage('assets/images/group.png')
+                                  as ImageProvider,
+                      )
                       : CircleAvatar(
                           radius: 60,
                           backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
@@ -88,7 +96,13 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                     height: 10,
                   ),
                   widget.chatRoom.type!
-                      ? Text("")
+                      ? Text(
+                        widget.userChat!.username!,
+                        style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
                       : Text(
                           chatRoomName,
                           style: TextStyle(
@@ -123,15 +137,15 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                                       Spacer(),
                                       IconButton(
                                         onPressed: () {
-                                          // Navigator.of(context).push(
-                                          //   MaterialPageRoute(
-                                          //     builder: (context) =>
-                                          //         ListUserInGroup(
-                                          //             listUserId: widget
-                                          //                 .chatRoom
-                                          //                 .participants!),
-                                          //   ),
-                                          // );
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ListUserInGroup(
+                                                      listUserId: widget
+                                                          .chatRoom
+                                                          .participants!.keys.toList()),
+                                            ),
+                                          );
                                         },
                                         icon: Icon(Icons.arrow_forward_ios),
                                       ),

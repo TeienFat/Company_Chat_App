@@ -10,12 +10,12 @@ class ChatRoomCard extends StatelessWidget {
   final ChatRoom chatRoom;
   final UserChat userchat;
 
-  void _openAddGroupOverlay(BuildContext ctx) {
+  void _openAddGroupOverlay(BuildContext ctx,String chatRoomId) {
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
       context: ctx,
-      builder: (context) => MenuOpTionChatRoom(),
+      builder: (context) => MenuOpTionChatRoom(chatRoomId: chatRoomId),
     );
   }
 
@@ -23,10 +23,10 @@ class ChatRoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell (
       onLongPress: (){
-        _openAddGroupOverlay(context);
+        _openAddGroupOverlay(context,chatRoom.chatroomid!);
       },
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  ChatScreen.direct(chatRoom: chatRoom)));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  ChatScreen.direct(chatRoom: chatRoom,userChat: userchat,)));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12, top: 16),

@@ -16,7 +16,7 @@ class UserCard extends StatelessWidget {
       final chatRoomId = uuid.v4();
       
       ChatRoom chatRoom = await APIs.createDirectChatroom(user.id!, chatRoomId);
-    Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen.direct(chatRoom: chatRoom)));
+      Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen.direct(chatRoom: chatRoom,userChat: user,)));
   }
 
   @override
