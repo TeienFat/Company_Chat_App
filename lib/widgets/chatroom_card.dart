@@ -1,5 +1,7 @@
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/screens/chat/chat.dart';
+import 'package:company_chat_app_demo/widgets/menu_option_chatroom.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoomCard extends StatelessWidget {
@@ -8,11 +10,23 @@ class ChatRoomCard extends StatelessWidget {
   final ChatRoom chatroom;
   final UserChat userchat;
 
+  void _openAddGroupOverlay(BuildContext ctx) {
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: ctx,
+      builder: (context) => MenuOpTionChatRoom(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell (
+      onLongPress: (){
+        _openAddGroupOverlay(context);
+      },
       onTap: () {
-        
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  ChatScreen(user: userchat,)));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12, top: 16),

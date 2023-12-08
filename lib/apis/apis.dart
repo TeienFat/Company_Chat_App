@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
@@ -23,7 +22,7 @@ class APIs {
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllChatroom() {
     return firestore
         .collection('chatrooms')
-        .where('participants', arrayContains: firebaseAuth.currentUser!.uid)
+        .where('participants.${firebaseAuth.currentUser!.uid}',isEqualTo: true)
         .snapshots();
   }
 
@@ -47,30 +46,47 @@ class APIs {
     return await firestore.collection('user').doc(userId).set(user.toMap());
   }
 
-  static Future<bool> checkHasChatRoom(String userid) async {
+  static Future<String> getChatroomIdWhenUserHasChatRoomDirect(String currentUserid, userId) async {
     QuerySnapshot querySnapshot = await firestore.collection('chatrooms').get();
+
+    String chatroomId = '';
 
     for (QueryDocumentSnapshot document in querySnapshot.docs) {
       bool isDirect = document['type'];
       if(isDirect){
-        List<String> listParticipants = List<String>.from(document['participants']);
-        if (listParticipants.contains(firebaseAuth.currentUser!.uid) && listParticipants.contains(userid)) {
-          return true;
-        }
+        Map<String,bool> mapParticipants = Map<String,bool>.from(document['participants']);
+        if(mapParticipants.containsKey(userId) && mapParticipants.containsKey(currentUserid));
+        chatroomId = document['chatroomid'];
       }
     }
-    return false;
+    return chatroomId;
   }
 
-  static Future<void> createDirectChatroom (String userId,String chatRoomId) async{
+  static Future<ChatRoom> createDirectChatroom (String userId,String newChatroomId) async{
+
+    String chatroomId = await getChatroomIdWhenUserHasChatRoomDirect(firebaseAuth.currentUser!.uid,userId);
+
     final chatroom = ChatRoom(
-      chatroomid: chatRoomId,
+      chatroomid: newChatroomId,
       chatroomname: '',
       imageUrl: '',
-      participants: [firebaseAuth.currentUser!.uid,userId],
-      type: true
-    );
-    return await firestore.collection('chatrooms').doc(chatRoomId).set(chatroom.toMap());
+      participants: ({firebaseAuth.currentUser!.uid: true, userId: true}),
+      type: true,
+      );
+
+    if(chatroomId.isNotEmpty){
+      bool hasDel = await checkCurrentUserHasDeletedChatRoom(firebaseAuth.currentUser!.uid,userId);
+
+      if(hasDel){
+        DocumentSnapshot documentSnapshot = await firestore.collection('chatrooms').doc(chatroomId).get();
+        Map<String,bool> participantsMap = Map<String,bool>.from(documentSnapshot['participants']);
+        participantsMap.update(firebaseAuth.currentUser!.uid, (value) => true);
+        await firestore.collection('chatrooms').doc(chatroomId).update({'participants': participantsMap});
+      }
+    }else{
+      await firestore.collection('chatrooms').doc(newChatroomId).set(chatroom.toMap());
+    }
+    return chatroom;
   }
 
   static Future<UserChat> getUserFormId(String uid) async{
@@ -81,5 +97,17 @@ class APIs {
     userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
 
     return userchat;
+  }
+
+  static Future<bool> checkCurrentUserHasDeletedChatRoom(String currentUserId, String userId) async {
+    String chatroomId = await getChatroomIdWhenUserHasChatRoomDirect(currentUserId,userId);
+    DocumentSnapshot chatroomSnapshot = await firestore.collection('chatrooms').doc(chatroomId).get();
+    if (chatroomSnapshot.exists) {
+      Map<String,bool> mapParticipants = Map<String,bool>.from(chatroomSnapshot['participants']);
+      bool inChatRoom = mapParticipants[firebaseAuth.currentUser!.uid]!;
+      if (!inChatRoom) {
+        return true;
+      } else return false;
+    } else return false;
   }
 }

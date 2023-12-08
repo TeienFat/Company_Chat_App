@@ -18,10 +18,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
 
   void _runFilter(String enteredKeyword) {}
 
-  int _getIndex(String id, List<String> list){
-      return list.indexOf(id);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -60,16 +56,21 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                 _listChatroom = data
                     .map<ChatRoom>((e) => ChatRoom.fromMap(e.data()))
                     .toList();
-
                 return Expanded(
                   child: ListView.builder(
                       itemCount: _listChatroom.length,
                       itemBuilder: (ctx, index) {
                         bool typeRoom = _listChatroom[index].type!;
-                        int indexId = _getIndex(APIs.firebaseAuth.currentUser!.uid, _listChatroom[index].participants!);
-                        var userid = indexId == 0 ? _listChatroom[index].participants!.elementAt(1) : _listChatroom[index].participants!.elementAt(0);
+
+                        List<String> userIdLisst = _listChatroom[index].participants!.keys.toList();
+
+                        String userid = userIdLisst.elementAt(0);
+
+                        if(userid == APIs.firebaseAuth.currentUser!.uid)
+                          userid = userIdLisst.elementAt(1);
+                  
                         return FutureBuilder(
-                            future: APIs.getUserFormId(userid.toString()),
+                            future: APIs.getUserFormId(userid),
                             builder: (ctx, usersnapshot) {
                               if (usersnapshot.connectionState == ConnectionState.done) {
                                   UserChat userchat = usersnapshot.data!;

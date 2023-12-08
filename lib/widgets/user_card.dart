@@ -15,12 +15,10 @@ class UserCard extends StatelessWidget {
   final UserChat user;
 
   Future<void> goToChatScreen(BuildContext ctx) async{
-    final hasChatRoom = await APIs.checkHasChatRoom(user.id!);
-        if(!hasChatRoom){
-          final chatRoomId = uuid.v4();
-          await APIs.createDirectChatroom(user.id!,chatRoomId);
-        }
-        Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen(user: user,)));
+
+    final chatRoomId = uuid.v4();
+    await APIs.createDirectChatroom(user.id!,chatRoomId);
+    Navigator.of(ctx).push(MaterialPageRoute(builder: (context) =>  ChatScreen(user: user,)));
   }
 
   @override
