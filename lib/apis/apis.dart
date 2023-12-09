@@ -131,7 +131,7 @@ class APIs {
       return false;
   }
 
-  static String getLastWordOfName(String name) {
+  static getLastWordOfName(String name) {
     List<String> words = name.split(" ");
     return words[words.length - 1];
   }
