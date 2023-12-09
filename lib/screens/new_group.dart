@@ -73,24 +73,25 @@ class _NewGroupChatState extends State<NewGroupChat> {
     return false;
   }
 
-  // Future<void> goToChatGroupScreen(BuildContext ctx) async {
-  //   String chatRoomName = _groupNameController.text.trim();
-  //   List<String> participantsId =
-  //       _listUser.map((e) => e.id.toString()).toList();
-  //   final chatRoomId = uuid.v4();
-  //   ChatRoom chatRoom = await APIs.createGroupChatroom(participantsId,
-  //       chatRoomId, chatRoomName.trim().isNotEmpty ? chatRoomName : '');
-  //   String groupName = await APIs.getChatRoomName(chatRoom);
-  //   Navigator.of(ctx).pop();
-  //   Navigator.of(ctx).push(
-  //     MaterialPageRoute(
-  //       builder: (context) => ChatScreen.group(
-  //         chatRoom: chatRoom,
-  //         groupName: groupName,
-  //       ),
-  //     ),
-  //   );
-  // }
+  Future<void> goToChatGroupScreen(BuildContext ctx) async {
+    String chatRoomName = _groupNameController.text.trim();
+    Map<String, bool> participantsId = {
+      for (var item in _listUser) '${item.id}': true
+    };
+    final chatRoomId = uuid.v4();
+    ChatRoom chatRoom = await APIs.createGroupChatroom(participantsId,
+        chatRoomId, chatRoomName.trim().isNotEmpty ? chatRoomName : '');
+    String groupName = await APIs.getChatRoomName(chatRoom);
+    Navigator.of(ctx).pop();
+    Navigator.of(ctx).push(
+      MaterialPageRoute(
+        builder: (context) => ChatScreen.group(
+          chatRoom: chatRoom,
+          groupName: groupName,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +124,7 @@ class _NewGroupChatState extends State<NewGroupChat> {
                     TextButton(
                       onPressed: _canCreate
                           ? () async {
-                              // await goToChatGroupScreen(context);
+                              await goToChatGroupScreen(context);
                             }
                           : null,
                       child: Text(

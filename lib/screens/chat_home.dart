@@ -64,12 +64,13 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                   itemCount: _listChatroom.length,
                   itemBuilder: (ctx, index) {
                     bool typeRoom = _listChatroom[index].type!;
-                     List<String> userIdLisst = _listChatroom[index].participants!.keys.toList();
+                    List<String> userIdLisst =
+                        _listChatroom[index].participants!.keys.toList();
 
-                        String userid = userIdLisst.elementAt(0);
+                    String userid = userIdLisst.elementAt(0);
 
-                        if(userid == APIs.firebaseAuth.currentUser!.uid)
-                          userid = userIdLisst.elementAt(1);
+                    if (userid == APIs.firebaseAuth.currentUser!.uid)
+                      userid = userIdLisst.elementAt(1);
                     if (typeRoom) {
                       return FutureBuilder(
                         future: APIs.getUserFormId(userid.toString()),
@@ -85,19 +86,19 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                         },
                       );
                     }
-                    // return FutureBuilder(
-                    //     future: APIs.getChatRoomName(_listChatroom[index]),
-                    //     builder: (ctx, usersnapshot) {
-                    //       if (usersnapshot.connectionState ==
-                    //           ConnectionState.done) {
-                    //         String groupName = usersnapshot.data!;
-                    //         return ChatRoomGroupChat(
-                    //           chatRoom: _listChatroom[index],
-                    //           groupName: groupName,
-                    //         );
-                    //       } else
-                    //         return Container();
-                    //     });
+                    return FutureBuilder(
+                        future: APIs.getChatRoomName(_listChatroom[index]),
+                        builder: (ctx, usersnapshot) {
+                          if (usersnapshot.connectionState ==
+                              ConnectionState.done) {
+                            String groupName = usersnapshot.data!;
+                            return ChatRoomGroupChat(
+                              chatRoom: _listChatroom[index],
+                              groupName: groupName,
+                            );
+                          } else
+                            return Container();
+                        });
                   },
                 ),
               );
