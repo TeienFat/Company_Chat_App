@@ -7,10 +7,12 @@ import 'package:company_chat_app_demo/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
 class ChatSettingScreen extends StatefulWidget {
-  const ChatSettingScreen.direct({super.key, required this.chatRoom, required this.userChat})
+  const ChatSettingScreen.direct(
+      {super.key, required this.chatRoom, required this.userChat})
       : groupName = "";
   const ChatSettingScreen.group(
-      {super.key, required this.chatRoom, required this.groupName}): this.userChat = null;
+      {super.key, required this.chatRoom, required this.groupName})
+      : this.userChat = null;
   final ChatRoom chatRoom;
   final String groupName;
   final UserChat? userChat;
@@ -40,14 +42,14 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
           ),
           TextButton(
             onPressed: () async {
-              // await APIs.leaveTheGroupChat(
-              //     widget.chatRoom, APIs.firebaseAuth.currentUser!.uid);
-              // Navigator.pop(context);
-              // Navigator.of(context).push(
-              //   MaterialPageRoute(
-              //     builder: (context) => MainScreen(),
-              //   ),
-              // );
+              await APIs.leaveTheGroupChat(
+                  widget.chatRoom, APIs.firebaseAuth.currentUser!.uid);
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => MainScreen(),
+                ),
+              );
             },
             child: Text(
               'Rời',
@@ -79,12 +81,12 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                 children: [
                   widget.chatRoom.type!
                       ? CircleAvatar(
-                        radius: 60,
+                          radius: 60,
                           backgroundImage: widget.userChat!.imageUrl!.isNotEmpty
                               ? NetworkImage(widget.userChat!.imageUrl!)
                               : AssetImage('assets/images/group.png')
                                   as ImageProvider,
-                      )
+                        )
                       : CircleAvatar(
                           radius: 60,
                           backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
@@ -97,8 +99,8 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                   ),
                   widget.chatRoom.type!
                       ? Text(
-                        widget.userChat!.username!,
-                        style: TextStyle(
+                          widget.userChat!.username!,
+                          style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
                           ),
@@ -141,9 +143,8 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   ListUserInGroup(
-                                                      listUserId: widget
-                                                          .chatRoom
-                                                          .participants!.keys.toList()),
+                                                      chatRoom:
+                                                          widget.chatRoom),
                                             ),
                                           );
                                         },
