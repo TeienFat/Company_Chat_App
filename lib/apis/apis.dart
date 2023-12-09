@@ -47,7 +47,7 @@ class APIs {
   }
 
   static Future<String> getChatroomIdWhenUserHasChatRoomDirect(
-      String currentUserid, userId) async {
+      String currentUserid, String userId) async {
     QuerySnapshot querySnapshot = await firestore.collection('chatrooms').get();
 
     String chatroomId = '';
@@ -58,8 +58,8 @@ class APIs {
         Map<String, bool> mapParticipants =
             Map<String, bool>.from(document['participants']);
         if (mapParticipants.containsKey(userId) &&
-            mapParticipants.containsKey(currentUserid)) ;
-        chatroomId = document['chatroomid'];
+            mapParticipants.containsKey(currentUserid))
+          chatroomId = document['chatroomid'];
       }
     }
     return chatroomId;
@@ -134,6 +134,30 @@ class APIs {
   static String getLastWordOfName(String name) {
     List<String> words = name.split(" ");
     return words[words.length - 1];
+  }
+
+  static Future<void> deleteChatRoom(String chatroomId) async {
+    DocumentSnapshot documentSnapshot =
+        await firestore.collection('chatrooms').doc(chatroomId).get();
+    Map<String, bool> participantsMap =
+        Map<String, bool>.from(documentSnapshot['participants']);
+
+    print(participantsMap.values);
+
+    participantsMap.update(firebaseAuth.currentUser!.uid, (value) => false);
+
+    print(participantsMap.values);
+
+    if (participantsMap.values.every((values) => values == false)) {
+      await firestore.collection('chatrooms').doc(chatroomId).delete();
+      print('đã xoá');
+    } else {
+      await firestore
+          .collection('chatrooms')
+          .doc(chatroomId)
+          .update({'participants': participantsMap});
+      print('chưa xoá được');
+    }
   }
 
   static Future<String> getChatRoomName(ChatRoom chatRoom) async {
