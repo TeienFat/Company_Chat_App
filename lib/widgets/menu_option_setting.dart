@@ -1,8 +1,6 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
-import 'package:company_chat_app_demo/screens/chat/list_user_in_group.dart';
-import 'package:company_chat_app_demo/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
 class MenuOptionSetting extends StatelessWidget {
@@ -18,8 +16,8 @@ class MenuOptionSetting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String username = APIs.getLastWordOfName(userName);
-    void _showDialog() {
-      showDialog(
+    Future<void> _showDialog(BuildContext context) async {
+      await showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Xóa $username ra khỏi nhóm?'),
@@ -38,11 +36,7 @@ class MenuOptionSetting extends StatelessWidget {
             TextButton(
               onPressed: () async {
                 await APIs.leaveTheGroupChat(chatRoom, userId);
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MainScreen(),
-                  ),
-                );
+                Navigator.pop(context);
               },
               child: Text(
                 'Xóa',
@@ -65,7 +59,10 @@ class MenuOptionSetting extends StatelessWidget {
             child: Column(
               children: [
                 InkWell(
-                  onTap: _showDialog,
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _showDialog(context);
+                  },
                   child: Container(
                     height: constraints.maxHeight / 12,
                     decoration: BoxDecoration(

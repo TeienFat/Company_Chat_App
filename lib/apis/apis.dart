@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
 
 class APIs {
   static FirebaseStorage fireStorage = FirebaseStorage.instance;
@@ -206,5 +210,32 @@ class APIs {
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
         .update({'participants': participants});
+  }
+
+  static Future<void> sendMessage(String chatRoomId, String msg) async {
+    final now = DateTime.now().millisecondsSinceEpoch.toString();
+    final messageId = uuid.v8();
+    final Message message = Message(
+        messageId: messageId,
+        fromId: firebaseAuth.currentUser!.uid,
+        msg: msg,
+        read: '',
+        sent: now);
+    await firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .doc(messageId)
+        .set(message.toMap());
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
+      ChatRoom chatRoom) {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRoom.chatroomid)
+        .collection('messages')
+        .orderBy('sent', descending: true)
+        .snapshots();
   }
 }
