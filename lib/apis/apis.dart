@@ -238,4 +238,18 @@ class APIs {
         .orderBy('sent', descending: true)
         .snapshots();
   }
+  static Future<Map<String,String>> getNameInfo() async{
+    Map<String,String> mapName = ({});
+
+    QuerySnapshot chatRoomQuerySnapshot = await firestore.collection('chatrooms').get();
+    for(QueryDocumentSnapshot room in chatRoomQuerySnapshot.docs){
+      if(room['chatroomname'] != '')
+      mapName.addAll({room['chatroomid']:room['chatroomname']});
+    }
+    QuerySnapshot userQuerySnapshot = await firestore.collection('user').get();
+    for(QueryDocumentSnapshot user in userQuerySnapshot.docs){
+      mapName.addAll({user['id']:user['username']});
+    }
+    return mapName;
+  }
 }
