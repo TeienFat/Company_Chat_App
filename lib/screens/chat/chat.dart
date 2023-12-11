@@ -6,8 +6,10 @@ import 'package:company_chat_app_demo/widgets/new_message.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  ChatScreen.group({super.key, required this.chatRoom, required this.groupName}): this.userChat = null;
-  ChatScreen.direct({super.key, required this.chatRoom, required this.userChat}) : this.groupName = "";
+  ChatScreen.group({super.key, required this.chatRoom, required this.groupName})
+      : this.userChat = null;
+  ChatScreen.direct({super.key, required this.chatRoom, required this.userChat})
+      : this.groupName = "";
   final ChatRoom chatRoom;
   final String groupName;
   final UserChat? userChat;
@@ -25,10 +27,11 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             widget.chatRoom.type!
-                ? CircleAvatar(backgroundImage: widget.userChat!.imageUrl!.isNotEmpty
+                ? CircleAvatar(
+                    backgroundImage: widget.userChat!.imageUrl!.isNotEmpty
                         ? NetworkImage(widget.userChat!.imageUrl!)
-                        : AssetImage('assets/images/user.png')
-                            as ImageProvider,)
+                        : AssetImage('assets/images/user.png') as ImageProvider,
+                  )
                 : CircleAvatar(
                     backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
                         ? NetworkImage(widget.chatRoom.imageUrl!)
@@ -40,14 +43,14 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             widget.chatRoom.type!
                 ? Container(
-                  width: 225.4,
+                    width: 225.4,
                     child: Text(
                       widget.userChat!.username!,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
-                )
+                  )
                 : Container(
                     width: 225.4,
                     child: Text(
@@ -66,9 +69,12 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => widget.chatRoom.type! 
-                    ? ChatSettingScreen.direct(chatRoom: widget.chatRoom, userChat: widget.userChat) 
-                    : ChatSettingScreen.group(chatRoom: widget.chatRoom, groupName: widget.groupName!),
+                  builder: (context) => widget.chatRoom.type!
+                      ? ChatSettingScreen.direct(
+                          chatRoom: widget.chatRoom, userChat: widget.userChat)
+                      : ChatSettingScreen.group(
+                          chatRoom: widget.chatRoom,
+                          groupName: widget.groupName!),
                 ),
               );
             },
@@ -77,7 +83,15 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       body: Column(
-        children: [Expanded(child: ChatMessage()), NewMessage()],
+        children: [
+          Expanded(
+              child: ChatMessage(
+            chatRoom: widget.chatRoom,
+          )),
+          NewMessage(
+            chatRoom: widget.chatRoom,
+          )
+        ],
       ),
     );
   }
