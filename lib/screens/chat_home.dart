@@ -14,12 +14,35 @@ class ChatHomeScreen extends StatefulWidget {
 }
 
 class _ChatHomeScreenState extends State<ChatHomeScreen> {
+  bool isSearching = false;
+
   List<ChatRoom> _listChatroom = [];
+  List<ChatRoom> _searchListChatRoom = [];
 
-  void _runFilter(String enteredKeyword) {}
 
-  int _getIndex(String id, List<String> list) {
-    return list.indexOf(id);
+  Future<void> _runFilter(String enteredKeyword) async {
+    var mapName = await APIs.getNameInfo();
+    List<String> nameList = mapName.values.toList();
+    List<String> _searchListId = [];
+    _searchListChatRoom.clear();
+    for (var name in nameList) {
+      if (name.toLowerCase().contains(enteredKeyword.toLowerCase())) {
+        var key = mapName.keys.firstWhere((value) => mapName[value] == name);
+        _searchListId.add(key);
+      }
+    }
+    for(var room in _listChatroom){
+      
+      bool isParticipant = _searchListId.any((element) => room.participants!.keys.contains(element));
+
+      if(_searchListId.contains(room.chatroomid!) || isParticipant){
+        _searchListChatRoom.add(room);
+      }
+    }
+    setState(() {
+      isSearching = true;
+      _searchListChatRoom;
+    });
   }
 
   @override
@@ -61,17 +84,51 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                   .toList();
               return Expanded(
                 child: ListView.builder(
-                  itemCount: _listChatroom.length,
+                  itemCount: isSearching ? (_searchListChatRoom.isEmpty ? 1 : _searchListChatRoom.length) : _listChatroom.length,
                   itemBuilder: (ctx, index) {
-                    bool typeRoom = _listChatroom[index].type!;
-                    List<String> userIdLisst =
-                        _listChatroom[index].participants!.keys.toList();
-
-                    String userid = userIdLisst.elementAt(0);
-
-                    if (userid == APIs.firebaseAuth.currentUser!.uid)
+                    if(isSearching){
+                      if(_searchListChatRoom.isEmpty)
+                      return Center(child: Text('Không tìm thấy đoạn chat nào'));
+                      bool typeRoom = _searchListChatRoom[index].type!;
+                      List<String> userIdLisst = _searchListChatRoom[index].participants!.keys.toList();
+                      String userid = userIdLisst.elementAt(0);
+                      if (userid == APIs.firebaseAuth.currentUser!.uid)
                       userid = userIdLisst.elementAt(1);
-                    if (typeRoom) {
+                      if (typeRoom) {
+                      return FutureBuilder(
+                        future: APIs.getUserFormId(userid.toString()),
+                        builder: (ctx, usersnapshot) {
+                          if (usersnapshot.connectionState ==
+                              ConnectionState.done) {
+                            UserChat userchat = usersnapshot.data!;
+                            return ChatRoomCard(
+                                chatRoom: _searchListChatRoom[index],
+                                userchat: userchat);
+                          } else
+                            return Container();
+                        },
+                      );
+                    }
+                    return FutureBuilder(
+                        future: APIs.getChatRoomName(_searchListChatRoom[index]),
+                        builder: (ctx, usersnapshot) {
+                          if (usersnapshot.connectionState ==
+                              ConnectionState.done) {
+                            String groupName = usersnapshot.data!;
+                            return ChatRoomGroupChat(
+                              chatRoom: _searchListChatRoom[index],
+                              groupName: groupName,
+                            );
+                          } else
+                            return Container();
+                        });
+                    }else{
+                      bool typeRoom = _listChatroom[index].type!;
+                      List<String> userIdLisst = _listChatroom[index].participants!.keys.toList();
+                      String userid = userIdLisst.elementAt(0);
+                      if (userid == APIs.firebaseAuth.currentUser!.uid)
+                      userid = userIdLisst.elementAt(1);
+                      if (typeRoom) {
                       return FutureBuilder(
                         future: APIs.getUserFormId(userid.toString()),
                         builder: (ctx, usersnapshot) {
@@ -99,6 +156,35 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                           } else
                             return Container();
                         });
+                    }        
+                    // if (typeRoom) {
+                    //   return FutureBuilder(
+                    //     future: APIs.getUserFormId(userid.toString()),
+                    //     builder: (ctx, usersnapshot) {
+                    //       if (usersnapshot.connectionState ==
+                    //           ConnectionState.done) {
+                    //         UserChat userchat = usersnapshot.data!;
+                    //         return ChatRoomCard(
+                    //             chatRoom: _listChatroom[index],
+                    //             userchat: userchat);
+                    //       } else
+                    //         return Container();
+                    //     },
+                    //   );
+                    // }
+                    // return FutureBuilder(
+                    //     future: APIs.getChatRoomName(_listChatroom[index]),
+                    //     builder: (ctx, usersnapshot) {
+                    //       if (usersnapshot.connectionState ==
+                    //           ConnectionState.done) {
+                    //         String groupName = usersnapshot.data!;
+                    //         return ChatRoomGroupChat(
+                    //           chatRoom: _listChatroom[index],
+                    //           groupName: groupName,
+                    //         );
+                    //       } else
+                    //         return Container();
+                    //     });
                   },
                 ),
               );
