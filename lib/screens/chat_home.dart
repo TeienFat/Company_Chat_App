@@ -19,7 +19,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
   List<ChatRoom> _listChatroom = [];
   List<ChatRoom> _searchListChatRoom = [];
 
-
   Future<void> _runFilter(String enteredKeyword) async {
     var mapName = await APIs.getNameInfo();
     List<String> nameList = mapName.values.toList();
@@ -31,11 +30,11 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
         _searchListId.add(key);
       }
     }
-    for(var room in _listChatroom){
-      
-      bool isParticipant = _searchListId.any((element) => room.participants!.keys.contains(element));
+    for (var room in _listChatroom) {
+      bool isParticipant = _searchListId
+          .any((element) => room.participants!.keys.contains(element));
 
-      if(_searchListId.contains(room.chatroomid!) || isParticipant){
+      if (_searchListId.contains(room.chatroomid!) || isParticipant) {
         _searchListChatRoom.add(room);
       }
     }
@@ -79,84 +78,95 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                 );
               }
               final data = chatroomSnapshot.data!.docs;
+
               _listChatroom = data
                   .map<ChatRoom>((e) => ChatRoom.fromMap(e.data()))
                   .toList();
               return Expanded(
                 child: ListView.builder(
-                  itemCount: isSearching ? (_searchListChatRoom.isEmpty ? 1 : _searchListChatRoom.length) : _listChatroom.length,
+                  itemCount: isSearching
+                      ? (_searchListChatRoom.isEmpty
+                          ? 1
+                          : _searchListChatRoom.length)
+                      : _listChatroom.length,
                   itemBuilder: (ctx, index) {
-                    if(isSearching){
-                      if(_searchListChatRoom.isEmpty)
-                      return Center(child: Text('Không tìm thấy đoạn chat nào'));
+                    if (isSearching) {
+                      if (_searchListChatRoom.isEmpty)
+                        return Center(
+                            child: Text('Không tìm thấy đoạn chat nào'));
                       bool typeRoom = _searchListChatRoom[index].type!;
-                      List<String> userIdLisst = _searchListChatRoom[index].participants!.keys.toList();
+                      List<String> userIdLisst = _searchListChatRoom[index]
+                          .participants!
+                          .keys
+                          .toList();
                       String userid = userIdLisst.elementAt(0);
                       if (userid == APIs.firebaseAuth.currentUser!.uid)
-                      userid = userIdLisst.elementAt(1);
+                        userid = userIdLisst.elementAt(1);
                       if (typeRoom) {
+                        return FutureBuilder(
+                          future: APIs.getUserFormId(userid.toString()),
+                          builder: (ctx, usersnapshot) {
+                            if (usersnapshot.connectionState ==
+                                ConnectionState.done) {
+                              UserChat userchat = usersnapshot.data!;
+                              return ChatRoomCard(
+                                  chatRoom: _searchListChatRoom[index],
+                                  userchat: userchat);
+                            } else
+                              return Container();
+                          },
+                        );
+                      }
                       return FutureBuilder(
-                        future: APIs.getUserFormId(userid.toString()),
-                        builder: (ctx, usersnapshot) {
-                          if (usersnapshot.connectionState ==
-                              ConnectionState.done) {
-                            UserChat userchat = usersnapshot.data!;
-                            return ChatRoomCard(
+                          future:
+                              APIs.getChatRoomName(_searchListChatRoom[index]),
+                          builder: (ctx, usersnapshot) {
+                            if (usersnapshot.connectionState ==
+                                ConnectionState.done) {
+                              String groupName = usersnapshot.data!;
+                              return ChatRoomGroupChat(
                                 chatRoom: _searchListChatRoom[index],
-                                userchat: userchat);
-                          } else
-                            return Container();
-                        },
-                      );
-                    }
-                    return FutureBuilder(
-                        future: APIs.getChatRoomName(_searchListChatRoom[index]),
-                        builder: (ctx, usersnapshot) {
-                          if (usersnapshot.connectionState ==
-                              ConnectionState.done) {
-                            String groupName = usersnapshot.data!;
-                            return ChatRoomGroupChat(
-                              chatRoom: _searchListChatRoom[index],
-                              groupName: groupName,
-                            );
-                          } else
-                            return Container();
-                        });
-                    }else{
+                                groupName: groupName,
+                              );
+                            } else
+                              return Container();
+                          });
+                    } else {
                       bool typeRoom = _listChatroom[index].type!;
-                      List<String> userIdLisst = _listChatroom[index].participants!.keys.toList();
+                      List<String> userIdLisst =
+                          _listChatroom[index].participants!.keys.toList();
                       String userid = userIdLisst.elementAt(0);
                       if (userid == APIs.firebaseAuth.currentUser!.uid)
-                      userid = userIdLisst.elementAt(1);
+                        userid = userIdLisst.elementAt(1);
                       if (typeRoom) {
+                        return FutureBuilder(
+                          future: APIs.getUserFormId(userid.toString()),
+                          builder: (ctx, usersnapshot) {
+                            if (usersnapshot.connectionState ==
+                                ConnectionState.done) {
+                              UserChat userchat = usersnapshot.data!;
+                              return ChatRoomCard(
+                                  chatRoom: _listChatroom[index],
+                                  userchat: userchat);
+                            } else
+                              return Container();
+                          },
+                        );
+                      }
                       return FutureBuilder(
-                        future: APIs.getUserFormId(userid.toString()),
-                        builder: (ctx, usersnapshot) {
-                          if (usersnapshot.connectionState ==
-                              ConnectionState.done) {
-                            UserChat userchat = usersnapshot.data!;
-                            return ChatRoomCard(
+                          future: APIs.getChatRoomName(_listChatroom[index]),
+                          builder: (ctx, usersnapshot) {
+                            if (usersnapshot.connectionState ==
+                                ConnectionState.done) {
+                              String groupName = usersnapshot.data!;
+                              return ChatRoomGroupChat(
                                 chatRoom: _listChatroom[index],
-                                userchat: userchat);
-                          } else
-                            return Container();
-                        },
-                      );
+                                groupName: groupName,
+                              );
+                            } else
+                              return Container();
+                          });
                     }
-                    return FutureBuilder(
-                        future: APIs.getChatRoomName(_listChatroom[index]),
-                        builder: (ctx, usersnapshot) {
-                          if (usersnapshot.connectionState ==
-                              ConnectionState.done) {
-                            String groupName = usersnapshot.data!;
-                            return ChatRoomGroupChat(
-                              chatRoom: _listChatroom[index],
-                              groupName: groupName,
-                            );
-                          } else
-                            return Container();
-                        });
-                    }        
                     // if (typeRoom) {
                     //   return FutureBuilder(
                     //     future: APIs.getUserFormId(userid.toString()),
