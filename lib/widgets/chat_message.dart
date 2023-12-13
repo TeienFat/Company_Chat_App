@@ -1,20 +1,25 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/message_model.dart';
+import 'package:company_chat_app_demo/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessage extends StatefulWidget {
   const ChatMessage({super.key, required this.chatRoom});
   final ChatRoom chatRoom;
+  //final UserChat userchat;
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }
 
 class _ChatMessageState extends State<ChatMessage> {
+  List<Message> listMessage = [];
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: APIs.getAllMessages(widget.chatRoom),
+      stream: APIs.getAllMessages(widget.chatRoom.chatroomid!),
       builder: (context, messageSnapshot) {
         if (messageSnapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -52,7 +57,8 @@ class _ChatMessageState extends State<ChatMessage> {
             ),
           );
         }
-        final loadedMessages = messageSnapshot.data!.docs;
+        final data = messageSnapshot.data!.docs;
+        listMessage = data.map((e) => Message.fromMap(e.data())).toList();
         return ListView.builder(
             padding: const EdgeInsets.only(
               bottom: 40,
@@ -60,10 +66,28 @@ class _ChatMessageState extends State<ChatMessage> {
               right: 13,
             ),
             reverse: true,
-            itemCount: loadedMessages.length,
+            itemCount: listMessage.length,
             itemBuilder: (context, index) {
-              final chatMessage = loadedMessages[index].data();
-              return Text(chatMessage['msg']);
+              final chatMessage = listMessage[index];
+              final nextChatMessage = index + 1 < listMessage.length 
+                  ? listMessage[index + 1]
+                  : null;
+              final currentMessageUserId = chatMessage.fromId;
+              final nextMessageUserId = nextChatMessage != null 
+                  ? nextChatMessage.fromId
+                  : null;
+              final nextUserIsSame = nextMessageUserId == currentMessageUserId;
+              if(currentMessageUserId == APIs.firebaseAuth.currentUser!.uid || nextUserIsSame){
+                return MessageBubble.second(
+                      text: chatMessage.msg!,
+                      isMe: APIs.firebaseAuth.currentUser!.uid == currentMessageUserId);
+              }else{
+                return MessageBubble.first(
+                      userName: chatMessage.userName,
+                      userImage: chatMessage.userImage!,
+                      text: chatMessage.msg!,
+                      isMe: APIs.firebaseAuth.currentUser!.uid == currentMessageUserId);
+              }
             });
       },
     );

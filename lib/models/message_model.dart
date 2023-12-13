@@ -2,26 +2,29 @@ class Message {
   String? messageId;
   String? fromId;
   String? msg;
-  // String? createAt;
   String? read;
   String? sent;
+  String? userName;
+  String? userImage;
 
   Message({
     required this.messageId,
     required this.fromId,
     required this.msg,
-    // required this.createAt,
     required this.read,
     required this.sent,
+    required this.userName,
+    required this.userImage
   });
 
   Message.fromMap(Map<String, dynamic> map) {
     messageId = map['messageId'];
     fromId = map['fromId'];
     msg = map['msg'];
-    // createAt = map['createAt'];
     read = map['read'];
     sent = map['sent'];
+    userName = map['userName'];
+    userImage = map['userImage'];
   }
 
   Map<String, dynamic> toMap() {
@@ -29,9 +32,10 @@ class Message {
       'messageId': messageId,
       'fromId': fromId,
       'msg': msg,
-      // 'createAt': createAt,
       'read': read,
-      'sent': sent
+      'sent': sent,
+      'userName': userName,
+      'userImage': userImage,
     });
   }
 }
