@@ -215,12 +215,19 @@ class APIs {
   static Future<void> sendMessage(String chatRoomId, String msg) async {
     final now = DateTime.now().millisecondsSinceEpoch.toString();
     final messageId = uuid.v8();
+    final userData = await FirebaseFirestore.instance
+    .collection('user')
+    .doc(firebaseAuth.currentUser!.uid)
+    .get();
     final Message message = Message(
         messageId: messageId,
         fromId: firebaseAuth.currentUser!.uid,
         msg: msg,
         read: '',
-        sent: now);
+        sent: now,
+        userName: userData.data()!['username'],
+        userImage: userData.data()!['imageUrl'],
+        );
     await firestore
         .collection('chatrooms')
         .doc(chatRoomId)
@@ -230,10 +237,10 @@ class APIs {
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
-      ChatRoom chatRoom) {
+      String chatRoomId) {
     return firestore
         .collection('chatrooms')
-        .doc(chatRoom.chatroomid)
+        .doc(chatRoomId)
         .collection('messages')
         .orderBy('sent', descending: true)
         .snapshots();
