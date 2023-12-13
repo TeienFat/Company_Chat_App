@@ -2,23 +2,25 @@ class ChatRoom {
   String? chatroomid;
   String? chatroomname;
   String? imageUrl;
-  Map<String,bool>? participants;
+  Map<String, bool>? participants;
   bool? type;
+  Map<String, String>? isRequests;
 
-  ChatRoom({
-    required this.chatroomid,
-    required this.chatroomname,
-    required this.imageUrl,
-    required this.participants,
-    required this.type,
-  });
-  
-  ChatRoom.fromMap(Map<String,dynamic> map){
+  ChatRoom(
+      {required this.chatroomid,
+      required this.chatroomname,
+      required this.imageUrl,
+      required this.participants,
+      required this.type,
+      this.isRequests});
+
+  ChatRoom.fromMap(Map<String, dynamic> map) {
     chatroomid = map['chatroomid'];
     chatroomname = map['chatroomname'];
     imageUrl = map['imageUrl'];
-    participants = Map<String,bool>.from(map['participants']);
+    participants = Map<String, bool>.from(map['participants']);
     type = map['type'];
+    isRequests = Map<String, String>.from(map['isRequests']);
   }
 
   Map<String, dynamic> toMap() {
@@ -28,6 +30,7 @@ class ChatRoom {
       'imageUrl': imageUrl,
       'participants': participants,
       'type': type,
+      'isRequests': isRequests,
     });
   }
 }
