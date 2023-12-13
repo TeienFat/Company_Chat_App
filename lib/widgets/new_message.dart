@@ -22,7 +22,7 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
-    APIs.sendMessage(widget.chatRoom, enteredMessage);
+    APIs.sendMessage(widget.chatRoom.chatroomid!, enteredMessage);
   }
 
   @override

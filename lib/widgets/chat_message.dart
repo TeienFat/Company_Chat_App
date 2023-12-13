@@ -25,25 +25,23 @@ class _ChatMessageState extends State<ChatMessage> {
         if (!messageSnapshot.hasData || messageSnapshot.data!.docs.isEmpty) {
           return Center(
             heightFactor: 10,
-            child: widget.chatRoom.isRequests == null
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.waving_hand_rounded,
-                        color: kColorScheme.primary,
-                        size: 100,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Say Hi!',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ],
-                  )
-                : SizedBox(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.waving_hand_rounded,
+                  color: kColorScheme.primary,
+                  size: 100,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  'Say Hi!',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
           );
         }
         if (messageSnapshot.hasError) {
