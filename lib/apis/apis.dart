@@ -310,7 +310,7 @@ class APIs {
     List<Message> listMessage =  querySnapshot.docs.map((e) => Message.fromMap(e.data() as Map<String,dynamic>)).toList();
     List<Message> listSearchMessage = [];
     for(Message message in listMessage){
-      if(message.msg!.contains(_enteredWord)){
+      if(message.msg!.toLowerCase().contains(_enteredWord.toLowerCase())){
         listSearchMessage.add(message);
       }
     }
