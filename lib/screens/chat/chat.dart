@@ -67,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text(
                       widget.chatRoom.chatroomname!.isNotEmpty
                           ? widget.chatRoom.chatroomname!
-                          : widget.groupName!,
+                          : widget.groupName,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
@@ -85,7 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           chatRoom: widget.chatRoom, userChat: widget.userChat)
                       : ChatSettingScreen.group(
                           chatRoom: widget.chatRoom,
-                          groupName: widget.groupName!),
+                          groupName: widget.groupName),
                 ),
               );
             },

@@ -300,4 +300,20 @@ class APIs {
         .doc(chatRoomId)
         .update({'isRequests': ({})});
   }
+  static Future<List<Message>> getSearchMessage (String _enteredWord, String chatRoomId) async{
+    QuerySnapshot querySnapshot = await firestore
+      .collection('chatrooms')
+      .doc(chatRoomId)
+      .collection('messages')
+      .get();
+
+    List<Message> listMessage =  querySnapshot.docs.map((e) => Message.fromMap(e.data() as Map<String,dynamic>)).toList();
+    List<Message> listSearchMessage = [];
+    for(Message message in listMessage){
+      if(message.msg!.contains(_enteredWord)){
+        listSearchMessage.add(message);
+      }
+    }
+    return listSearchMessage;
+  }
 }
