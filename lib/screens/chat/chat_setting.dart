@@ -3,6 +3,7 @@ import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/list_user_in_group.dart';
+import 'package:company_chat_app_demo/screens/chat/search_message.dart';
 import 'package:company_chat_app_demo/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,7 @@ class ChatSettingScreen extends StatefulWidget {
 }
 
 class _ChatSettingScreenState extends State<ChatSettingScreen> {
+
   void _showDialog() {
     showDialog(
       context: context,
@@ -116,7 +118,33 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                     height: 50,
                   ),
                   widget.chatRoom.type!
-                      ? Column()
+                      ? Column(
+                          children: [
+                            InkWell(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5)),
+                              onTap:(){
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => SearchMessageScreen(chatroom: widget.chatRoom,)));
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 55,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Tìm kiếm trong cuộc trò chuyện',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Icon(Icons.search)
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        )
                       : Column(
                           children: [
                             Text(
