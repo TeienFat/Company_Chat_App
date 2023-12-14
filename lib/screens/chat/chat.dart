@@ -1,8 +1,10 @@
+import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat_setting.dart';
 import 'package:company_chat_app_demo/widgets/chat_message.dart';
 import 'package:company_chat_app_demo/widgets/new_message.dart';
+import 'package:company_chat_app_demo/widgets/requests_message.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -20,6 +22,15 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   bool isSearching = false;
+  late bool isRequests = widget.chatRoom.type! &&
+      widget.chatRoom.isRequests! != ({}) &&
+      widget.chatRoom.isRequests!['to'] == APIs.firebaseAuth.currentUser!.uid;
+  void reLoad(bool onTap) {
+    setState(() {
+      isRequests = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,12 +96,19 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-              child: ChatMessage(
-            chatRoom: widget.chatRoom,
-          )),
-          NewMessage(
-            chatRoom: widget.chatRoom,
-          )
+            child: ChatMessage(
+              chatRoom: widget.chatRoom,
+            ),
+          ),
+          isRequests
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 30.0),
+                  child: RequestsMessage(
+                      userChat: widget.userChat!,
+                      chatRoomId: widget.chatRoom.chatroomid!,
+                      reLoad: reLoad),
+                )
+              : NewMessage(chatRoom: widget.chatRoom),
         ],
       ),
     );
