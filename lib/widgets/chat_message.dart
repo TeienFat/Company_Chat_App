@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 class ChatMessage extends StatefulWidget {
   const ChatMessage({super.key, required this.chatRoom});
   final ChatRoom chatRoom;
-  //final UserChat userchat;
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }

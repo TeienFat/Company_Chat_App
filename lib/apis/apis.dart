@@ -212,7 +212,8 @@ class APIs {
         chatroomname: chatRoomName,
         imageUrl: '',
         participants: participantsId,
-        type: false);
+        type: false,
+        isRequests: ({}));
     await firestore
         .collection('chatrooms')
         .doc(chatRoomId)

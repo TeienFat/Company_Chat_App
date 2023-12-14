@@ -22,7 +22,7 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
-    APIs.sendMessage(widget.chatRoom, enteredMessage);
+    APIs.sendMessage(widget.chatRoom, enteredMessage.trim());
   }
 
   @override
@@ -71,6 +71,8 @@ class _NewMessageState extends State<NewMessage> {
                 ),
           Expanded(
             child: TextField(
+              maxLines: null,
+              maxLength: 1000,
               controller: _messageController,
               style: TextStyle(fontSize: 18),
               textCapitalization: TextCapitalization.sentences,
@@ -86,8 +88,12 @@ class _NewMessageState extends State<NewMessage> {
                   _isTyping = true;
                 });
               },
+              onTapOutside: (event) {
+                FocusScope.of(context).unfocus();
+              },
               decoration: InputDecoration(
                 filled: true,
+                counterText: '',
                 fillColor: kColorScheme.surfaceVariant,
                 hintStyle: TextStyle(color: Colors.grey),
                 hintText: "Aa",
