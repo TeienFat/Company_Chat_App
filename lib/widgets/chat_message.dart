@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 class ChatMessage extends StatefulWidget {
   const ChatMessage({super.key, required this.chatRoom});
   final ChatRoom chatRoom;
-  //final UserChat userchat;
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }
@@ -61,38 +60,102 @@ class _ChatMessageState extends State<ChatMessage> {
         }
         final data = messageSnapshot.data!.docs;
         listMessage = data.map((e) => Message.fromMap(e.data())).toList();
+
         return ListView.builder(
-            padding: const EdgeInsets.only(
-              bottom: 40,
-              left: 13,
-              right: 13,
-            ),
-            reverse: true,
-            itemCount: listMessage.length,
-            itemBuilder: (context, index) {
-              final chatMessage = listMessage[index];
-              final nextChatMessage = index + 1 < listMessage.length
-                  ? listMessage[index + 1]
-                  : null;
-              final currentMessageUserId = chatMessage.fromId;
-              final nextMessageUserId =
-                  nextChatMessage != null ? nextChatMessage.fromId : null;
-              final nextUserIsSame = nextMessageUserId == currentMessageUserId;
-              if (currentMessageUserId == APIs.firebaseAuth.currentUser!.uid ||
-                  nextUserIsSame) {
-                return MessageBubble.second(
-                    text: chatMessage.msg!,
-                    isMe: APIs.firebaseAuth.currentUser!.uid ==
-                        currentMessageUserId);
-              } else {
-                return MessageBubble.first(
-                    userName: chatMessage.userName,
-                    userImage: chatMessage.userImage!,
-                    text: chatMessage.msg!,
-                    isMe: APIs.firebaseAuth.currentUser!.uid ==
-                        currentMessageUserId);
-              }
-            });
+          padding: const EdgeInsets.only(
+            bottom: 40,
+            left: 13,
+            right: 13,
+          ),
+          reverse: true,
+          itemCount: listMessage.length,
+          itemBuilder: (context, index) {
+            final chatMessage = listMessage[index];
+            final nextChatMessage =
+                index + 1 < listMessage.length ? listMessage[index + 1] : null;
+            final prevChatMessage =
+                index - 1 >= 0 ? listMessage[index - 1] : null;
+            final currentMessageUserId = chatMessage.fromId;
+            final nextMessageUserId =
+                nextChatMessage != null ? nextChatMessage.fromId : null;
+            final prevMessageUserId =
+                prevChatMessage != null ? prevChatMessage.fromId : null;
+            final nextUserIsSame = nextMessageUserId == currentMessageUserId;
+            final prevUserIsSame = prevMessageUserId == currentMessageUserId;
+
+            if (APIs.firebaseAuth.currentUser!.uid == currentMessageUserId &&
+                prevChatMessage != null &&
+                prevChatMessage.read == '') {
+              return MessageBubble.second(
+                message: chatMessage,
+                chatRoomId: widget.chatRoom.chatroomid!,
+                isMe: true,
+                isLastInSequence: false,
+                isLastMessage: true,
+                typeChat: widget.chatRoom.type!,
+              );
+            }
+
+            if (prevChatMessage == null &&
+                APIs.firebaseAuth.currentUser!.uid == currentMessageUserId) {
+              return MessageBubble.second(
+                message: chatMessage,
+                chatRoomId: widget.chatRoom.chatroomid!,
+                isMe: true,
+                isLastInSequence: true,
+                isLastMessage: true,
+                typeChat: widget.chatRoom.type!,
+              );
+            }
+            if (!prevUserIsSame &&
+                !nextUserIsSame &&
+                currentMessageUserId != APIs.firebaseAuth.currentUser!.uid) {
+              return MessageBubble.first(
+                message: chatMessage,
+                chatRoomId: widget.chatRoom.chatroomid!,
+                isMe:
+                    APIs.firebaseAuth.currentUser!.uid == currentMessageUserId,
+                isLastInSequence: true,
+                isLastMessage: false,
+                typeChat: widget.chatRoom.type!,
+              );
+            }
+
+            if (!prevUserIsSame) {
+              return MessageBubble.second(
+                message: chatMessage,
+                chatRoomId: widget.chatRoom.chatroomid!,
+                isMe:
+                    APIs.firebaseAuth.currentUser!.uid == currentMessageUserId,
+                isLastInSequence: true,
+                isLastMessage: false,
+                typeChat: widget.chatRoom.type!,
+              );
+            }
+
+            if (currentMessageUserId == APIs.firebaseAuth.currentUser!.uid ||
+                nextUserIsSame) {
+              return MessageBubble.second(
+                message: chatMessage,
+                chatRoomId: widget.chatRoom.chatroomid!,
+                isMe:
+                    APIs.firebaseAuth.currentUser!.uid == currentMessageUserId,
+                isLastInSequence: false,
+                isLastMessage: false,
+                typeChat: widget.chatRoom.type!,
+              );
+            } else
+              return MessageBubble.first(
+                message: chatMessage,
+                chatRoomId: widget.chatRoom.chatroomid!,
+                isMe:
+                    APIs.firebaseAuth.currentUser!.uid == currentMessageUserId,
+                isLastInSequence: false,
+                isLastMessage: false,
+                typeChat: widget.chatRoom.type!,
+              );
+          },
+        );
       },
     );
   }

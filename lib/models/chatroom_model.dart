@@ -12,7 +12,7 @@ class ChatRoom {
       required this.imageUrl,
       required this.participants,
       required this.type,
-      this.isRequests});
+      required this.isRequests});
 
   ChatRoom.fromMap(Map<String, dynamic> map) {
     chatroomid = map['chatroomid'];

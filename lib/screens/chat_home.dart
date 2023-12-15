@@ -92,6 +92,9 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
               _listChatroom = data
                   .map<ChatRoom>((e) => ChatRoom.fromMap(e.data()))
                   .toList();
+              // _listChatroom.sort(
+              //   (a, b) => a.chatroomname!.compareTo(b.chatroomname!),
+              // );
               return Expanded(
                 child: ListView.builder(
                   itemCount: isSearching
@@ -116,15 +119,16 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                         return StreamBuilder(
                           stream: APIs.getInfoUser(userid.toString()),
                           builder: (ctx, usersnapshot) {
-                            if(usersnapshot.hasData){
+                            if (usersnapshot.hasData) {
                               final data = usersnapshot.data!.docs;
-                            final list = data
-                                .map((e) => UserChat.fromMap(e.data()))
-                                .toList();
-                            return ChatRoomCard.direct(
+                              final list = data
+                                  .map((e) => UserChat.fromMap(e.data()))
+                                  .toList();
+                              return ChatRoomCard.direct(
                                   chatRoom: _searchListChatRoom[index],
                                   userchat: list[0]);
-                            } else return Container();
+                            } else
+                              return Container();
                           },
                         );
                       }
@@ -153,15 +157,16 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                         return StreamBuilder(
                           stream: APIs.getInfoUser(userid.toString()),
                           builder: (ctx, usersnapshot) {
-                            if(usersnapshot.hasData){
+                            if (usersnapshot.hasData) {
                               final data = usersnapshot.data!.docs;
-                            final list = data
-                                .map((e) => UserChat.fromMap(e.data()))
-                                .toList();
-                            return ChatRoomCard.direct(
+                              final list = data
+                                  .map((e) => UserChat.fromMap(e.data()))
+                                  .toList();
+                              return ChatRoomCard.direct(
                                   chatRoom: _listChatroom[index],
                                   userchat: list[0]);
-                            } else return Container();
+                            } else
+                              return Container();
                           },
                         );
                       }
