@@ -319,4 +319,8 @@ class APIs {
   static Future<void> updateStatus (bool isOnline) async{
     await firestore.collection('user').doc(firebaseAuth.currentUser!.uid).update({'isOnline' : isOnline});
   }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>>  getInfoUser(String userId) {
+    return firestore.collection('user').where('id', isEqualTo: userId).snapshots();
+  }
 }
