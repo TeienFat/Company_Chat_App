@@ -316,4 +316,7 @@ class APIs {
     }
     return listSearchMessage;
   }
+  static Future<void> updateStatus (bool isOnline) async{
+    await firestore.collection('user').doc(firebaseAuth.currentUser!.uid).update({'isOnline' : isOnline});
+  }
 }
