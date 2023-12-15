@@ -3,7 +3,6 @@ import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/widgets/chatroom_card.dart';
-import 'package:company_chat_app_demo/widgets/chatroom_group_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -122,7 +121,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                             final list = data
                                 .map((e) => UserChat.fromMap(e.data()))
                                 .toList();
-                            return ChatRoomCard(
+                            return ChatRoomCard.direct(
                                   chatRoom: _searchListChatRoom[index],
                                   userchat: list[0]);
                             } else return Container();
@@ -136,7 +135,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                             if (chatroomnamesnapshot.connectionState ==
                                 ConnectionState.done) {
                               String groupName = chatroomnamesnapshot.data!;
-                              return ChatRoomGroupChat(
+                              return ChatRoomCard.group(
                                 chatRoom: _searchListChatRoom[index],
                                 groupName: groupName,
                               );
@@ -159,7 +158,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                             final list = data
                                 .map((e) => UserChat.fromMap(e.data()))
                                 .toList();
-                            return ChatRoomCard(
+                            return ChatRoomCard.direct(
                                   chatRoom: _listChatroom[index],
                                   userchat: list[0]);
                             } else return Container();
@@ -172,7 +171,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                             if (chatroomnamesnapshot.connectionState ==
                                 ConnectionState.done) {
                               String groupName = chatroomnamesnapshot.data!;
-                              return ChatRoomGroupChat(
+                              return ChatRoomCard.group(
                                 chatRoom: _listChatroom[index],
                                 groupName: groupName,
                               );
