@@ -269,6 +269,18 @@ class APIs {
         .set(message.toMap());
   }
 
+  static Future<void> updateMessageReadStatus(
+      String chatRoomId, String messageId) async {
+    final now = DateTime.now().millisecondsSinceEpoch.toString();
+
+    firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection("messages")
+        .doc(messageId)
+        .update({'read': now});
+  }
+
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
       String chatRoomId) {
     return firestore
@@ -301,17 +313,21 @@ class APIs {
         .doc(chatRoomId)
         .update({'isRequests': ({})});
   }
-  static Future<List<Message>> getSearchMessage (String _enteredWord, String chatRoomId) async{
-    QuerySnapshot querySnapshot = await firestore
-      .collection('chatrooms')
-      .doc(chatRoomId)
-      .collection('messages')
-      .get();
 
-    List<Message> listMessage =  querySnapshot.docs.map((e) => Message.fromMap(e.data() as Map<String,dynamic>)).toList();
+  static Future<List<Message>> getSearchMessage(
+      String _enteredWord, String chatRoomId) async {
+    QuerySnapshot querySnapshot = await firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .get();
+
+    List<Message> listMessage = querySnapshot.docs
+        .map((e) => Message.fromMap(e.data() as Map<String, dynamic>))
+        .toList();
     List<Message> listSearchMessage = [];
-    for(Message message in listMessage){
-      if(message.msg!.contains(_enteredWord)){
+    for (Message message in listMessage) {
+      if (message.msg!.contains(_enteredWord)) {
         listSearchMessage.add(message);
       }
     }

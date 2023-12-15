@@ -72,7 +72,8 @@ class _NewMessageState extends State<NewMessage> {
           Expanded(
             child: TextField(
               maxLines: null,
-              maxLength: 1000,
+              textInputAction: TextInputAction.newline,
+              maxLength: 2000,
               controller: _messageController,
               style: TextStyle(fontSize: 18),
               textCapitalization: TextCapitalization.sentences,
