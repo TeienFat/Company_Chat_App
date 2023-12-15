@@ -327,10 +327,25 @@ class APIs {
         .toList();
     List<Message> listSearchMessage = [];
     for (Message message in listMessage) {
-      if (message.msg!.contains(_enteredWord)) {
+      if (message.msg!.toLowerCase().contains(_enteredWord.toLowerCase())) {
         listSearchMessage.add(message);
       }
     }
     return listSearchMessage;
+  }
+
+  static Future<void> updateStatus(bool isOnline) async {
+    await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update({'isOnline': isOnline});
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getInfoUser(
+      String userId) {
+    return firestore
+        .collection('user')
+        .where('id', isEqualTo: userId)
+        .snapshots();
   }
 }

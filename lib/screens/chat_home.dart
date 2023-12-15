@@ -3,8 +3,8 @@ import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/widgets/chatroom_card.dart';
-import 'package:company_chat_app_demo/widgets/chatroom_group_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChatHomeScreen extends StatefulWidget {
   const ChatHomeScreen({super.key});
@@ -41,6 +41,17 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
     setState(() {
       isSearching = true;
       _searchListChatRoom;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      if (message.toString().contains('pause')) APIs.updateStatus(false);
+      if (message.toString().contains('resume')) APIs.updateStatus(true);
+      return Future.value(message);
     });
   }
 
@@ -105,15 +116,17 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                       if (userid == APIs.firebaseAuth.currentUser!.uid)
                         userid = userIdLisst.elementAt(1);
                       if (typeRoom) {
-                        return FutureBuilder(
-                          future: APIs.getUserFormId(userid.toString()),
+                        return StreamBuilder(
+                          stream: APIs.getInfoUser(userid.toString()),
                           builder: (ctx, usersnapshot) {
-                            if (usersnapshot.connectionState ==
-                                ConnectionState.done) {
-                              UserChat userchat = usersnapshot.data!;
-                              return ChatRoomCard(
+                            if (usersnapshot.hasData) {
+                              final data = usersnapshot.data!.docs;
+                              final list = data
+                                  .map((e) => UserChat.fromMap(e.data()))
+                                  .toList();
+                              return ChatRoomCard.direct(
                                   chatRoom: _searchListChatRoom[index],
-                                  userchat: userchat);
+                                  userchat: list[0]);
                             } else
                               return Container();
                           },
@@ -122,11 +135,11 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                       return FutureBuilder(
                           future:
                               APIs.getChatRoomName(_searchListChatRoom[index]),
-                          builder: (ctx, usersnapshot) {
-                            if (usersnapshot.connectionState ==
+                          builder: (ctx, chatroomnamesnapshot) {
+                            if (chatroomnamesnapshot.connectionState ==
                                 ConnectionState.done) {
-                              String groupName = usersnapshot.data!;
-                              return ChatRoomGroupChat(
+                              String groupName = chatroomnamesnapshot.data!;
+                              return ChatRoomCard.group(
                                 chatRoom: _searchListChatRoom[index],
                                 groupName: groupName,
                               );
@@ -141,15 +154,17 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                       if (userid == APIs.firebaseAuth.currentUser!.uid)
                         userid = userIdLisst.elementAt(1);
                       if (typeRoom) {
-                        return FutureBuilder(
-                          future: APIs.getUserFormId(userid.toString()),
+                        return StreamBuilder(
+                          stream: APIs.getInfoUser(userid.toString()),
                           builder: (ctx, usersnapshot) {
-                            if (usersnapshot.connectionState ==
-                                ConnectionState.done) {
-                              UserChat userchat = usersnapshot.data!;
-                              return ChatRoomCard(
+                            if (usersnapshot.hasData) {
+                              final data = usersnapshot.data!.docs;
+                              final list = data
+                                  .map((e) => UserChat.fromMap(e.data()))
+                                  .toList();
+                              return ChatRoomCard.direct(
                                   chatRoom: _listChatroom[index],
-                                  userchat: userchat);
+                                  userchat: list[0]);
                             } else
                               return Container();
                           },
@@ -157,11 +172,11 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                       }
                       return FutureBuilder(
                           future: APIs.getChatRoomName(_listChatroom[index]),
-                          builder: (ctx, usersnapshot) {
-                            if (usersnapshot.connectionState ==
+                          builder: (ctx, chatroomnamesnapshot) {
+                            if (chatroomnamesnapshot.connectionState ==
                                 ConnectionState.done) {
-                              String groupName = usersnapshot.data!;
-                              return ChatRoomGroupChat(
+                              String groupName = chatroomnamesnapshot.data!;
+                              return ChatRoomCard.group(
                                 chatRoom: _listChatroom[index],
                                 groupName: groupName,
                               );
@@ -169,34 +184,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                               return Container();
                           });
                     }
-                    // if (typeRoom) {
-                    //   return FutureBuilder(
-                    //     future: APIs.getUserFormId(userid.toString()),
-                    //     builder: (ctx, usersnapshot) {
-                    //       if (usersnapshot.connectionState ==
-                    //           ConnectionState.done) {
-                    //         UserChat userchat = usersnapshot.data!;
-                    //         return ChatRoomCard(
-                    //             chatRoom: _listChatroom[index],
-                    //             userchat: userchat);
-                    //       } else
-                    //         return Container();
-                    //     },
-                    //   );
-                    // }
-                    // return FutureBuilder(
-                    //     future: APIs.getChatRoomName(_listChatroom[index]),
-                    //     builder: (ctx, usersnapshot) {
-                    //       if (usersnapshot.connectionState ==
-                    //           ConnectionState.done) {
-                    //         String groupName = usersnapshot.data!;
-                    //         return ChatRoomGroupChat(
-                    //           chatRoom: _listChatroom[index],
-                    //           groupName: groupName,
-                    //         );
-                    //       } else
-                    //         return Container();
-                    //     });
                   },
                 ),
               );

@@ -70,7 +70,7 @@ class _SearchMessageScreenState extends State<SearchMessageScreen> {
                         radius: 25,
                         backgroundImage: listMessage[index].userImage!.isNotEmpty
                           ? NetworkImage(listMessage[index].userImage!)
-                          : AssetImage('assets/images/group.png') as ImageProvider,
+                          : AssetImage('assets/images/user.png') as ImageProvider,
                       ),
                       SizedBox(width: 12,),
                       Column(
