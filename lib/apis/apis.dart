@@ -23,6 +23,10 @@ class APIs {
         .snapshots();
   }
 
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers() {
+    return firestore.collection('user').snapshots();
+  }
+
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllChatroom() {
     return firestore
         .collection('chatrooms')
@@ -133,6 +137,11 @@ class APIs {
     userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
 
     return userchat;
+  }
+
+  static Future<void> updateUserFormId(UserChat userChat) async {
+    DocumentReference? documentReference;
+    await documentReference!.update(userChat.toMap());
   }
 
   static Future<bool> checkCurrentUserHasDeletedChatRoom(

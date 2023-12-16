@@ -1,6 +1,7 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/screens/profile_of_others.dart';
 import 'package:flutter/material.dart';
 
 class MenuOptionSetting extends StatelessWidget {
@@ -82,7 +83,10 @@ class MenuOptionSetting extends StatelessWidget {
                 ),
                 InkWell(
                   onTap: () {
-                    // Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileOfOthersScreen()));
                   },
                   child: Container(
                     height: constraints.maxHeight / 12,
