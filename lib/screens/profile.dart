@@ -1,6 +1,11 @@
+import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
+import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/update_user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,136 +15,83 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  void capNhatThongTin() {
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) => UpdateUser(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      child: Center(
-        child: Column(
-          children: [
-            Padding(padding: EdgeInsets.all(20)),
-            Image.asset(
-              'assets/images/user.png',
-              height: 100,
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Vũ Lê Hoàng Nam',
-              style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 15,
-                ),
-                Text(
-                  'Thông tin cá nhân',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 15,
-                ),
-                Text(
-                  'Điện thoại : 0935767192',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 15,
-                ),
-                Text(
-                  'Giới tính : Nam',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 15,
-                ),
-                Flexible(
-                  child: Text(
-                    'Ngày tháng năm sinh : 01 tháng 09 năm 2002',
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 15,
-                ),
-                Text(
-                  'Địa chỉ : Nha Trang',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ],
-            ),
-            SizedBox(height: 95),
-            ElevatedButton(
-              onPressed: () {},
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.edit_document,
-                    size: 30.0,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    'Cập nhật thông tin',
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
+    List<UserChat> lisUserchat;
+    return FutureBuilder(
+      future: APIs.getUserFormId(APIs.firebaseAuth.currentUser!.uid),
+      builder: (context, userIDSnapShot) {
+        if (userIDSnapShot.connectionState == ConnectionState.done) {
+          UserChat userchat = userIDSnapShot.data!;
+          return Center(
+              child: Column(
+            children: [
+              Padding(padding: EdgeInsets.all(20)),
+              CircleAvatar(
+                backgroundImage: userchat.imageUrl!.isNotEmpty
+                    ? NetworkImage(userchat.imageUrl!) as ImageProvider
+                    : AssetImage('assets/images/user.png') as ImageProvider,
+                radius: 60,
               ),
-              style: ElevatedButton.styleFrom(
-                fixedSize: Size(380, 50),
-                primary: kColorScheme.primary,
-                onPrimary: kColorScheme.onPrimary,
+              SizedBox(
+                height: 20,
               ),
-            )
-          ],
-        ),
-      ),
+              Text(
+                userchat.username!,
+                style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                "Email" + " : " + userchat.email!,
+                style: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+              SizedBox(
+                height: 360,
+              ),
+              ElevatedButton(
+                onPressed: capNhatThongTin,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.edit_document,
+                      size: 30.0,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'Cập nhật thông tin',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(380, 50),
+                  primary: kColorScheme.primary,
+                  onPrimary: kColorScheme.onPrimary,
+                ),
+              ),
+            ],
+          ));
+        } else
+          return Container();
+      },
     );
   }
 }
