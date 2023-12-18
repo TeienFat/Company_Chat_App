@@ -4,8 +4,7 @@ import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:company_chat_app_demo/widgets/user_avatar.dart';
-import 'package:company_chat_app_demo/widgets/user_card_checkbox.dart';
-import 'package:company_chat_app_demo/widgets/user_cardz.dart';
+import 'package:company_chat_app_demo/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -221,7 +220,7 @@ class _NewGroupChatState extends State<NewGroupChat> {
                               : _searchList[index];
                           return Column(
                             children: [
-                              UserCardz.createGroup(
+                              UserCard.createGroup(
                                 user: userChat,
                                 onTap: _addUser,
                                 isNotChecked:

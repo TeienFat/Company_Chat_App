@@ -1,8 +1,7 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
-//import 'package:company_chat_app_demo/widgets/user_card.dart';
-import 'package:company_chat_app_demo/widgets/user_cardz.dart';
+import 'package:company_chat_app_demo/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 
 class ContactScreen extends StatefulWidget {
@@ -80,8 +79,8 @@ class _ContactScreenState extends State<ContactScreen> {
                           isSearching
                               ? (_searchList.isEmpty
                                 ? Text('Không tìm thấy người dùng nào')
-                                : UserCardz.contact(user: _searchList[index]))
-                              : UserCardz.contact(user: _list[index])
+                                : UserCard.contact(user: _searchList[index]))
+                              : UserCard.contact(user: _list[index])
                         ],
                       );
                     },
