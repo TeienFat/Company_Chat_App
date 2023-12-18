@@ -36,10 +36,11 @@ class APIs {
 
   static Future<String> saveImage(
       String imageName, File imageFile, String path) async {
+    final ext = imageFile.path.split('.').last;
     final storageRef =
-        await fireStorage.ref().child(path).child('${imageName}.jpg');
+        await fireStorage.ref().child(path).child('${imageName}.$ext');
     await storageRef.putFile(
-        imageFile, SettableMetadata(contentType: 'image/jpg'));
+        imageFile, SettableMetadata(contentType: 'image/$ext'));
     return await storageRef.getDownloadURL();
   }
 
@@ -240,7 +241,8 @@ class APIs {
         .update({'participants': participants});
   }
 
-  static Future<void> sendMessage(ChatRoom chatRoom, String msg) async {
+  static Future<void> sendMessage(
+      ChatRoom chatRoom, String msg, Type type) async {
     if (chatRoom.isRequests != ({})) {
       DocumentSnapshot documentSnapshot = await firestore
           .collection('chatrooms')
@@ -269,6 +271,8 @@ class APIs {
       sent: now,
       userName: userData.data()!['username'],
       userImage: userData.data()!['imageUrl'],
+      type: type,
+      deleted: [],
     );
     await firestore
         .collection('chatrooms')
@@ -276,6 +280,14 @@ class APIs {
         .collection('messages')
         .doc(messageId)
         .set(message.toMap());
+  }
+
+  static Future<void> sendImageMessage(
+      ChatRoom chatRoom, File imageFile) async {
+    final imageName = DateTime.now().millisecondsSinceEpoch;
+    final imageUrl =
+        await saveImage(imageName.toString(), imageFile, 'message_images');
+    await sendMessage(chatRoom, imageUrl, Type.image);
   }
 
   static Future<void> updateMessageReadStatus(

@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class NewMessage extends StatefulWidget {
   const NewMessage({super.key, required this.chatRoom});
@@ -11,10 +15,10 @@ class NewMessage extends StatefulWidget {
 }
 
 class _NewMessageState extends State<NewMessage> {
-  bool _isTyping = true;
+  bool _isTyping = false;
   TextEditingController _messageController = TextEditingController();
 
-  void _sendMessage() {
+  void _sendTextMessage() {
     final enteredMessage = _messageController.text;
     if (enteredMessage.trim().isEmpty) {
       return;
@@ -22,7 +26,28 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
-    APIs.sendMessage(widget.chatRoom, enteredMessage.trim());
+    APIs.sendMessage(widget.chatRoom, enteredMessage.trim(), Type.text);
+  }
+
+  void _sendImageMessage(bool pickerType) async {
+    XFile? pickedImage;
+    if (pickerType) {
+      pickedImage = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 50,
+        maxWidth: 300,
+      );
+    } else {
+      pickedImage = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50,
+        maxWidth: 300,
+      );
+    }
+    if (pickedImage == null) {
+      return;
+    }
+    await APIs.sendImageMessage(widget.chatRoom, File(pickedImage.path));
   }
 
   @override
@@ -44,9 +69,21 @@ class _NewMessageState extends State<NewMessage> {
               : Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          _sendImageMessage(true);
+                        },
+                        icon: Icon(
+                          Icons.camera_alt_sharp,
+                          color: kColorScheme.primary,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _sendImageMessage(false);
+                        },
                         icon: Icon(
                           Icons.image,
                           color: kColorScheme.primary,
@@ -118,7 +155,7 @@ class _NewMessageState extends State<NewMessage> {
           ),
           IconButton(
             color: Theme.of(context).colorScheme.primary,
-            onPressed: _sendMessage,
+            onPressed: _sendTextMessage,
             icon: Icon(Icons.send),
           )
         ],

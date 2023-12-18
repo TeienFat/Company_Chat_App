@@ -77,24 +77,30 @@ class MessageBubble extends StatelessWidget {
                       ),
                     ),
                   Container(
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? Colors.grey[300]
-                          : theme.colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.only(
-                        topLeft:
-                            !isMe ? Radius.zero : const Radius.circular(12),
-                        topRight:
-                            isMe ? Radius.zero : const Radius.circular(12),
-                        bottomLeft: const Radius.circular(12),
-                        bottomRight: const Radius.circular(12),
-                      ),
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 200),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 14,
-                    ),
+                    decoration: message.type! == Type.text
+                        ? BoxDecoration(
+                            color: isMe
+                                ? Colors.grey[300]
+                                : theme.colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.only(
+                              topLeft: !isMe
+                                  ? Radius.zero
+                                  : const Radius.circular(12),
+                              topRight: isMe
+                                  ? Radius.zero
+                                  : const Radius.circular(12),
+                              bottomLeft: const Radius.circular(12),
+                              bottomRight: const Radius.circular(12),
+                            ),
+                          )
+                        : null,
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    padding: message.type! == Type.text
+                        ? const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 14,
+                          )
+                        : null,
                     margin: const EdgeInsets.symmetric(
                       vertical: 4,
                       horizontal: 0,
@@ -104,16 +110,23 @@ class MessageBubble extends StatelessWidget {
                           ? CrossAxisAlignment.start
                           : CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          message.msg!,
-                          style: TextStyle(
-                            height: 1.3,
-                            color: isMe
-                                ? Colors.black87
-                                : theme.colorScheme.onPrimaryContainer,
-                          ),
-                          softWrap: true,
-                        ),
+                        message.type! == Type.text
+                            ? Text(
+                                message.msg!,
+                                style: TextStyle(
+                                  height: 1.3,
+                                  color: isMe
+                                      ? Colors.black87
+                                      : theme.colorScheme.onPrimaryContainer,
+                                ),
+                                softWrap: true,
+                              )
+                            : ClipRRect(
+                                child: Image.network(
+                                  message.msg!,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                         if (isLastInSequence)
                           SizedBox(
                             height: 10,
@@ -124,7 +137,7 @@ class MessageBubble extends StatelessWidget {
                                 context: context,
                                 time: message.sent.toString()),
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 12,
                               color: isMe
                                   ? Colors.black87
                                   : theme.colorScheme.onPrimaryContainer,
@@ -142,13 +155,23 @@ class MessageBubble extends StatelessWidget {
                       isLastMessage &&
                       isLastInSequence &&
                       message.read!.isEmpty)
-                    Text(
-                      'Đã gửi',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isMe
-                            ? Colors.black87
-                            : theme.colorScheme.onPrimaryContainer,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5.0, vertical: 3.0),
+                        child: Text(
+                          'Đã gửi',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isMe
+                                ? Colors.white
+                                : theme.colorScheme.onPrimaryContainer,
+                          ),
+                        ),
                       ),
                     ),
                 ],
