@@ -1,7 +1,7 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
-import 'package:company_chat_app_demo/widgets/user_card_in_setting.dart';
+import 'package:company_chat_app_demo/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 
 class ListUserInGroup extends StatefulWidget {
@@ -42,7 +42,7 @@ class _ListUserInGroupState extends State<ListUserInGroup> {
                           UserChat userchat = usersnapshot.data!;
                           return Column(
                             children: [
-                              UserCardSetting(
+                              UserCard.listParticipant(
                                   chatRoom: widget.chatRoom, user: userchat),
                               Divider(
                                 height: 3,

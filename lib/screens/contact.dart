@@ -79,8 +79,8 @@ class _ContactScreenState extends State<ContactScreen> {
                           isSearching
                               ? (_searchList.isEmpty
                                 ? Text('Không tìm thấy người dùng nào')
-                                : UserCard(user: _searchList[index]))
-                              : UserCard(user: _list[index])
+                                : UserCard.contact(user: _searchList[index]))
+                              : UserCard.contact(user: _list[index])
                         ],
                       );
                     },
