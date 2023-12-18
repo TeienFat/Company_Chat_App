@@ -5,6 +5,7 @@ import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:company_chat_app_demo/widgets/user_avatar.dart';
 import 'package:company_chat_app_demo/widgets/user_card_checkbox.dart';
+import 'package:company_chat_app_demo/widgets/user_cardz.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,7 +24,6 @@ class _NewGroupChatState extends State<NewGroupChat> {
   List<UserChat> _listUser = [];
   final _groupNameController = TextEditingController();
   bool _canCreate = false;
-  String tb = "";
   void _runFilter(String _enteredKeyword) {
     _searchList.clear();
     for (var user in _list) {
@@ -191,12 +191,6 @@ class _NewGroupChatState extends State<NewGroupChat> {
                 StreamBuilder(
                   stream: APIs.getAllUser(),
                   builder: (ctx, userSnapshot) {
-                    // if (userSnapshot.connectionState ==
-                    //     ConnectionState.waiting) {
-                    //   return const Center(
-                    //     child: CircularProgressIndicator()
-                    //   );
-                    // }
                     if (!userSnapshot.hasData ||
                         userSnapshot.data!.docs.isEmpty) {
                       return const Center(
@@ -227,7 +221,7 @@ class _NewGroupChatState extends State<NewGroupChat> {
                               : _searchList[index];
                           return Column(
                             children: [
-                              UserCardCheckbox(
+                              UserCardz.createGroup(
                                 user: userChat,
                                 onTap: _addUser,
                                 isNotChecked:
