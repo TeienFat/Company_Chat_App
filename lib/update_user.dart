@@ -60,6 +60,7 @@ class _UpdateUserState extends State<UpdateUser> {
                       username: txtUserName.text,
                       isOnline: null,
                       email: null,
+                      blockUsers: null
                     );
                     APIs.updateUserFormId(userChat);
                     Navigator.pop(context);
