@@ -55,6 +55,10 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
     );
   }
 
+  Future<void> _blockUser(String userid) async{
+    await APIs.blockUser(userid);
+  }
+
   @override
   Widget build(BuildContext context) {
     String chatRoomName = widget.chatRoom.chatroomname!.isNotEmpty
@@ -143,12 +147,6 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
             widget.chatRoom.type!
             ? InkWell(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ListUserInGroup(chatRoom: widget.chatRoom),
-                  ),
-                );
               },
               child: Container(
                 height: 55,
@@ -197,7 +195,9 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
             ),
             widget.chatRoom.type!
                 ? InkWell(
-                    onTap: _showDialog,
+                    onTap: () {
+                      _blockUser(widget.userChat!.id!);
+                    },
                     child: Container(
                       height: 55,
                       padding: EdgeInsets.symmetric(horizontal: 10),

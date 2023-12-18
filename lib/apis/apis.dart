@@ -51,7 +51,8 @@ class APIs {
         imageUrl: imageUrl,
         username: userName,
         isOnline: false,
-        email: email);
+        email: email,
+        blockUsers: []);
     return await firestore.collection('user').doc(userId).set(user.toMap());
   }
 
@@ -368,5 +369,12 @@ class APIs {
         .collection('user')
         .where('id', isEqualTo: userId)
         .snapshots();
+  }
+  static Future<void> blockUser(String idUser) async{
+    await firestore.collection('user').doc(firebaseAuth.currentUser!.uid).update(
+      {
+        'blockUsers': FieldValue.arrayUnion([idUser]),
+      },
+    );
   }
 }
