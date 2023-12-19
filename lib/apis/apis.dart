@@ -140,8 +140,7 @@ class APIs {
   }
 
   static Future<void> updateUserFormId(UserChat userChat) async {
-    DocumentReference? documentReference;
-    await documentReference!.update(userChat.toMap());
+    return firestore.collection('user').doc(userChat.id).set(userChat.toMap());
   }
 
   static Future<bool> checkCurrentUserHasDeletedChatRoom(

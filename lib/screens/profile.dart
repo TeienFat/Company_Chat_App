@@ -15,23 +15,25 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  void capNhatThongTin() {
+  void capNhatThongTin(UserChat uc) {
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
       context: context,
-      builder: (context) => UpdateUser(),
+      builder: (context) => UpdateUser(
+        userChat: uc,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    List<UserChat> lisUserchat;
     return FutureBuilder(
       future: APIs.getUserFormId(APIs.firebaseAuth.currentUser!.uid),
       builder: (context, userIDSnapShot) {
         if (userIDSnapShot.connectionState == ConnectionState.done) {
           UserChat userchat = userIDSnapShot.data!;
+
           return Center(
               child: Column(
             children: [
@@ -52,6 +54,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(
                 height: 20,
               ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    'Thông tin cá nhân',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
               Text(
                 "Email" + " : " + userchat.email!,
                 style: TextStyle(
@@ -59,10 +73,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               SizedBox(
-                height: 360,
+                height: 340,
               ),
               ElevatedButton(
-                onPressed: capNhatThongTin,
+                onPressed: () {
+                  capNhatThongTin(userchat);
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
