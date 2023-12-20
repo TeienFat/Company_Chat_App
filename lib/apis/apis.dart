@@ -51,7 +51,8 @@ class APIs {
         imageUrl: imageUrl,
         username: userName,
         isOnline: false,
-        email: email);
+        email: email,
+        blockUsers: []);
     return await firestore.collection('user').doc(userId).set(user.toMap());
   }
 
@@ -174,22 +175,19 @@ class APIs {
     Map<String, bool> participantsMap =
         Map<String, bool>.from(documentSnapshot['participants']);
 
-    print(participantsMap.values);
-
     participantsMap.update(firebaseAuth.currentUser!.uid, (value) => false);
-
-    print(participantsMap.values);
-
-    if (participantsMap.values.every((values) => values == false)) {
-      await firestore.collection('chatrooms').doc(chatroomId).delete();
-      print('đã xoá');
-    } else {
-      await firestore
-          .collection('chatrooms')
-          .doc(chatroomId)
-          .update({'participants': participantsMap});
-      print('chưa xoá được');
-    }
+    await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .update({'participants': participantsMap});
+    var querySnapshot = await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .get();
+        querySnapshot.docs.forEach((element) {element.reference.update({
+          'deleted':FieldValue.arrayUnion([firebaseAuth.currentUser!.uid]) 
+        });});
   }
 
   static Future<String> getChatRoomName(ChatRoom chatRoom) async {
@@ -243,14 +241,13 @@ class APIs {
 
   static Future<void> sendMessage(
       ChatRoom chatRoom, String msg, Type type) async {
-    if (chatRoom.isRequests != ({})) {
-      DocumentSnapshot documentSnapshot = await firestore
+        DocumentSnapshot documentSnapshot = await firestore
           .collection('chatrooms')
           .doc(chatRoom.chatroomid)
           .get();
-      Map<String, bool> participantsMap =
-          Map<String, bool>.from(documentSnapshot['participants']);
 
+        Map<String, bool> participantsMap = Map<String, bool>.from(documentSnapshot['participants']);
+    if (chatRoom.isRequests != ({})) {
       participantsMap.updateAll((key, value) => true);
       await firestore
           .collection('chatrooms')
@@ -272,7 +269,7 @@ class APIs {
       userName: userData.data()!['username'],
       userImage: userData.data()!['imageUrl'],
       type: type,
-      deleted: [],
+      receivers: participantsMap.keys as List<String>,
     );
     await firestore
         .collection('chatrooms')
@@ -308,7 +305,8 @@ class APIs {
         .collection('chatrooms')
         .doc(chatRoomId)
         .collection('messages')
-        .orderBy('sent', descending: true)
+        .where('deleted', arrayContains: firebaseAuth.currentUser!.uid)
+        //.orderBy('sent', descending: true)
         .snapshots();
   }
 
@@ -368,5 +366,16 @@ class APIs {
         .collection('user')
         .where('id', isEqualTo: userId)
         .snapshots();
+  }
+
+  static Future<void> blockUser(String idUser) async {
+    await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update(
+      {
+        'blockUsers': FieldValue.arrayUnion([idUser]),
+      },
+    );
   }
 }
