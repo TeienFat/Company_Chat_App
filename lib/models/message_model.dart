@@ -29,7 +29,7 @@ class Message {
     userName = map['userName'];
     userImage = map['userImage'];
     type = map['type'] == Type.image.name ? Type.image : Type.text;
-    receivers = List<String>.from(map['deleted']);
+    receivers = List<String>.from(map['receivers']);
   }
 
   Map<String, dynamic> toMap() {
@@ -42,7 +42,7 @@ class Message {
       'userName': userName,
       'userImage': userImage,
       'type': type!.name,
-      'deleted': receivers,
+      'receivers': receivers,
     });
   }
 }
