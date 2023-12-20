@@ -87,21 +87,6 @@ class APIs {
           await firestore.collection('chatrooms').doc(chatroomId).get();
 
       chatroom = ChatRoom.fromMap(docSnap.data() as Map<String, dynamic>);
-
-      bool hasDel = await checkCurrentUserHasDeletedChatRoom(
-          firebaseAuth.currentUser!.uid, userId);
-
-      if (hasDel) {
-        DocumentSnapshot documentSnapshot =
-            await firestore.collection('chatrooms').doc(chatroomId).get();
-        Map<String, bool> participantsMap =
-            Map<String, bool>.from(documentSnapshot['participants']);
-        participantsMap.update(firebaseAuth.currentUser!.uid, (value) => false);
-        await firestore
-            .collection('chatrooms')
-            .doc(chatroomId)
-            .update({'participants': participantsMap});
-      }
     } else {
       chatroom = ChatRoom(
         chatroomid: newChatroomId,
@@ -146,24 +131,6 @@ class APIs {
     await documentReference!.update(userChat.toMap());
   }
 
-  static Future<bool> checkCurrentUserHasDeletedChatRoom(
-      String currentUserId, String userId) async {
-    String chatroomId =
-        await getChatroomIdWhenUserHasChatRoomDirect(currentUserId, userId);
-    DocumentSnapshot chatroomSnapshot =
-        await firestore.collection('chatrooms').doc(chatroomId).get();
-    if (chatroomSnapshot.exists) {
-      Map<String, bool> mapParticipants =
-          Map<String, bool>.from(chatroomSnapshot['participants']);
-      bool inChatRoom = mapParticipants[firebaseAuth.currentUser!.uid]!;
-      if (!inChatRoom) {
-        return true;
-      } else
-        return false;
-    } else
-      return false;
-  }
-
   static getLastWordOfName(String name) {
     List<String> words = name.split(" ");
     return words[words.length - 1];
@@ -185,6 +152,7 @@ class APIs {
         .doc(chatroomId)
         .collection('messages')
         .get();
+        participantsMap.remove(firebaseAuth.currentUser!.uid);
         querySnapshot.docs.forEach((element) {element.reference.update({
           'receivers': participantsMap.keys
         });});
