@@ -186,7 +186,7 @@ class APIs {
         .collection('messages')
         .get();
         querySnapshot.docs.forEach((element) {element.reference.update({
-          'deleted':FieldValue.arrayUnion([firebaseAuth.currentUser!.uid]) 
+          'receivers': participantsMap.keys
         });});
   }
 
@@ -269,7 +269,7 @@ class APIs {
       userName: userData.data()!['username'],
       userImage: userData.data()!['imageUrl'],
       type: type,
-      receivers: participantsMap.keys as List<String>,
+      receivers: participantsMap.keys.toList(),
     );
     await firestore
         .collection('chatrooms')
@@ -305,7 +305,7 @@ class APIs {
         .collection('chatrooms')
         .doc(chatRoomId)
         .collection('messages')
-        .where('deleted', arrayContains: firebaseAuth.currentUser!.uid)
+        .where('receivers', arrayContains: firebaseAuth.currentUser!.uid)
         //.orderBy('sent', descending: true)
         .snapshots();
   }
