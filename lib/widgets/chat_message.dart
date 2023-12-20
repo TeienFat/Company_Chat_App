@@ -60,6 +60,12 @@ class _ChatMessageState extends State<ChatMessage> {
         }
         final data = messageSnapshot.data!.docs;
         listMessage = data.map((e) => Message.fromMap(e.data())).toList();
+        listMessage.sort((a,b) {
+          if(int.parse(a.sent!) > (int.parse(b.sent!))){
+            return 0;
+          }
+          return 1;
+        } );
 
         return ListView.builder(
           padding: const EdgeInsets.all(13),
