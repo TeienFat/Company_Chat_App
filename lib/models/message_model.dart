@@ -7,7 +7,7 @@ class Message {
   String? userName;
   String? userImage;
   Type? type;
-  List<String>? deleted;
+  List<String>? receivers;
 
   Message(
       {required this.messageId,
@@ -18,7 +18,7 @@ class Message {
       required this.userName,
       required this.userImage,
       required this.type,
-      required this.deleted});
+      required this.receivers});
 
   Message.fromMap(Map<String, dynamic> map) {
     messageId = map['messageId'];
@@ -29,7 +29,7 @@ class Message {
     userName = map['userName'];
     userImage = map['userImage'];
     type = map['type'] == Type.image.name ? Type.image : Type.text;
-    deleted = List<String>.from(map['deleted']);
+    receivers = List<String>.from(map['deleted']);
   }
 
   Map<String, dynamic> toMap() {
@@ -42,7 +42,7 @@ class Message {
       'userName': userName,
       'userImage': userImage,
       'type': type!.name,
-      'deleted': deleted,
+      'deleted': receivers,
     });
   }
 }
