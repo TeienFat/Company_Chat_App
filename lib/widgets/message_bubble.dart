@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
+import 'package:company_chat_app_demo/screens/chat/scale_image.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -94,7 +96,7 @@ class MessageBubble extends StatelessWidget {
                             ),
                           )
                         : null,
-                    constraints: const BoxConstraints(maxWidth: 300),
+                    constraints: const BoxConstraints(maxWidth: 295),
                     padding: message.type! == Type.text
                         ? const EdgeInsets.symmetric(
                             vertical: 10,
@@ -121,11 +123,26 @@ class MessageBubble extends StatelessWidget {
                                 ),
                                 softWrap: true,
                               )
-                            : ClipRRect(
-                                child: Image.network(
-                                  message.msg!,
+                            : InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => ScaleImage(
+                                            imageUrl: message.msg!,
+                                            scale: 1.35,
+                                          )));
+                                },
+                                child: ClipRRect(
+                                  child: CachedNetworkImage(
+                                    imageUrl: message.msg!,
+                                    placeholder: (context, url) => Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: const CircularProgressIndicator(),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.image_rounded),
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                borderRadius: BorderRadius.circular(12),
                               ),
                         if (isLastInSequence)
                           SizedBox(
