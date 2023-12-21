@@ -13,7 +13,7 @@ class ScaleImage extends StatefulWidget {
 }
 
 void _saveNetworkImage(String imageUrl) async {
-  GallerySaver.saveImage(imageUrl, albumName: 'Wi Chat').then((success) {
+  GallerySaver.saveImage(imageUrl, albumName: 'Wi Chat Ảnh').then((success) {
     if (success != null && success) {
       Fluttertoast.showToast(
           msg: "Lưu ảnh thành công",
@@ -48,22 +48,19 @@ class _ScaleImageState extends State<ScaleImage> {
         ],
       ),
       body: Center(
-        child: InkWell(
-          onTap: () {},
-          child: Transform.scale(
-            scale: widget.scale,
-            child: ClipRRect(
-              child: CachedNetworkImage(
-                imageUrl: widget.imageUrl,
-                placeholder: (context, url) => Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: const CircularProgressIndicator(),
-                ),
-                errorWidget: (context, url, error) =>
-                    const Icon(Icons.image_rounded),
+        child: Transform.scale(
+          scale: widget.scale,
+          child: ClipRRect(
+            child: CachedNetworkImage(
+              imageUrl: widget.imageUrl,
+              placeholder: (context, url) => Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: const CircularProgressIndicator(),
               ),
-              borderRadius: BorderRadius.circular(12),
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.image_rounded),
             ),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

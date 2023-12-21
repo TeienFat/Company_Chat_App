@@ -4,6 +4,8 @@ import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_image.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_video.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -46,7 +48,7 @@ class _NewMessageState extends State<NewMessage> {
         setState(() {
           widget.onUpload(true);
         });
-        await APIs.sendImageMessage(widget.chatRoom, File(pickedImage.path));
+        await APIs.sendMediaMessage(0, widget.chatRoom, File(pickedImage.path));
         setState(() {
           widget.onUpload(false);
         });
@@ -62,8 +64,40 @@ class _NewMessageState extends State<NewMessage> {
           widget.onUpload(true);
         });
         for (var i in pickedImage) {
-          await APIs.sendImageMessage(widget.chatRoom, File(i.path));
+          await APIs.sendMediaMessage(0, widget.chatRoom, File(i.path));
         }
+        setState(() {
+          widget.onUpload(false);
+        });
+      }
+    }
+
+    void _sendVideoMessage(bool pickerType) async {
+      var pickedImage;
+      if (pickerType) {
+        pickedImage = await ImagePicker().pickVideo(
+          source: ImageSource.camera,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      } else {
+        pickedImage =
+            await ImagePicker().pickVideo(source: ImageSource.gallery);
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
         setState(() {
           widget.onUpload(false);
         });
@@ -91,19 +125,33 @@ class _NewMessageState extends State<NewMessage> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          _sendImageMessage(true);
+                          showModalBottomSheet(
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => MenuPickImage(
+                              onPickImage: (type) => _sendImageMessage(type),
+                            ),
+                          );
                         },
                         icon: Icon(
-                          Icons.camera_alt_sharp,
+                          Icons.image,
                           color: kColorScheme.primary,
                         ),
                       ),
                       IconButton(
                         onPressed: () {
-                          _sendImageMessage(false);
+                          showModalBottomSheet(
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => MenuPickVideo(
+                              onPickVideo: (type) => _sendVideoMessage(type),
+                            ),
+                          );
                         },
                         icon: Icon(
-                          Icons.image,
+                          Icons.video_library,
                           color: kColorScheme.primary,
                         ),
                       ),

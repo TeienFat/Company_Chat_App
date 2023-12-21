@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
-import 'package:company_chat_app_demo/screens/chat/scale_image.dart';
+import 'package:company_chat_app_demo/widgets/bubble_image.dart';
+import 'package:company_chat_app_demo/widgets/bubble_video.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -35,7 +35,6 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     if (!isMe && message.read!.isEmpty) {
       APIs.updateMessageReadStatus(chatRoomId, message.messageId!);
     }
@@ -123,27 +122,15 @@ class MessageBubble extends StatelessWidget {
                                 ),
                                 softWrap: true,
                               )
-                            : InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => ScaleImage(
-                                            imageUrl: message.msg!,
-                                            scale: 1.35,
-                                          )));
-                                },
-                                child: ClipRRect(
-                                  child: CachedNetworkImage(
-                                    imageUrl: message.msg!,
-                                    placeholder: (context, url) => Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: const CircularProgressIndicator(),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.image_rounded),
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
+                            : message.type! == Type.image
+                                ? ImageBubble(
+                                    imageUrl: message.msg!, isMe: isMe)
+                                : message.type! == Type.video
+                                    ? VideoBubble(
+                                        videoUrl: message.msg!,
+                                        isMe: isMe,
+                                      )
+                                    : SizedBox(),
                         if (isLastInSequence)
                           SizedBox(
                             height: 10,
