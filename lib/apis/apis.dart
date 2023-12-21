@@ -27,13 +27,22 @@ class APIs {
         .snapshots();
   }
 
-  static Future<String> saveImage(
-      String imageName, File imageFile, String path) async {
-    final ext = imageFile.path.split('.').last;
+  static Future<String> saveMedia(
+      int type, String mediaName, File mediaFile, String path) async {
+    final ext = mediaFile.path.split('.').last;
     final storageRef =
-        await fireStorage.ref().child(path).child('${imageName}.$ext');
-    await storageRef.putFile(
-        imageFile, SettableMetadata(contentType: 'image/$ext'));
+        await fireStorage.ref().child(path).child('${mediaName}.$ext');
+    switch (type) {
+      case 0:
+        await storageRef.putFile(
+            mediaFile, SettableMetadata(contentType: 'image/$ext'));
+        break;
+      case 1:
+        await storageRef.putFile(
+            mediaFile, SettableMetadata(contentType: 'video/$ext'));
+        break;
+    }
+
     return await storageRef.getDownloadURL();
   }
 
@@ -87,7 +96,7 @@ class APIs {
         imageUrl: '',
         participants: ({firebaseAuth.currentUser!.uid: false, userId: false}),
         type: true,
-        isRequests: ({'from': firebaseAuth.currentUser!.uid, 'to': userId}),
+        isRequests: ({}),
       );
       await firestore
           .collection('chatrooms')
@@ -170,7 +179,10 @@ class APIs {
         name = name + getLastWordOfName(userchat.username!);
       }
     }
-    return name + " và " + (numOfParticipants - 3).toString() + " người khác";
+    if ((numOfParticipants - 3) <= 0)
+      return name;
+    else
+      return name + " và " + (numOfParticipants - 3).toString() + " người khác";
   }
 
   static Future<ChatRoom> createGroupChatroom(Map<String, bool> participantsId,
@@ -244,12 +256,22 @@ class APIs {
         .set(message.toMap());
   }
 
-  static Future<void> sendImageMessage(
-      ChatRoom chatRoom, File imageFile) async {
-    final imageName = DateTime.now().millisecondsSinceEpoch;
-    final imageUrl =
-        await saveImage(imageName.toString(), imageFile, 'message_images');
-    await sendMessage(chatRoom, imageUrl, Type.image);
+  static Future<void> sendMediaMessage(
+      int type, ChatRoom chatRoom, File mediaFile) async {
+    final mediaName = DateTime.now().millisecondsSinceEpoch;
+    var mediaUrl;
+    switch (type) {
+      case 0:
+        mediaUrl = await saveMedia(
+            0, mediaName.toString(), mediaFile, 'message_images');
+        await sendMessage(chatRoom, mediaUrl, Type.image);
+        break;
+      case 1:
+        mediaUrl = await saveMedia(
+            1, mediaName.toString(), mediaFile, 'message_images');
+        await sendMessage(chatRoom, mediaUrl, Type.video);
+        break;
+    }
   }
 
   static Future<void> updateMessageReadStatus(
