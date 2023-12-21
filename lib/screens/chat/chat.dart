@@ -22,6 +22,22 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   bool isSearching = false;
+  bool _hasBlock = false;
+  Future<void> goSettingScreen(BuildContext context) async{
+     final hasBlock = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => widget.chatRoom.type!
+                      ? ChatSettingScreen.direct(
+                          chatRoom: widget.chatRoom, userChat: widget.userChat)
+                      : ChatSettingScreen.group(
+                          chatRoom: widget.chatRoom,
+                          groupName: widget.groupName),
+                ),
+              );
+        setState(() {
+          _hasBlock = hasBlock;
+        });
+  }
   late bool isRequests = widget.chatRoom.type! &&
       widget.chatRoom.isRequests! != ({}) &&
       widget.chatRoom.isRequests!['to'] == APIs.firebaseAuth.currentUser!.uid;
@@ -84,17 +100,8 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => widget.chatRoom.type!
-                      ? ChatSettingScreen.direct(
-                          chatRoom: widget.chatRoom, userChat: widget.userChat)
-                      : ChatSettingScreen.group(
-                          chatRoom: widget.chatRoom,
-                          groupName: widget.groupName),
-                ),
-              );
+            onPressed: (){
+              goSettingScreen(context);
             },
             icon: Icon(Icons.info),
           )
@@ -123,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       chatRoomId: widget.chatRoom.chatroomid!,
                       reLoad: reLoad),
                 )
-              : NewMessage(
+              : _hasBlock ? Text('Bạn đã chặn người dùng này'):  NewMessage(
                   chatRoom: widget.chatRoom,
                   onUpload: (upLoad) {
                     _onUpload(upLoad);

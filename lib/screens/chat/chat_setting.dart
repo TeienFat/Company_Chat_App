@@ -66,7 +66,16 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
         : widget.groupName;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            if(widget.chatRoom.type!)
+            Navigator.of(context).pop(APIs.hasBlockOther(widget.userChat!.id!));
+            else Navigator.of(context).pop();
+          },
+          icon: Icon(Icons.arrow_back)
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.only(top: 20, right: 5, left: 5),
         child: Column(
