@@ -28,7 +28,11 @@ class Message {
     sent = map['sent'];
     userName = map['userName'];
     userImage = map['userImage'];
-    type = map['type'] == Type.image.name ? Type.image : Type.text;
+    type = map['type'] == Type.text.name
+        ? Type.text
+        : map['type'] == Type.image.name
+            ? Type.image
+            : Type.video;
     receivers = List<String>.from(map['receivers']);
   }
 
@@ -47,4 +51,4 @@ class Message {
   }
 }
 
-enum Type { text, image, file, sound }
+enum Type { text, image, video, file, sound }

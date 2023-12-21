@@ -31,6 +31,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  bool _isUploading = false;
+  void _onUpload(bool upLoad) {
+    setState(() {
+      _isUploading = upLoad;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,6 +107,14 @@ class _ChatScreenState extends State<ChatScreen> {
               chatRoom: widget.chatRoom,
             ),
           ),
+          if (_isUploading)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 13.0),
+                child: CircularProgressIndicator(),
+              ),
+            ),
           isRequests
               ? Padding(
                   padding: const EdgeInsets.only(bottom: 30.0),
@@ -108,7 +123,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       chatRoomId: widget.chatRoom.chatroomid!,
                       reLoad: reLoad),
                 )
-              : NewMessage(chatRoom: widget.chatRoom),
+              : NewMessage(
+                  chatRoom: widget.chatRoom,
+                  onUpload: (upLoad) {
+                    _onUpload(upLoad);
+                  },
+                ),
         ],
       ),
     );

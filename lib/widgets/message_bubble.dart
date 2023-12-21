@@ -1,6 +1,8 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
+import 'package:company_chat_app_demo/widgets/bubble_image.dart';
+import 'package:company_chat_app_demo/widgets/bubble_video.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -33,7 +35,6 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     if (!isMe && message.read!.isEmpty) {
       APIs.updateMessageReadStatus(chatRoomId, message.messageId!);
     }
@@ -94,7 +95,7 @@ class MessageBubble extends StatelessWidget {
                             ),
                           )
                         : null,
-                    constraints: const BoxConstraints(maxWidth: 300),
+                    constraints: const BoxConstraints(maxWidth: 295),
                     padding: message.type! == Type.text
                         ? const EdgeInsets.symmetric(
                             vertical: 10,
@@ -121,12 +122,15 @@ class MessageBubble extends StatelessWidget {
                                 ),
                                 softWrap: true,
                               )
-                            : ClipRRect(
-                                child: Image.network(
-                                  message.msg!,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                            : message.type! == Type.image
+                                ? ImageBubble(
+                                    imageUrl: message.msg!, isMe: isMe)
+                                : message.type! == Type.video
+                                    ? VideoBubble(
+                                        videoUrl: message.msg!,
+                                        isMe: isMe,
+                                      )
+                                    : SizedBox(),
                         if (isLastInSequence)
                           SizedBox(
                             height: 10,

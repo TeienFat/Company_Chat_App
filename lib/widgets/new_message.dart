@@ -4,12 +4,15 @@ import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_image.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_video.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class NewMessage extends StatefulWidget {
-  const NewMessage({super.key, required this.chatRoom});
+  const NewMessage({super.key, required this.chatRoom, required this.onUpload});
   final ChatRoom chatRoom;
+  final Function(bool upLoad) onUpload;
   @override
   State<NewMessage> createState() => _NewMessageState();
 }
@@ -29,29 +32,78 @@ class _NewMessageState extends State<NewMessage> {
     APIs.sendMessage(widget.chatRoom, enteredMessage.trim(), Type.text);
   }
 
-  void _sendImageMessage(bool pickerType) async {
-    XFile? pickedImage;
-    if (pickerType) {
-      pickedImage = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        imageQuality: 50,
-        maxWidth: 300,
-      );
-    } else {
-      pickedImage = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 50,
-        maxWidth: 300,
-      );
-    }
-    if (pickedImage == null) {
-      return;
-    }
-    await APIs.sendImageMessage(widget.chatRoom, File(pickedImage.path));
-  }
-
   @override
   Widget build(BuildContext context) {
+    void _sendImageMessage(bool pickerType) async {
+      var pickedImage;
+      if (pickerType) {
+        pickedImage = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          imageQuality: 100,
+          maxWidth: 295,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(0, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      } else {
+        pickedImage = await ImagePicker().pickMultiImage(
+          imageQuality: 100,
+          maxWidth: 295,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        for (var i in pickedImage) {
+          await APIs.sendMediaMessage(0, widget.chatRoom, File(i.path));
+        }
+        setState(() {
+          widget.onUpload(false);
+        });
+      }
+    }
+
+    void _sendVideoMessage(bool pickerType) async {
+      var pickedImage;
+      if (pickerType) {
+        pickedImage = await ImagePicker().pickVideo(
+          source: ImageSource.camera,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      } else {
+        pickedImage =
+            await ImagePicker().pickVideo(source: ImageSource.gallery);
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -73,19 +125,33 @@ class _NewMessageState extends State<NewMessage> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          _sendImageMessage(true);
+                          showModalBottomSheet(
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => MenuPickImage(
+                              onPickImage: (type) => _sendImageMessage(type),
+                            ),
+                          );
                         },
                         icon: Icon(
-                          Icons.camera_alt_sharp,
+                          Icons.image,
                           color: kColorScheme.primary,
                         ),
                       ),
                       IconButton(
                         onPressed: () {
-                          _sendImageMessage(false);
+                          showModalBottomSheet(
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => MenuPickVideo(
+                              onPickVideo: (type) => _sendVideoMessage(type),
+                            ),
+                          );
                         },
                         icon: Icon(
-                          Icons.image,
+                          Icons.video_library,
                           color: kColorScheme.primary,
                         ),
                       ),
