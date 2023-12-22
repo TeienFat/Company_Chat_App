@@ -4,6 +4,7 @@ import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/widgets/chatroom_card.dart';
 import 'package:flutter/material.dart';
+
 class ChatHomeScreen extends StatefulWidget {
   const ChatHomeScreen({super.key});
 
@@ -41,7 +42,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       _searchListChatRoom;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {

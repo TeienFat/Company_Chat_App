@@ -32,7 +32,9 @@ class MessageChat {
         ? Type.text
         : map['type'] == Type.image.name
             ? Type.image
-            : Type.video;
+            : map['type'] == Type.video.name
+                ? Type.video
+                : Type.sound;
     receivers = List<String>.from(map['receivers']);
   }
 

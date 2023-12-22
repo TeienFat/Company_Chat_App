@@ -198,6 +198,14 @@ class APIs {
 
   static Future<ChatRoom> createGroupChatroom(Map<String, bool> participantsId,
       String chatRoomId, String chatRoomName) async {
+    UserChat userchat;
+
+    DocumentSnapshot docSnap = await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .get();
+
+    userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
     participantsId.addAll({firebaseAuth.currentUser!.uid: true});
     final chatroom = ChatRoom(
         chatroomid: chatRoomId,
@@ -211,6 +219,8 @@ class APIs {
         .collection('chatrooms')
         .doc(chatRoomId)
         .set(chatroom.toMap());
+    await sendMessage(
+        chatroom, userchat.username! + " đã tạo nhóm", Type.sound);
     return chatroom;
   }
 
@@ -484,7 +494,10 @@ class APIs {
         "notification": {
           "title": userChat.username,
           "body": msg,
+<<<<<<< HEAD
+=======
           "android_channel_id": "chat"
+>>>>>>> main
         },
       };
       var response =

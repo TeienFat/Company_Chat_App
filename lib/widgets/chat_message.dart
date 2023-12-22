@@ -85,7 +85,13 @@ class _ChatMessageState extends State<ChatMessage> {
                 prevChatMessage != null ? prevChatMessage.fromId : null;
             final nextUserIsSame = nextMessageUserId == currentMessageUserId;
             final prevUserIsSame = prevMessageUserId == currentMessageUserId;
-
+            if (chatMessage.type == Type.sound) {
+              return Center(
+                  child: Text(
+                chatMessage.msg!,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ));
+            }
             if (APIs.firebaseAuth.currentUser!.uid == currentMessageUserId &&
                 prevChatMessage != null &&
                 prevChatMessage.read == '') {
