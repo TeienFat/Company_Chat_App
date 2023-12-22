@@ -5,7 +5,8 @@ import 'package:company_chat_app_demo/screens/nick_name.dart';
 import 'package:flutter/material.dart';
 
 class ProfileOfOthersScreen extends StatefulWidget {
-  const ProfileOfOthersScreen({super.key});
+  ProfileOfOthersScreen({super.key, required this.id});
+  final String id;
 
   @override
   State<ProfileOfOthersScreen> createState() => _ProfileScreenState();
@@ -23,25 +24,29 @@ class _ProfileScreenState extends State<ProfileOfOthersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<UserChat> lisUserchat;
-
     return FutureBuilder(
-      future: APIs.getUserFormId(APIs.firebaseAuth.currentUser!.uid),
+      future: APIs.getUserFormId(widget.id),
       builder: (context, userIDSnapShot) {
         if (userIDSnapShot.connectionState == ConnectionState.done) {
           UserChat userchat = userIDSnapShot.data!;
           return Scaffold(
             appBar: AppBar(
-              title: Text('Trở lại'),
+              title: Text(
+                'Thông tin người dùng',
+                style: TextStyle(fontSize: 20),
+              ),
             ),
             body: SingleChildScrollView(
               child: Center(
                 child: Column(
                   children: [
                     Padding(padding: EdgeInsets.all(20)),
-                    Image.asset(
-                      'assets/images/user.png',
-                      height: 100,
+                    CircleAvatar(
+                      backgroundImage: userchat.imageUrl!.isNotEmpty
+                          ? NetworkImage(userchat.imageUrl!) as ImageProvider
+                          : AssetImage('assets/images/user.png')
+                              as ImageProvider,
+                      radius: 60,
                     ),
                     SizedBox(
                       height: 20,
@@ -115,64 +120,13 @@ class _ProfileScreenState extends State<ProfileOfOthersScreen> {
                           width: 15,
                         ),
                         Text(
-                          'Điện thoại : 0935767192',
-                          style: TextStyle(fontSize: 20),
+                          "Email" + " : " + userchat.email!,
+                          style: TextStyle(fontSize: 24),
                         ),
                       ],
                     ),
                     SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Text(
-                          'Giới tính : Nam',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Flexible(
-                          child: Text(
-                            'Ngày tháng năm sinh : 01 tháng 09 năm 2002',
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Text(
-                          'Địa chỉ : Nha Trang',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 150,
+                      height: 300,
                     ),
                     ElevatedButton(
                       onPressed: () => showDialog<String>(

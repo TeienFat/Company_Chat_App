@@ -128,9 +128,11 @@ class APIs {
     return userchat;
   }
 
-  static Future<void> updateUserFormId(UserChat userChat) async {
-    DocumentReference? documentReference;
-    await documentReference!.update(userChat.toMap());
+  static Future<void> updateUserName(String userName) async {
+    return firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update({'username': userName});
   }
 
   static getLastWordOfName(String name) {
@@ -202,6 +204,14 @@ class APIs {
     return chatroom;
   }
 
+  static Future<void> updateNameChatRoom(
+      String chatRomID, String chatRoomName) async {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRomID)
+        .update({'chatroomname': chatRoomName});
+  }
+
   static Future<void> leaveTheGroupChat(
       ChatRoom chatRoom, String userId) async {
     Map<String, bool> participants = chatRoom.participants!;
@@ -219,15 +229,17 @@ class APIs {
 
     Map<String, bool> participantsMap =
         Map<String, bool>.from(documentSnapshot['participants']);
-    if(chatRoom.type!){
-      String user = participantsMap.keys.firstWhere((element) => element != firebaseAuth.currentUser!.uid).toString();
-      if(!await isBlockedByOther(user)){
+    if (chatRoom.type!) {
+      String user = participantsMap.keys
+          .firstWhere((element) => element != firebaseAuth.currentUser!.uid)
+          .toString();
+      if (!await isBlockedByOther(user)) {
         participantsMap.updateAll((key, value) => true);
         await firestore
             .collection('chatrooms')
             .doc(chatRoom.chatroomid)
             .update({'participants': participantsMap});
-      }else{
+      } else {
         participantsMap.removeWhere((key, value) => key == user);
       }
     }
@@ -390,13 +402,16 @@ class APIs {
     } else
       return false;
   }
+
   static Future<bool> hasBlockOther(String idUser) async {
-    DocumentSnapshot document =
-        await firestore.collection('user').doc(firebaseAuth.currentUser!.uid).get();
+    DocumentSnapshot document = await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .get();
     List<dynamic> listBlockUsers = document['blockUsers'];
     if (listBlockUsers.contains(idUser)) {
       return true;
-    } else{
+    } else {
       return false;
     }
   }
