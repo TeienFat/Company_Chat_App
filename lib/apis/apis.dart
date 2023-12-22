@@ -139,8 +139,11 @@ class APIs {
     return userchat;
   }
 
-  static Future<void> updateUserFormId(UserChat userChat) async {
-    return firestore.collection('user').doc(userChat.id).set(userChat.toMap());
+  static Future<void> updateUserName(String userName) async {
+    return firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update({'username': userName});
   }
 
   static Future<bool> checkCurrentUserHasDeletedChatRoom(
@@ -229,6 +232,14 @@ class APIs {
     return chatroom;
   }
 
+  static Future<void> updateNameChatRoom(
+      String chatRomID, String chatRoomName) async {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRomID)
+        .update({'chatroomname': chatRoomName});
+  }
+
   static Future<void> leaveTheGroupChat(
       ChatRoom chatRoom, String userId) async {
     Map<String, bool> participants = chatRoom.participants!;
@@ -240,20 +251,18 @@ class APIs {
   }
 
   static Future<void> sendMessage(ChatRoom chatRoom, String msg) async {
-    if (chatRoom.isRequests != ({})) {
-      DocumentSnapshot documentSnapshot = await firestore
-          .collection('chatrooms')
-          .doc(chatRoom.chatroomid)
-          .get();
-      Map<String, bool> participantsMap =
-          Map<String, bool>.from(documentSnapshot['participants']);
+    DocumentSnapshot documentSnapshot =
+        await firestore.collection('chatrooms').doc(chatRoom.chatroomid).get();
+    Map<String, bool> participantsMap =
+        Map<String, bool>.from(documentSnapshot['participants']);
+    // if (chatRoom.isRequests != ({})) {
 
-      participantsMap.updateAll((key, value) => true);
-      await firestore
-          .collection('chatrooms')
-          .doc(chatRoom.chatroomid)
-          .update({'participants': participantsMap});
-    }
+    //   participantsMap.updateAll((key, value) => true);
+    //   await firestore
+    //       .collection('chatrooms')
+    //       .doc(chatRoom.chatroomid)
+    //       .update({'participants': participantsMap});
+    // }
     final now = DateTime.now().millisecondsSinceEpoch.toString();
     final messageId = uuid.v8();
     final userData = await FirebaseFirestore.instance

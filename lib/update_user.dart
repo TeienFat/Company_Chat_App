@@ -55,7 +55,7 @@ class _UpdateUserState extends State<UpdateUser> {
                       isOnline: widget.userChat!.isOnline,
                       email: widget.userChat!.email,
                     );
-                    await APIs.updateUserFormId(userChat);
+                    await APIs.updateUserName(txtUserName.text);
                     Navigator.pop(context);
                   },
                   child: Row(

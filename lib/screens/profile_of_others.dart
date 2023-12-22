@@ -5,7 +5,8 @@ import 'package:company_chat_app_demo/screens/nick_name.dart';
 import 'package:flutter/material.dart';
 
 class ProfileOfOthersScreen extends StatefulWidget {
-  const ProfileOfOthersScreen({super.key});
+  ProfileOfOthersScreen({super.key, required this.id});
+  final String id;
 
   @override
   State<ProfileOfOthersScreen> createState() => _ProfileScreenState();
@@ -23,14 +24,18 @@ class _ProfileScreenState extends State<ProfileOfOthersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<UserChat> lisUserchat;
-
     return FutureBuilder(
-      future: APIs.getUserFormId(APIs.firebaseAuth.currentUser!.uid),
+      future: APIs.getUserFormId(widget.id),
       builder: (context, userIDSnapShot) {
         if (userIDSnapShot.connectionState == ConnectionState.done) {
           UserChat userchat = userIDSnapShot.data!;
           return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Thông tin người dùng',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
             body: SingleChildScrollView(
               child: Center(
                 child: Column(
@@ -121,7 +126,7 @@ class _ProfileScreenState extends State<ProfileOfOthersScreen> {
                       ],
                     ),
                     SizedBox(
-                      height: 150,
+                      height: 300,
                     ),
                     ElevatedButton(
                       onPressed: () => showDialog<String>(
