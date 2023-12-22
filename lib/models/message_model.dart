@@ -1,4 +1,4 @@
-class Message {
+class MessageChat {
   String? messageId;
   String? fromId;
   String? msg;
@@ -9,7 +9,7 @@ class Message {
   Type? type;
   List<String>? receivers;
 
-  Message(
+  MessageChat(
       {required this.messageId,
       required this.fromId,
       required this.msg,
@@ -20,7 +20,7 @@ class Message {
       required this.type,
       required this.receivers});
 
-  Message.fromMap(Map<String, dynamic> map) {
+  MessageChat.fromMap(Map<String, dynamic> map) {
     messageId = map['messageId'];
     fromId = map['fromId'];
     msg = map['msg'];

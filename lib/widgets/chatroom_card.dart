@@ -24,7 +24,7 @@ class ChatRoomCard extends StatefulWidget {
 }
 
 class _ChatRoomCardState extends State<ChatRoomCard> {
-  Message? _message;
+  MessageChat? _message;
   void _openAddGroupOverlay(BuildContext ctx, String chatRoomId) {
     showModalBottomSheet(
       useSafeArea: true,
@@ -82,7 +82,7 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
               );
             }
             final data = lastMessageSnapshot.data!.docs;
-            final list = data.map((e) => Message.fromMap(e.data())).toList();
+            final list = data.map((e) => MessageChat.fromMap(e.data())).toList();
             if (list.isNotEmpty) _message = list[0];
             return Container(
               margin: const EdgeInsets.only(bottom: 12, top: 16),

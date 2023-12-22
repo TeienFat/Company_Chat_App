@@ -13,7 +13,7 @@ class ChatMessage extends StatefulWidget {
 }
 
 class _ChatMessageState extends State<ChatMessage> {
-  List<Message> listMessage = [];
+  List<MessageChat> listMessage = [];
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class _ChatMessageState extends State<ChatMessage> {
           );
         }
         final data = messageSnapshot.data!.docs;
-        listMessage = data.map((e) => Message.fromMap(e.data())).toList();
+        listMessage = data.map((e) => MessageChat.fromMap(e.data())).toList();
         listMessage.sort((a,b) {
           if(int.parse(a.sent!) > (int.parse(b.sent!))){
             return 0;

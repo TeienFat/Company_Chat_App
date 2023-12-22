@@ -12,7 +12,7 @@ class SearchMessageScreen extends StatefulWidget {
 }
 
 class _SearchMessageScreenState extends State<SearchMessageScreen> {
-  List<Message> listMessage = [];
+  List<MessageChat> listMessage = [];
 
   void searchMessage(String _enteredKeyword) async{
     listMessage = await APIs.getSearchMessage(_enteredKeyword, widget.chatroom.chatroomid!);
