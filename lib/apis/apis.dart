@@ -129,9 +129,11 @@ class APIs {
     return userchat;
   }
 
-  static Future<void> updateUserFormId(UserChat userChat) async {
-    DocumentReference? documentReference;
-    await documentReference!.update(userChat.toMap());
+  static Future<void> updateUserName(String userName) async {
+    return firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update({'username': userName});
   }
 
   static getLastWordOfName(String name) {
@@ -202,6 +204,14 @@ class APIs {
         .doc(chatRoomId)
         .set(chatroom.toMap());
     return chatroom;
+  }
+
+  static Future<void> updateNameChatRoom(
+      String chatRomID, String chatRoomName) async {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRomID)
+        .update({'chatroomname': chatRoomName});
   }
 
   static Future<void> leaveTheGroupChat(

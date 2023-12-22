@@ -16,6 +16,7 @@ class MenuOptionSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String UsesID = userId;
     String username = APIs.getLastWordOfName(userName);
     Future<void> _showDialog(BuildContext context) async {
       await showDialog(
@@ -86,7 +87,8 @@ class MenuOptionSetting extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ProfileOfOthersScreen()));
+                            builder: (context) =>
+                                ProfileOfOthersScreen(id: UsesID)));
                   },
                   child: Container(
                     height: constraints.maxHeight / 12,
