@@ -60,12 +60,12 @@ class _ChatMessageState extends State<ChatMessage> {
         }
         final data = messageSnapshot.data!.docs;
         listMessage = data.map((e) => MessageChat.fromMap(e.data())).toList();
-        listMessage.sort((a,b) {
-          if(int.parse(a.sent!) > (int.parse(b.sent!))){
+        listMessage.sort((a, b) {
+          if (int.parse(a.sent!) > (int.parse(b.sent!))) {
             return 0;
           }
           return 1;
-        } );
+        });
 
         return ListView.builder(
           padding: const EdgeInsets.all(13),
@@ -84,7 +84,13 @@ class _ChatMessageState extends State<ChatMessage> {
                 prevChatMessage != null ? prevChatMessage.fromId : null;
             final nextUserIsSame = nextMessageUserId == currentMessageUserId;
             final prevUserIsSame = prevMessageUserId == currentMessageUserId;
-
+            if (chatMessage.type == Type.sound) {
+              return Center(
+                  child: Text(
+                chatMessage.msg!,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ));
+            }
             if (APIs.firebaseAuth.currentUser!.uid == currentMessageUserId &&
                 prevChatMessage != null &&
                 prevChatMessage.read == '') {

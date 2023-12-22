@@ -7,7 +7,6 @@ import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
@@ -199,6 +198,14 @@ class APIs {
 
   static Future<ChatRoom> createGroupChatroom(Map<String, bool> participantsId,
       String chatRoomId, String chatRoomName) async {
+    UserChat userchat;
+
+    DocumentSnapshot docSnap = await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .get();
+
+    userchat = UserChat.fromMap(docSnap.data() as Map<String, dynamic>);
     participantsId.addAll({firebaseAuth.currentUser!.uid: true});
     final chatroom = ChatRoom(
         chatroomid: chatRoomId,
@@ -212,6 +219,8 @@ class APIs {
         .collection('chatrooms')
         .doc(chatRoomId)
         .set(chatroom.toMap());
+    await sendMessage(
+        chatroom, userchat.username! + " đã tạo nhóm", Type.sound);
     return chatroom;
   }
 
@@ -262,7 +271,7 @@ class APIs {
         .doc(firebaseAuth.currentUser!.uid)
         .get();
     UserChat user = UserChat.fromMap(userData.data()!);
-    
+
     final MessageChat message = MessageChat(
       messageId: messageId,
       fromId: firebaseAuth.currentUser!.uid,
@@ -283,17 +292,22 @@ class APIs {
         .doc(chatRoom.chatroomid)
         .collection('messages')
         .doc(messageId)
-        .set(message.toMap()).then((value) {
-          participantsMap.keys.where((element) => element != firebaseAuth.currentUser!.uid).toList().forEach((element) async {
-            print(element);
-            final userChatData = await FirebaseFirestore.instance
+        .set(message.toMap())
+        .then((value) {
+      participantsMap.keys
+          .where((element) => element != firebaseAuth.currentUser!.uid)
+          .toList()
+          .forEach((element) async {
+        print(element);
+        final userChatData = await FirebaseFirestore.instance
             .collection('user')
             .doc(element)
             .get();
-            UserChat userChat = UserChat.fromMap(userChatData.data()!);
-          sendNotification(userChat, user, type == Type.text ? msg : 'Đã gửi một file');
-          });
-        });
+        UserChat userChat = UserChat.fromMap(userChatData.data()!);
+        sendNotification(
+            userChat, user, type == Type.text ? msg : 'Đã gửi một file');
+      });
+    });
   }
 
   static Future<void> sendMediaMessage(
@@ -384,7 +398,7 @@ class APIs {
     await firestore
         .collection('user')
         .doc(firebaseAuth.currentUser!.uid)
-        .update({'isOnline': isOnline,'token': token});
+        .update({'isOnline': isOnline, 'token': token});
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getInfoUser(
@@ -454,34 +468,38 @@ class APIs {
         .limit(1)
         .snapshots();
   }
-  static Future<void> getFirebaseMessageingToken(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async{
+
+  static Future<void> getFirebaseMessageingToken() async {
     await firebaseMessaging.requestPermission();
     firebaseMessaging.getToken().then((t) {
-      if(t != null){
+      if (t != null) {
         token = t;
         print('Push token: $t');
       }
     });
   }
-  static Future<void> sendNotification(UserChat user,UserChat userChat, String msg)async{
-    try{
+
+  static Future<void> sendNotification(
+      UserChat user, UserChat userChat, String msg) async {
+    try {
       final body = {
         "to": user.token,
-        "notification":{
-            "title": userChat.username,
-            "body": msg,
+        "notification": {
+          "title": userChat.username,
+          "body": msg,
         },
       };
-      var response = await post(
-        Uri.parse('https://fcm.googleapis.com/fcm/send'),
-        headers:{
-          HttpHeaders.contentTypeHeader:'application/json',
-          HttpHeaders.authorizationHeader:'key=AAAAyIzqsa4:APA91bGuZ6FkmLcZmsYIZtjNamGactWlmyXVRL8yuiwNjk4-Tf7ukUo_TWurGtw2b7pZZBneByzKJv_F8TAzN01hW93bcV88Coi-cRwX8tnm0_pcU7gMHVplwOyZQ3zyw_dhaNCrvetl'
-        },
-        body: jsonEncode(body));
+      var response =
+          await post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
+              headers: {
+                HttpHeaders.contentTypeHeader: 'application/json',
+                HttpHeaders.authorizationHeader:
+                    'key=AAAAyIzqsa4:APA91bGuZ6FkmLcZmsYIZtjNamGactWlmyXVRL8yuiwNjk4-Tf7ukUo_TWurGtw2b7pZZBneByzKJv_F8TAzN01hW93bcV88Coi-cRwX8tnm0_pcU7gMHVplwOyZQ3zyw_dhaNCrvetl'
+              },
+              body: jsonEncode(body));
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
-    }catch(e){
+    } catch (e) {
       print('\nSendNotification: $e');
     }
   }

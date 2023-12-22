@@ -53,6 +53,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       if (message.toString().contains('resume')) APIs.updateStatus(true);
       return Future.value(message);
     });
+    APIs.getFirebaseMessageingToken();
   }
 
   @override
