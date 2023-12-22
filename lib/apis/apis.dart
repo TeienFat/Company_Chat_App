@@ -17,13 +17,6 @@ class APIs {
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUser() {
-    return firestore
-        .collection('user')
-        .where('id', isNotEqualTo: firebaseAuth.currentUser!.uid)
-        .snapshots();
-  }
-
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers() {
     return firestore.collection('user').snapshots();
   }
 
@@ -34,12 +27,22 @@ class APIs {
         .snapshots();
   }
 
-  static Future<String> saveImage(
-      String imageName, File imageFile, String path) async {
+  static Future<String> saveMedia(
+      int type, String mediaName, File mediaFile, String path) async {
+    final ext = mediaFile.path.split('.').last;
     final storageRef =
-        await fireStorage.ref().child(path).child('${imageName}.jpg');
-    await storageRef.putFile(
-        imageFile, SettableMetadata(contentType: 'image/jpg'));
+        await fireStorage.ref().child(path).child('${mediaName}.$ext');
+    switch (type) {
+      case 0:
+        await storageRef.putFile(
+            mediaFile, SettableMetadata(contentType: 'image/$ext'));
+        break;
+      case 1:
+        await storageRef.putFile(
+            mediaFile, SettableMetadata(contentType: 'video/$ext'));
+        break;
+    }
+
     return await storageRef.getDownloadURL();
   }
 
@@ -50,7 +53,8 @@ class APIs {
         imageUrl: imageUrl,
         username: userName,
         isOnline: false,
-        email: email);
+        email: email,
+        blockUsers: []);
     return await firestore.collection('user').doc(userId).set(user.toMap());
   }
 
@@ -85,21 +89,6 @@ class APIs {
           await firestore.collection('chatrooms').doc(chatroomId).get();
 
       chatroom = ChatRoom.fromMap(docSnap.data() as Map<String, dynamic>);
-
-      bool hasDel = await checkCurrentUserHasDeletedChatRoom(
-          firebaseAuth.currentUser!.uid, userId);
-
-      if (hasDel) {
-        DocumentSnapshot documentSnapshot =
-            await firestore.collection('chatrooms').doc(chatroomId).get();
-        Map<String, bool> participantsMap =
-            Map<String, bool>.from(documentSnapshot['participants']);
-        participantsMap.update(firebaseAuth.currentUser!.uid, (value) => false);
-        await firestore
-            .collection('chatrooms')
-            .doc(chatroomId)
-            .update({'participants': participantsMap});
-      }
     } else {
       chatroom = ChatRoom(
         chatroomid: newChatroomId,
@@ -107,7 +96,7 @@ class APIs {
         imageUrl: '',
         participants: ({firebaseAuth.currentUser!.uid: false, userId: false}),
         type: true,
-        isRequests: ({'from': firebaseAuth.currentUser!.uid, 'to': userId}),
+        isRequests: ({}),
       );
       await firestore
           .collection('chatrooms')
@@ -146,24 +135,6 @@ class APIs {
         .update({'username': userName});
   }
 
-  static Future<bool> checkCurrentUserHasDeletedChatRoom(
-      String currentUserId, String userId) async {
-    String chatroomId =
-        await getChatroomIdWhenUserHasChatRoomDirect(currentUserId, userId);
-    DocumentSnapshot chatroomSnapshot =
-        await firestore.collection('chatrooms').doc(chatroomId).get();
-    if (chatroomSnapshot.exists) {
-      Map<String, bool> mapParticipants =
-          Map<String, bool>.from(chatroomSnapshot['participants']);
-      bool inChatRoom = mapParticipants[firebaseAuth.currentUser!.uid]!;
-      if (!inChatRoom) {
-        return true;
-      } else
-        return false;
-    } else
-      return false;
-  }
-
   static getLastWordOfName(String name) {
     List<String> words = name.split(" ");
     return words[words.length - 1];
@@ -175,22 +146,20 @@ class APIs {
     Map<String, bool> participantsMap =
         Map<String, bool>.from(documentSnapshot['participants']);
 
-    print(participantsMap.values);
-
     participantsMap.update(firebaseAuth.currentUser!.uid, (value) => false);
-
-    print(participantsMap.values);
-
-    if (participantsMap.values.every((values) => values == false)) {
-      await firestore.collection('chatrooms').doc(chatroomId).delete();
-      print('đã xoá');
-    } else {
-      await firestore
-          .collection('chatrooms')
-          .doc(chatroomId)
-          .update({'participants': participantsMap});
-      print('chưa xoá được');
-    }
+    await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .update({'participants': participantsMap});
+    var querySnapshot = await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .get();
+    participantsMap.remove(firebaseAuth.currentUser!.uid);
+    querySnapshot.docs.forEach((element) {
+      element.reference.update({'receivers': participantsMap.keys});
+    });
   }
 
   static Future<String> getChatRoomName(ChatRoom chatRoom) async {
@@ -212,7 +181,10 @@ class APIs {
         name = name + getLastWordOfName(userchat.username!);
       }
     }
-    return name + " và " + (numOfParticipants - 3).toString() + " người khác";
+    if ((numOfParticipants - 3) <= 0)
+      return name;
+    else
+      return name + " và " + (numOfParticipants - 3).toString() + " người khác";
   }
 
   static Future<ChatRoom> createGroupChatroom(Map<String, bool> participantsId,
@@ -250,19 +222,27 @@ class APIs {
         .update({'participants': participants});
   }
 
-  static Future<void> sendMessage(ChatRoom chatRoom, String msg) async {
+  static Future<void> sendMessage(
+      ChatRoom chatRoom, String msg, Type type) async {
     DocumentSnapshot documentSnapshot =
         await firestore.collection('chatrooms').doc(chatRoom.chatroomid).get();
+
     Map<String, bool> participantsMap =
         Map<String, bool>.from(documentSnapshot['participants']);
-    // if (chatRoom.isRequests != ({})) {
-
-    //   participantsMap.updateAll((key, value) => true);
-    //   await firestore
-    //       .collection('chatrooms')
-    //       .doc(chatRoom.chatroomid)
-    //       .update({'participants': participantsMap});
-    // }
+    if (chatRoom.type!) {
+      String user = participantsMap.keys
+          .firstWhere((element) => element != firebaseAuth.currentUser!.uid)
+          .toString();
+      if (!await isBlockedByOther(user)) {
+        participantsMap.updateAll((key, value) => true);
+        await firestore
+            .collection('chatrooms')
+            .doc(chatRoom.chatroomid)
+            .update({'participants': participantsMap});
+      } else {
+        participantsMap.removeWhere((key, value) => key == user);
+      }
+    }
     final now = DateTime.now().millisecondsSinceEpoch.toString();
     final messageId = uuid.v8();
     final userData = await FirebaseFirestore.instance
@@ -277,6 +257,8 @@ class APIs {
       sent: now,
       userName: userData.data()!['username'],
       userImage: userData.data()!['imageUrl'],
+      type: type,
+      receivers: participantsMap.keys.toList(),
     );
     await firestore
         .collection('chatrooms')
@@ -284,6 +266,24 @@ class APIs {
         .collection('messages')
         .doc(messageId)
         .set(message.toMap());
+  }
+
+  static Future<void> sendMediaMessage(
+      int type, ChatRoom chatRoom, File mediaFile) async {
+    final mediaName = DateTime.now().millisecondsSinceEpoch;
+    var mediaUrl;
+    switch (type) {
+      case 0:
+        mediaUrl = await saveMedia(
+            0, mediaName.toString(), mediaFile, 'message_images');
+        await sendMessage(chatRoom, mediaUrl, Type.image);
+        break;
+      case 1:
+        mediaUrl = await saveMedia(
+            1, mediaName.toString(), mediaFile, 'message_images');
+        await sendMessage(chatRoom, mediaUrl, Type.video);
+        break;
+    }
   }
 
   static Future<void> updateMessageReadStatus(
@@ -304,7 +304,8 @@ class APIs {
         .collection('chatrooms')
         .doc(chatRoomId)
         .collection('messages')
-        .orderBy('sent', descending: true)
+        .where('receivers', arrayContains: firebaseAuth.currentUser!.uid)
+        //.orderBy('sent', descending: true)
         .snapshots();
   }
 
@@ -364,5 +365,54 @@ class APIs {
         .collection('user')
         .where('id', isEqualTo: userId)
         .snapshots();
+  }
+
+  static Future<void> blockUser(String idUser) async {
+    await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update(
+      {
+        'blockUsers': FieldValue.arrayUnion([idUser]),
+      },
+    );
+    var querySnapshot = await firestore.collection('chatrooms').get();
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      Map<String, bool> mapParticipants =
+          Map<String, bool>.from(doc['participants']);
+      String chatroomId = doc['chatroomid'];
+      bool type = doc['type'];
+      if (type) if (mapParticipants.containsKey(idUser) &&
+          mapParticipants.containsKey(firebaseAuth.currentUser!.uid)) {
+        mapParticipants.update(firebaseAuth.currentUser!.uid, (value) => false);
+        await firestore
+            .collection('chatrooms')
+            .doc(chatroomId)
+            .update({'participants': mapParticipants});
+      }
+    }
+  }
+
+  static Future<bool> isBlockedByOther(String idUser) async {
+    DocumentSnapshot document =
+        await firestore.collection('user').doc(idUser).get();
+    List<dynamic> listBlockUsers = document['blockUsers'];
+    if (listBlockUsers.contains(firebaseAuth.currentUser!.uid)) {
+      return true;
+    } else
+      return false;
+  }
+
+  static Future<bool> hasBlockOther(String idUser) async {
+    DocumentSnapshot document = await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .get();
+    List<dynamic> listBlockUsers = document['blockUsers'];
+    if (listBlockUsers.contains(idUser)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

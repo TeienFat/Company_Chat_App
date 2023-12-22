@@ -41,9 +41,9 @@ class _AuthScreenState extends State<AuthScreen> {
         final userCredential = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
         if (_selectedImage != null) {
-          final imageUrl = APIs.saveImage(
-              userCredential.user!.uid, _selectedImage!, 'user_images');
-          APIs.createNewUser(userCredential.user!.uid, await imageUrl,
+          final imageUrl = await APIs.saveMedia(
+              0, userCredential.user!.uid, _selectedImage!, 'user_images');
+          APIs.createNewUser(userCredential.user!.uid, imageUrl,
               _enteredUserName, _enteredEmail);
         } else {
           APIs.createNewUser(
@@ -112,7 +112,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               return null;
                             },
                             onSaved: (value) {
-                              _enteredEmail = value!.trim();
+                              _enteredEmail = value!;
                             },
                           ),
                           SizedBox(
@@ -133,7 +133,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                _enteredUserName = value!.trim();
+                                _enteredUserName = value!;
                               },
                             ),
                           SizedBox(
@@ -153,10 +153,10 @@ class _AuthScreenState extends State<AuthScreen> {
                               return null;
                             },
                             onFieldSubmitted: (value) {
-                              _enteredPassword = value.trim();
+                              _enteredPassword = value;
                             },
                             onSaved: (value) {
-                              _enteredPassword = value!.trim();
+                              _enteredPassword = value!;
                             },
                           ),
                           SizedBox(
@@ -177,7 +177,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                _enteredRePassword = value!.trim();
+                                _enteredRePassword = value!;
                               },
                             ),
                           SizedBox(

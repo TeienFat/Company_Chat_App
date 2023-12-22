@@ -48,13 +48,6 @@ class _UpdateUserState extends State<UpdateUser> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    UserChat userChat = UserChat(
-                      id: widget.userChat!.id,
-                      imageUrl: widget.userChat!.imageUrl,
-                      username: txtUserName.text,
-                      isOnline: widget.userChat!.isOnline,
-                      email: widget.userChat!.email,
-                    );
                     await APIs.updateUserName(txtUserName.text);
                     Navigator.pop(context);
                   },

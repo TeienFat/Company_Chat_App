@@ -16,6 +16,17 @@ class _ContactScreenState extends State<ContactScreen> {
   List<UserChat> _list = [];
   List<UserChat> _searchList = [];
 
+  int getIndexUser(){
+    int index = 0;
+    for(UserChat user in _list){
+      if(user.id == APIs.firebaseAuth.currentUser!.uid){
+        index = _list.indexOf(user);
+        break;
+      }
+    }
+    return index;
+  }
+
   void _runFilter(String _enteredKeyword) {
     _searchList.clear();
     for (var user in _list) {
@@ -65,6 +76,10 @@ class _ContactScreenState extends State<ContactScreen> {
                 }
                 final data = userSnapshot.data!.docs;
                 _list = data.map((e) => UserChat.fromMap(e.data())).toList();
+                List<String> blockUsers = _list[getIndexUser()].blockUsers!;
+                _list.removeWhere((user) => user.id == APIs.firebaseAuth.currentUser!.uid);
+                _list.removeWhere((user) => blockUsers.contains(user.id));
+                print(blockUsers);
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
@@ -79,8 +94,8 @@ class _ContactScreenState extends State<ContactScreen> {
                           isSearching
                               ? (_searchList.isEmpty
                                 ? Text('Không tìm thấy người dùng nào')
-                                : UserCard(user: _searchList[index]))
-                              : UserCard(user: _list[index])
+                                : UserCard.contact(user: _searchList[index]))
+                              : UserCard.contact(user: _list[index])
                         ],
                       );
                     },

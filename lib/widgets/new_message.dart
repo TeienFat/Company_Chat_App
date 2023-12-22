@@ -1,20 +1,27 @@
+import 'dart:io';
+
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/main.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/message_model.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_image.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_video.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class NewMessage extends StatefulWidget {
-  const NewMessage({super.key, required this.chatRoom});
+  const NewMessage({super.key, required this.chatRoom, required this.onUpload});
   final ChatRoom chatRoom;
+  final Function(bool upLoad) onUpload;
   @override
   State<NewMessage> createState() => _NewMessageState();
 }
 
 class _NewMessageState extends State<NewMessage> {
-  bool _isTyping = true;
+  bool _isTyping = false;
   TextEditingController _messageController = TextEditingController();
 
-  void _sendMessage() {
+  void _sendTextMessage() {
     final enteredMessage = _messageController.text;
     if (enteredMessage.trim().isEmpty) {
       return;
@@ -22,11 +29,81 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
-    APIs.sendMessage(widget.chatRoom, enteredMessage.trim());
+    APIs.sendMessage(widget.chatRoom, enteredMessage.trim(), Type.text);
   }
 
   @override
   Widget build(BuildContext context) {
+    void _sendImageMessage(bool pickerType) async {
+      var pickedImage;
+      if (pickerType) {
+        pickedImage = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          imageQuality: 100,
+          maxWidth: 295,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(0, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      } else {
+        pickedImage = await ImagePicker().pickMultiImage(
+          imageQuality: 100,
+          maxWidth: 295,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        for (var i in pickedImage) {
+          await APIs.sendMediaMessage(0, widget.chatRoom, File(i.path));
+        }
+        setState(() {
+          widget.onUpload(false);
+        });
+      }
+    }
+
+    void _sendVideoMessage(bool pickerType) async {
+      var pickedImage;
+      if (pickerType) {
+        pickedImage = await ImagePicker().pickVideo(
+          source: ImageSource.camera,
+        );
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      } else {
+        pickedImage =
+            await ImagePicker().pickVideo(source: ImageSource.gallery);
+        if (pickedImage == null) {
+          return;
+        }
+        setState(() {
+          widget.onUpload(true);
+        });
+        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        setState(() {
+          widget.onUpload(false);
+        });
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -44,11 +121,37 @@ class _NewMessageState extends State<NewMessage> {
               : Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showModalBottomSheet(
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => MenuPickImage(
+                              onPickImage: (type) => _sendImageMessage(type),
+                            ),
+                          );
+                        },
                         icon: Icon(
                           Icons.image,
+                          color: kColorScheme.primary,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => MenuPickVideo(
+                              onPickVideo: (type) => _sendVideoMessage(type),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.video_library,
                           color: kColorScheme.primary,
                         ),
                       ),
@@ -118,7 +221,7 @@ class _NewMessageState extends State<NewMessage> {
           ),
           IconButton(
             color: Theme.of(context).colorScheme.primary,
-            onPressed: _sendMessage,
+            onPressed: _sendTextMessage,
             icon: Icon(Icons.send),
           )
         ],
