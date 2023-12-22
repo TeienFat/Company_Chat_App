@@ -59,7 +59,7 @@ class APIs {
         id: userId,
         imageUrl: imageUrl,
         username: userName,
-        isOnline: false,
+        isOnline: true,
         email: email,
         blockUsers: [],
         token: "");
@@ -298,7 +298,6 @@ class APIs {
           .where((element) => element != firebaseAuth.currentUser!.uid)
           .toList()
           .forEach((element) async {
-        print(element);
         final userChatData = await FirebaseFirestore.instance
             .collection('user')
             .doc(element)
@@ -477,6 +476,14 @@ class APIs {
         print('Push token: $t');
       }
     });
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        print('Message also contained a notification: ${message.notification}');
+      }
+    });
   }
 
   static Future<void> sendNotification(
@@ -487,6 +494,10 @@ class APIs {
         "notification": {
           "title": userChat.username,
           "body": msg,
+<<<<<<< HEAD
+=======
+          "android_channel_id": "chat"
+>>>>>>> main
         },
       };
       var response =

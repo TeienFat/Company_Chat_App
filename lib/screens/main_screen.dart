@@ -1,3 +1,4 @@
+import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/screens/chat_home.dart';
 import 'package:company_chat_app_demo/screens/contact.dart';
 import 'package:company_chat_app_demo/screens/new_group.dart';
@@ -5,6 +6,7 @@ import 'package:company_chat_app_demo/screens/profile.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -45,6 +47,18 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context) => NewGroupChat(),
     );
   }
+  @override
+  void initState() {
+    super.initState();
+    APIs.getFirebaseMessageingToken();
+    APIs.updateStatus(true);
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      if (message.toString().contains('pause')) APIs.updateStatus(false);
+      if (message.toString().contains('resume')) APIs.updateStatus(true);
+      print(message);
+      return Future.value(message);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +74,7 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             onPressed: () {
               FirebaseAuth.instance.signOut();
+              APIs.updateStatus(false);
             },
             icon: Icon(
               Icons.logout_sharp,

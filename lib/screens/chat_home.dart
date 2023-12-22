@@ -4,7 +4,6 @@ import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/widgets/chatroom_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ChatHomeScreen extends StatefulWidget {
   const ChatHomeScreen({super.key});
@@ -42,18 +41,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       isSearching = true;
       _searchListChatRoom;
     });
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    SystemChannels.lifecycle.setMessageHandler((message) {
-      if (message.toString().contains('pause')) APIs.updateStatus(false);
-      if (message.toString().contains('resume')) APIs.updateStatus(true);
-      return Future.value(message);
-    });
-    APIs.getFirebaseMessageingToken();
   }
 
   @override
