@@ -24,7 +24,7 @@ class MessageBubble extends StatelessWidget {
     required this.isLastInSequence,
     required this.isLastMessage,
   }) : isFirstInSequence = false;
-  final Message message;
+  final MessageChat message;
   final String chatRoomId;
   final bool typeChat;
   final bool isMe;

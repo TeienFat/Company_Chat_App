@@ -1,10 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
 var uuid = Uuid();
@@ -15,6 +19,10 @@ class APIs {
   static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
+  static String token = "";
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUser() {
     return firestore.collection('user').snapshots();
@@ -54,7 +62,8 @@ class APIs {
         username: userName,
         isOnline: false,
         email: email,
-        blockUsers: []);
+        blockUsers: [],
+        token: "");
     return await firestore.collection('user').doc(userId).set(user.toMap());
   }
 
@@ -233,18 +242,21 @@ class APIs {
     }
     final now = DateTime.now().millisecondsSinceEpoch.toString();
     final messageId = uuid.v8();
+
     final userData = await FirebaseFirestore.instance
         .collection('user')
         .doc(firebaseAuth.currentUser!.uid)
         .get();
-    final Message message = Message(
+    UserChat user = UserChat.fromMap(userData.data()!);
+    
+    final MessageChat message = MessageChat(
       messageId: messageId,
       fromId: firebaseAuth.currentUser!.uid,
       msg: msg,
       read: '',
       sent: now,
-      userName: userData.data()!['username'],
-      userImage: userData.data()!['imageUrl'],
+      userName: user.username,
+      userImage: user.imageUrl,
       type: type,
       receivers: participantsMap.keys.toList(),
     );
@@ -253,7 +265,17 @@ class APIs {
         .doc(chatRoom.chatroomid)
         .collection('messages')
         .doc(messageId)
-        .set(message.toMap());
+        .set(message.toMap()).then((value) {
+          participantsMap.keys.where((element) => element != firebaseAuth.currentUser!.uid).toList().forEach((element) async {
+            print(element);
+            final userChatData = await FirebaseFirestore.instance
+            .collection('user')
+            .doc(element)
+            .get();
+            UserChat userChat = UserChat.fromMap(userChatData.data()!);
+          sendNotification(userChat, user, type == Type.text ? msg : 'Đã gửi một file');
+          });
+        });
   }
 
   static Future<void> sendMediaMessage(
@@ -320,7 +342,7 @@ class APIs {
         .update({'isRequests': ({})});
   }
 
-  static Future<List<Message>> getSearchMessage(
+  static Future<List<MessageChat>> getSearchMessage(
       String _enteredWord, String chatRoomId) async {
     QuerySnapshot querySnapshot = await firestore
         .collection('chatrooms')
@@ -328,11 +350,11 @@ class APIs {
         .collection('messages')
         .get();
 
-    List<Message> listMessage = querySnapshot.docs
-        .map((e) => Message.fromMap(e.data() as Map<String, dynamic>))
+    List<MessageChat> listMessage = querySnapshot.docs
+        .map((e) => MessageChat.fromMap(e.data() as Map<String, dynamic>))
         .toList();
-    List<Message> listSearchMessage = [];
-    for (Message message in listMessage) {
+    List<MessageChat> listSearchMessage = [];
+    for (MessageChat message in listMessage) {
       if (message.msg!.toLowerCase().contains(_enteredWord.toLowerCase())) {
         listSearchMessage.add(message);
       }
@@ -344,7 +366,7 @@ class APIs {
     await firestore
         .collection('user')
         .doc(firebaseAuth.currentUser!.uid)
-        .update({'isOnline': isOnline});
+        .update({'isOnline': isOnline,'token': token});
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getInfoUser(
@@ -398,6 +420,37 @@ class APIs {
       return true;
     } else{
       return false;
+    }
+  }
+  static Future<void> getFirebaseMessageingToken(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async{
+    await firebaseMessaging.requestPermission();
+    firebaseMessaging.getToken().then((t) {
+      if(t != null){
+        token = t;
+        print('Push token: $t');
+      }
+    });
+  }
+  static Future<void> sendNotification(UserChat user,UserChat userChat, String msg)async{
+    try{
+      final body = {
+        "to": user.token,
+        "notification":{
+            "title": userChat.username,
+            "body": msg,
+        },
+      };
+      var response = await post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers:{
+          HttpHeaders.contentTypeHeader:'application/json',
+          HttpHeaders.authorizationHeader:'key=AAAAyIzqsa4:APA91bGuZ6FkmLcZmsYIZtjNamGactWlmyXVRL8yuiwNjk4-Tf7ukUo_TWurGtw2b7pZZBneByzKJv_F8TAzN01hW93bcV88Coi-cRwX8tnm0_pcU7gMHVplwOyZQ3zyw_dhaNCrvetl'
+        },
+        body: jsonEncode(body));
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }catch(e){
+      print('\nSendNotification: $e');
     }
   }
 }
