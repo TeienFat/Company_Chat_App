@@ -5,6 +5,7 @@ class ChatRoom {
   Map<String, bool>? participants;
   bool? type;
   Map<String, String>? isRequests;
+  String? lastSend;
 
   ChatRoom(
       {required this.chatroomid,
@@ -12,7 +13,8 @@ class ChatRoom {
       required this.imageUrl,
       required this.participants,
       required this.type,
-      required this.isRequests});
+      required this.isRequests,
+      required this.lastSend});
 
   ChatRoom.fromMap(Map<String, dynamic> map) {
     chatroomid = map['chatroomid'];
@@ -21,6 +23,7 @@ class ChatRoom {
     participants = Map<String, bool>.from(map['participants']);
     type = map['type'];
     isRequests = Map<String, String>.from(map['isRequests']);
+    lastSend = map['lastSend'];
   }
 
   Map<String, dynamic> toMap() {
@@ -31,6 +34,7 @@ class ChatRoom {
       'participants': participants,
       'type': type,
       'isRequests': isRequests,
+      'lastSend': lastSend,
     });
   }
 }

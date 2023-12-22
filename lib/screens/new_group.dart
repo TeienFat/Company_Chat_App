@@ -208,6 +208,8 @@ class _NewGroupChatState extends State<NewGroupChat> {
                     final data = userSnapshot.data!.docs;
                     _list =
                         data.map((e) => UserChat.fromMap(e.data())).toList();
+                    _list.removeWhere((element) =>
+                        element.id == APIs.firebaseAuth.currentUser!.uid);
                     return Expanded(
                       child: ListView.builder(
                         shrinkWrap: true,

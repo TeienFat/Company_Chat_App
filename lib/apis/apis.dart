@@ -97,6 +97,7 @@ class APIs {
         participants: ({firebaseAuth.currentUser!.uid: false, userId: false}),
         type: true,
         isRequests: ({}),
+        lastSend: '0',
       );
       await firestore
           .collection('chatrooms')
@@ -196,7 +197,8 @@ class APIs {
         imageUrl: '',
         participants: participantsId,
         type: false,
-        isRequests: ({}));
+        isRequests: ({}),
+        lastSend: '0');
     await firestore
         .collection('chatrooms')
         .doc(chatRoomId)
@@ -260,6 +262,10 @@ class APIs {
       type: type,
       receivers: participantsMap.keys.toList(),
     );
+    await firestore
+        .collection('chatrooms')
+        .doc(chatRoom.chatroomid)
+        .update({'lastSend': now});
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -414,5 +420,16 @@ class APIs {
     } else {
       return false;
     }
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      String chatRoomId) {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
   }
 }

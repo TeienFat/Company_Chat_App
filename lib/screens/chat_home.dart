@@ -92,9 +92,12 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
               _listChatroom = data
                   .map<ChatRoom>((e) => ChatRoom.fromMap(e.data()))
                   .toList();
-              // _listChatroom.sort(
-              //   (a, b) => a.chatroomname!.compareTo(b.chatroomname!),
-              // );
+              _listChatroom.sort((a, b) {
+                if (int.parse(a.lastSend!) > (int.parse(b.lastSend!))) {
+                  return 0;
+                }
+                return 1;
+              });
               return Expanded(
                 child: ListView.builder(
                   itemCount: isSearching
