@@ -1,18 +1,31 @@
+import 'package:company_chat_app_demo/apis/apis.dart';
+import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat.dart';
 import 'package:company_chat_app_demo/widgets/menu_option_chatroom.dart';
 import 'package:flutter/material.dart';
 
-class ChatRoomCard extends StatelessWidget {
-  ChatRoomCard.direct({super.key,required this.chatRoom, required this.userchat}): this.groupName = '';
-  ChatRoomCard.group({super.key,required this.chatRoom, required this.groupName}): this.userchat = null;
+class ChatRoomCard extends StatefulWidget {
+  ChatRoomCard.direct(
+      {super.key, required this.chatRoom, required this.userchat})
+      : this.groupName = '';
+  ChatRoomCard.group(
+      {super.key, required this.chatRoom, required this.groupName})
+      : this.userchat = null;
 
   final ChatRoom chatRoom;
   final UserChat? userchat;
   final String groupName;
 
-  void _openAddGroupOverlay(BuildContext ctx,String chatRoomId) {
+  @override
+  State<ChatRoomCard> createState() => _ChatRoomCardState();
+}
+
+class _ChatRoomCardState extends State<ChatRoomCard> {
+  MessageChat? _message;
+  void _openAddGroupOverlay(BuildContext ctx, String chatRoomId) {
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
@@ -23,88 +36,202 @@ class ChatRoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell (
-      onLongPress: (){
-        _openAddGroupOverlay(context,chatRoom.chatroomid!);
+    return InkWell(
+      onLongPress: () {
+        _openAddGroupOverlay(context, widget.chatRoom.chatroomid!);
       },
       onTap: () {
-        if(chatRoom.type!){
-           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) =>
-                ChatScreen.direct(chatRoom: chatRoom,userChat: userchat,)));
-        }
-        else{
+        if (widget.chatRoom.type!) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ChatScreen.direct(
+                    chatRoom: widget.chatRoom,
+                    userChat: widget.userchat,
+                  )));
+        } else {
           Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) =>
-              ChatScreen.group(chatRoom: chatRoom, groupName: groupName),
-          ),
-        );
+            MaterialPageRoute(
+              builder: (context) => ChatScreen.group(
+                  chatRoom: widget.chatRoom, groupName: widget.groupName),
+            ),
+          );
         }
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12, top: 16),
-        child: Row(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  padding: const EdgeInsets.all(4),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: chatRoom.type! 
-                        ? (userchat!.imageUrl!.isNotEmpty
-                          ? NetworkImage(userchat!.imageUrl!)
-                          : AssetImage('assets/images/user.png') as ImageProvider)
-                        : (chatRoom.imageUrl != ''
-                              ? NetworkImage(chatRoom.imageUrl!)
-                              : AssetImage('assets/images/group.png')
-                                  as ImageProvider)
-                      ),
-                      borderRadius: BorderRadius.circular(16)),
-                  )
+      child: StreamBuilder(
+          stream: APIs.getLastMessage(widget.chatRoom.chatroomid!),
+          builder: (context, lastMessageSnapshot) {
+            if (lastMessageSnapshot.connectionState ==
+                ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (!lastMessageSnapshot.hasData ||
+                lastMessageSnapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Không tìm thấy tin nhắn nào',
                 ),
-                if (chatRoom.type! && userchat!.isOnline!)
-                  Positioned(
-                    right: -1,
-                    top: -1,
-                    child: Container(
-                      width: 17,
-                      height: 17,
-                      decoration: const BoxDecoration(
-                        color: Color.fromRGBO(44, 192, 105, 1),
-                        shape: BoxShape.circle,
-                        border: Border.symmetric(horizontal: BorderSide(width: 2,color: Colors.white),vertical: BorderSide(width: 2,color: Colors.white))
-                      ),
-                    ),
+              );
+            }
+            if (lastMessageSnapshot.hasError) {
+              return const Center(
+                heightFactor: 10,
+                child: Text(
+                  'Có gì đó sai sai',
+                ),
+              );
+            }
+            final data = lastMessageSnapshot.data!.docs;
+            final list = data.map((e) => MessageChat.fromMap(e.data())).toList();
+            if (list.isNotEmpty) _message = list[0];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12, top: 16),
+              child: Row(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                          width: 60,
+                          height: 60,
+                          padding: const EdgeInsets.all(4),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: widget.chatRoom.type!
+                                        ? (widget.userchat!.imageUrl!.isNotEmpty
+                                            ? NetworkImage(
+                                                widget.userchat!.imageUrl!)
+                                            : AssetImage(
+                                                    'assets/images/user.png')
+                                                as ImageProvider)
+                                        : (widget.chatRoom.imageUrl != ''
+                                            ? NetworkImage(
+                                                widget.chatRoom.imageUrl!)
+                                            : AssetImage(
+                                                    'assets/images/group.png')
+                                                as ImageProvider)),
+                                borderRadius: BorderRadius.circular(16)),
+                          )),
+                      if (widget.chatRoom.type! && widget.userchat!.isOnline!)
+                        Positioned(
+                          right: -1,
+                          top: -1,
+                          child: Container(
+                            width: 17,
+                            height: 17,
+                            decoration: const BoxDecoration(
+                                color: Color.fromRGBO(44, 192, 105, 1),
+                                shape: BoxShape.circle,
+                                border: Border.symmetric(
+                                    horizontal: BorderSide(
+                                        width: 2, color: Colors.white),
+                                    vertical: BorderSide(
+                                        width: 2, color: Colors.white))),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            ),
-            const SizedBox(
-              width: 12,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                chatRoom.type!
-                ? Text(userchat!.username!,style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w600),)
-                : Text(
-                  chatRoom.chatroomname != ''
-                      ? chatRoom.chatroomname!
-                      : groupName,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+                  const SizedBox(
+                    width: 12,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widget.chatRoom.type!
+                          ? Text(
+                              widget.userchat!.username!,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            )
+                          : Text(
+                              widget.chatRoom.chatroomname != ''
+                                  ? widget.chatRoom.chatroomname!
+                                  : widget.groupName,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                      Row(
+                        children: [
+                          _message == null
+                              ? SizedBox()
+                              : _message!.fromId ==
+                                      APIs.firebaseAuth.currentUser!.uid
+                                  ? Text('Bạn: ')
+                                  : !widget.chatRoom.type!
+                                      ? FutureBuilder(
+                                          future: APIs.getUserFormId(
+                                              _message!.fromId!),
+                                          builder: (context, userSnapshot) {
+                                            if (userSnapshot.connectionState ==
+                                                ConnectionState.done) {
+                                              UserChat userChat =
+                                                  userSnapshot.data!;
+                                              return _message!.read!.isNotEmpty
+                                                  ? Text(APIs.getLastWordOfName(
+                                                          userChat.username!) +
+                                                      ": ")
+                                                  : Text(
+                                                      APIs.getLastWordOfName(
+                                                              userChat
+                                                                  .username!) +
+                                                          ": ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16),
+                                                    );
+                                            } else
+                                              return SizedBox();
+                                          },
+                                        )
+                                      : SizedBox(),
+                          _message == null
+                              ? SizedBox()
+                              : Container(
+                                  width: widget.chatRoom.type! ? 185 : 91,
+                                  child: _message!.read!.isEmpty &&
+                                          _message!.fromId !=
+                                              APIs.firebaseAuth.currentUser!.uid
+                                      ? Text(
+                                          _message!.msg!,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        )
+                                      : Text(
+                                          _message!.msg!,
+                                          overflow: TextOverflow.ellipsis,
+                                        )),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(MyDateUtil.getLastMessageTime(
+                              context: context, time: _message!.sent!)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  _message == null
+                      ? SizedBox()
+                      : _message!.read!.isEmpty &&
+                              _message!.fromId !=
+                                  APIs.firebaseAuth.currentUser!.uid
+                          ? Container(
+                              height: 15,
+                              width: 15,
+                              decoration: BoxDecoration(
+                                  color: Colors.blueAccent.shade400,
+                                  borderRadius: BorderRadius.circular(10)),
+                            )
+                          : SizedBox()
+                ],
+              ),
+            );
+          }),
     );
   }
 }

@@ -106,6 +106,7 @@ class APIs {
         participants: ({firebaseAuth.currentUser!.uid: false, userId: false}),
         type: true,
         isRequests: ({}),
+        lastSend: '0',
       );
       await firestore
           .collection('chatrooms')
@@ -137,9 +138,11 @@ class APIs {
     return userchat;
   }
 
-  static Future<void> updateUserFormId(UserChat userChat) async {
-    DocumentReference? documentReference;
-    await documentReference!.update(userChat.toMap());
+  static Future<void> updateUserName(String userName) async {
+    return firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .update({'username': userName});
   }
 
   static getLastWordOfName(String name) {
@@ -203,12 +206,21 @@ class APIs {
         imageUrl: '',
         participants: participantsId,
         type: false,
-        isRequests: ({}));
+        isRequests: ({}),
+        lastSend: '0');
     await firestore
         .collection('chatrooms')
         .doc(chatRoomId)
         .set(chatroom.toMap());
     return chatroom;
+  }
+
+  static Future<void> updateNameChatRoom(
+      String chatRomID, String chatRoomName) async {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRomID)
+        .update({'chatroomname': chatRoomName});
   }
 
   static Future<void> leaveTheGroupChat(
@@ -228,15 +240,17 @@ class APIs {
 
     Map<String, bool> participantsMap =
         Map<String, bool>.from(documentSnapshot['participants']);
-    if(chatRoom.type!){
-      String user = participantsMap.keys.firstWhere((element) => element != firebaseAuth.currentUser!.uid).toString();
-      if(!await isBlockedByOther(user)){
+    if (chatRoom.type!) {
+      String user = participantsMap.keys
+          .firstWhere((element) => element != firebaseAuth.currentUser!.uid)
+          .toString();
+      if (!await isBlockedByOther(user)) {
         participantsMap.updateAll((key, value) => true);
         await firestore
             .collection('chatrooms')
             .doc(chatRoom.chatroomid)
             .update({'participants': participantsMap});
-      }else{
+      } else {
         participantsMap.removeWhere((key, value) => key == user);
       }
     }
@@ -260,6 +274,10 @@ class APIs {
       type: type,
       receivers: participantsMap.keys.toList(),
     );
+    await firestore
+        .collection('chatrooms')
+        .doc(chatRoom.chatroomid)
+        .update({'lastSend': now});
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -412,16 +430,20 @@ class APIs {
     } else
       return false;
   }
+
   static Future<bool> hasBlockOther(String idUser) async {
-    DocumentSnapshot document =
-        await firestore.collection('user').doc(firebaseAuth.currentUser!.uid).get();
+    DocumentSnapshot document = await firestore
+        .collection('user')
+        .doc(firebaseAuth.currentUser!.uid)
+        .get();
     List<dynamic> listBlockUsers = document['blockUsers'];
     if (listBlockUsers.contains(idUser)) {
       return true;
-    } else{
+    } else {
       return false;
     }
   }
+<<<<<<< HEAD
   static Future<void> getFirebaseMessageingToken(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async{
     await firebaseMessaging.requestPermission();
     firebaseMessaging.getToken().then((t) {
@@ -452,5 +474,17 @@ class APIs {
     }catch(e){
       print('\nSendNotification: $e');
     }
+=======
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      String chatRoomId) {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
+>>>>>>> main
   }
 }

@@ -2,7 +2,7 @@ import 'package:company_chat_app_demo/screens/chat_home.dart';
 import 'package:company_chat_app_demo/screens/contact.dart';
 import 'package:company_chat_app_demo/screens/new_group.dart';
 import 'package:company_chat_app_demo/screens/profile.dart';
-import 'package:company_chat_app_demo/screens/profile_of_others.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,11 +14,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List pages = const [
-    ContactScreen(),
-    ChatHomeScreen(),
-    ProfileOfOthersScreen()
-  ];
+  List pages = const [ContactScreen(), ChatHomeScreen(), ProfileScreen()];
 
   int currentIndex = 1;
 

@@ -4,17 +4,18 @@ import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:flutter/material.dart';
 
 class UpdateUser extends StatefulWidget {
-  const UpdateUser({super.key});
-
+  const UpdateUser({super.key, required this.userChat});
+  final UserChat? userChat;
   @override
   State<UpdateUser> createState() => _UpdateUserState();
 }
 
 class _UpdateUserState extends State<UpdateUser> {
   TextEditingController txtUserName = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    List<UserChat> lisUserchat;
+    txtUserName.text = widget.userChat!.username!;
     return FutureBuilder(
       future: APIs.getUserFormId(APIs.firebaseAuth.currentUser!.uid),
       builder: (context, userIDSnapShot) {
@@ -37,13 +38,6 @@ class _UpdateUserState extends State<UpdateUser> {
                   padding: const EdgeInsets.all(20.0),
                   child: TextField(
                     controller: txtUserName,
-                    decoration: InputDecoration(
-                      label: Text(
-                        'Tên',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      hintText: userchat.username,
-                    ),
                   ),
                 ),
                 SizedBox(
@@ -53,17 +47,8 @@ class _UpdateUserState extends State<UpdateUser> {
                   height: 470,
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    UserChat userChat = UserChat(
-                      id: null,
-                      imageUrl: null,
-                      username: txtUserName.text,
-                      isOnline: null,
-                      email: null,
-                      blockUsers: null,
-                      token: ""
-                    );
-                    APIs.updateUserFormId(userChat);
+                  onPressed: () async {
+                    await APIs.updateUserName(txtUserName.text);
                     Navigator.pop(context);
                   },
                   child: Row(
