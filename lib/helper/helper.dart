@@ -43,4 +43,55 @@ class MyDateUtil {
     final date = DateTime.fromMillisecondsSinceEpoch((int.parse(time)));
     return TimeOfDay.fromDateTime(date).format(context);
   }
+
+  static String getLastMessageTime(
+      {required BuildContext context, required String time}) {
+    final sent = DateTime.fromMillisecondsSinceEpoch((int.parse(time)));
+    final now = DateTime.now();
+    if (sent.day == now.day &&
+        sent.month == now.month &&
+        sent.year == now.year) {
+      return TimeOfDay.fromDateTime(sent).format(context);
+    }
+    if (sent.day != now.day &&
+        sent.weekOfMonth == now.weekOfMonth &&
+        sent.month == now.month &&
+        sent.year == now.year) {
+      return getFormattedWeekday(sent);
+    }
+    return '${sent.day} thg ${sent.month}';
+  }
+
+  static String getFormattedWeekday(DateTime dateTime) {
+    switch (dateTime.weekday) {
+      case 1:
+        return 'Th 2';
+      case 2:
+        return 'Th 3';
+      case 3:
+        return 'Th 4';
+      case 4:
+        return 'Th 5';
+      case 5:
+        return 'Th 6';
+      case 6:
+        return 'Th 7';
+      case 7:
+        return 'CN';
+    }
+    return 'NA';
+  }
+}
+
+extension DateTimeExtension on DateTime {
+  int get weekOfMonth {
+    var date = this;
+    final firstDayOfTheMonth = DateTime(date.year, date.month, 1);
+    int sum = firstDayOfTheMonth.weekday - 1 + date.day;
+    if (sum % 7 == 0) {
+      return sum ~/ 7;
+    } else {
+      return sum ~/ 7 + 1;
+    }
+  }
 }
