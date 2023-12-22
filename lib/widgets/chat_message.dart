@@ -63,8 +63,7 @@ class _ChatMessageState extends State<ChatMessage> {
         listMessage.sort((a,b) {
           if(int.parse(a.sent!) > (int.parse(b.sent!))){
             return 0;
-          }
-          return 1;
+          }else return 1;
         } );
 
         return ListView.builder(
