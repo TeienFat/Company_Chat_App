@@ -443,7 +443,17 @@ class APIs {
       return false;
     }
   }
-<<<<<<< HEAD
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      String chatRoomId) {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
+  }
   static Future<void> getFirebaseMessageingToken(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async{
     await firebaseMessaging.requestPermission();
     firebaseMessaging.getToken().then((t) {
@@ -474,17 +484,5 @@ class APIs {
     }catch(e){
       print('\nSendNotification: $e');
     }
-=======
-
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
-      String chatRoomId) {
-    return firestore
-        .collection('chatrooms')
-        .doc(chatRoomId)
-        .collection('messages')
-        .orderBy('sent', descending: true)
-        .limit(1)
-        .snapshots();
->>>>>>> main
   }
 }
