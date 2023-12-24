@@ -3,6 +3,7 @@ import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class SearchMessageScreen extends StatefulWidget {
   SearchMessageScreen({super.key, required this.chatroom});
   ChatRoom chatroom;
