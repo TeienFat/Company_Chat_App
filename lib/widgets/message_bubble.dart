@@ -3,6 +3,7 @@ import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/widgets/bubble_image.dart';
 import 'package:company_chat_app_demo/widgets/bubble_video.dart';
+import 'package:company_chat_app_demo/widgets/menu_option_chatscreen.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -52,135 +53,168 @@ class MessageBubble extends StatelessWidget {
               radius: 18,
             ),
           ),
-        Container(
-          margin: isMe ? null : const EdgeInsets.symmetric(horizontal: 45),
-          child: Row(
-            mainAxisAlignment:
-                isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment:
-                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  if (isFirstInSequence) const SizedBox(height: 30),
-                  if (message.userName != null && !typeChat)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 13,
-                        right: 13,
-                      ),
-                      child: Text(
-                        message.userName!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+        GestureDetector(
+          onLongPress: () async {
+            final bool isPin =
+                await APIs.checkPinMessage(message.messageId!, chatRoomId);
+            showModalBottomSheet(
+              useSafeArea: true,
+              isScrollControlled: true,
+              context: context,
+              builder: (context) => MenuChatScreen(
+                chatroomId: chatRoomId,
+                messageId: message.messageId!,
+                isPin: isPin,
+              ),
+            );
+          },
+          child: Container(
+            margin: isMe ? null : const EdgeInsets.symmetric(horizontal: 45),
+            child: Row(
+              mainAxisAlignment:
+                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment:
+                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    if (isFirstInSequence) const SizedBox(height: 30),
+                    if (message.userName != null && !typeChat)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 13,
+                          right: 13,
+                        ),
+                        child: Text(
+                          message.userName!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
-                    ),
-                  Container(
-                    decoration: message.type! == Type.text
-                        ? BoxDecoration(
-                            color: isMe
-                                ? Colors.grey[300]
-                                : theme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.only(
-                              topLeft: !isMe
-                                  ? Radius.zero
-                                  : const Radius.circular(12),
-                              topRight: isMe
-                                  ? Radius.zero
-                                  : const Radius.circular(12),
-                              bottomLeft: const Radius.circular(12),
-                              bottomRight: const Radius.circular(12),
-                            ),
-                          )
-                        : null,
-                    constraints: const BoxConstraints(maxWidth: 295),
-                    padding: message.type! == Type.text
-                        ? const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 14,
-                          )
-                        : null,
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 0,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: isMe
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.end,
+                    Stack(
                       children: [
-                        message.type! == Type.text
-                            ? Text(
-                                message.msg!,
-                                style: TextStyle(
-                                  height: 1.3,
+                        Container(
+                          decoration: message.type! == Type.text
+                              ? BoxDecoration(
                                   color: isMe
-                                      ? Colors.black87
-                                      : theme.colorScheme.onPrimaryContainer,
-                                ),
-                                softWrap: true,
-                              )
-                            : message.type! == Type.image
-                                ? ImageBubble(
-                                    imageUrl: message.msg!, isMe: isMe)
-                                : message.type! == Type.video
-                                    ? VideoBubble(
-                                        videoUrl: message.msg!,
-                                        isMe: isMe,
-                                      )
-                                    : SizedBox(),
-                        if (isLastInSequence)
-                          SizedBox(
-                            height: 10,
+                                      ? Colors.grey[300]
+                                      : theme.colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: !isMe
+                                        ? Radius.zero
+                                        : const Radius.circular(12),
+                                    topRight: isMe
+                                        ? Radius.zero
+                                        : const Radius.circular(12),
+                                    bottomLeft: const Radius.circular(12),
+                                    bottomRight: const Radius.circular(12),
+                                  ),
+                                )
+                              : null,
+                          constraints: const BoxConstraints(maxWidth: 295),
+                          padding: message.type! == Type.text
+                              ? const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 14,
+                                )
+                              : null,
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 0,
                           ),
-                        if (isLastInSequence)
-                          Text(
-                            MyDateUtil.getFormattedTime(
-                                context: context,
-                                time: message.sent.toString()),
+                          child: Column(
+                            crossAxisAlignment: isMe
+                                ? CrossAxisAlignment.start
+                                : CrossAxisAlignment.end,
+                            children: [
+                              message.type! == Type.text
+                                  ? Text(
+                                      message.msg!,
+                                      style: TextStyle(
+                                        height: 1.3,
+                                        color: isMe
+                                            ? Colors.black87
+                                            : theme
+                                                .colorScheme.onPrimaryContainer,
+                                      ),
+                                      softWrap: true,
+                                    )
+                                  : message.type! == Type.image
+                                      ? ImageBubble(
+                                          imageUrl: message.msg!, isMe: isMe)
+                                      : message.type! == Type.video
+                                          ? VideoBubble(
+                                              videoUrl: message.msg!,
+                                              isMe: isMe,
+                                            )
+                                          : SizedBox(),
+                              if (isLastInSequence)
+                                SizedBox(
+                                  height: 10,
+                                ),
+                              if (isLastInSequence)
+                                Text(
+                                  MyDateUtil.getFormattedTime(
+                                      context: context,
+                                      time: message.sent.toString()),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isMe
+                                        ? Colors.black87
+                                        : theme.colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if(message.isPin!)
+                          isMe
+                            ? Positioned.fill(
+                            left: -3,
+                            child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Icon(Icons.push_pin,size: 16,color: Colors.red,)))
+                            : Positioned.fill(
+                            right: -3,
+                            child: Align(
+                                alignment: Alignment.topRight,
+                                child: Icon(Icons.push_pin,size: 16,color: Colors.red,)))
+                      ],
+                    ),
+                    if (isMe && isLastMessage && message.read!.isNotEmpty)
+                      Icon(
+                        Icons.done_all_rounded,
+                        color: Colors.green,
+                      ),
+                    if (isMe &&
+                        isLastMessage &&
+                        isLastInSequence &&
+                        message.read!.isEmpty)
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5.0, vertical: 3.0),
+                          child: Text(
+                            'Đã gửi',
                             style: TextStyle(
                               fontSize: 12,
                               color: isMe
-                                  ? Colors.black87
+                                  ? Colors.white
                                   : theme.colorScheme.onPrimaryContainer,
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                  if (isMe && isLastMessage && message.read!.isNotEmpty)
-                    Icon(
-                      Icons.done_all_rounded,
-                      color: Colors.green,
-                    ),
-                  if (isMe &&
-                      isLastMessage &&
-                      isLastInSequence &&
-                      message.read!.isEmpty)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5.0, vertical: 3.0),
-                        child: Text(
-                          'Đã gửi',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isMe
-                                ? Colors.white
-                                : theme.colorScheme.onPrimaryContainer,
-                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],
