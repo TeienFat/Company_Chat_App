@@ -273,17 +273,16 @@ class APIs {
     UserChat user = UserChat.fromMap(userData.data()!);
 
     final MessageChat message = MessageChat(
-      messageId: messageId,
-      fromId: firebaseAuth.currentUser!.uid,
-      msg: msg,
-      read: '',
-      sent: now,
-      userName: user.username,
-      userImage: user.imageUrl,
-      type: type,
-      receivers: participantsMap.keys.toList(),
-      isPin: false
-    );
+        messageId: messageId,
+        fromId: firebaseAuth.currentUser!.uid,
+        msg: msg,
+        read: '',
+        sent: now,
+        userName: user.username,
+        userImage: user.imageUrl,
+        type: type,
+        receivers: participantsMap.keys.toList(),
+        isPin: false);
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -304,7 +303,7 @@ class APIs {
             .doc(element)
             .get();
         UserChat userChat = UserChat.fromMap(userChatData.data()!);
-          sendNotification(
+        sendNotification(
             userChat,
             user.username!,
             chatRoom,
@@ -501,7 +500,7 @@ class APIs {
     try {
       String chatRoomName = await getChatRoomName(chatroom);
       final body;
-      if(chatroom.type!){
+      if (chatroom.type!) {
         body = {
           "to": userChat.token,
           "notification": {
@@ -510,11 +509,13 @@ class APIs {
             "android_channel_id": "chat"
           },
         };
-      }else{
+      } else {
         body = {
           "to": userChat.token,
           "notification": {
-            "title": chatroom.chatroomname!.isNotEmpty ? chatroom.chatroomname! : chatRoomName,
+            "title": chatroom.chatroomname!.isNotEmpty
+                ? chatroom.chatroomname!
+                : chatRoomName,
             "body": username + ": " + msg,
             "android_channel_id": "chat"
           },
@@ -534,19 +535,39 @@ class APIs {
       print('\nSendNotification: $e');
     }
   }
-  static Future<void> pinMessage(String messageId, String chatroomId,bool pin) async{
-    await firestore.collection('chatrooms').doc(chatroomId).collection('messages').doc(messageId).update({'isPin': pin});
+
+  static Future<void> pinMessage(
+      String messageId, String chatroomId, bool pin) async {
+    await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .doc(messageId)
+        .update({'isPin': pin});
   }
 
-  static Future<bool> checkPinMessage(String messageId, String chatroomId) async{
-    DocumentSnapshot documentSnapshot = await firestore.collection('chatrooms').doc(chatroomId).collection('messages').doc(messageId).get();
+  static Future<bool> checkPinMessage(
+      String messageId, String chatroomId) async {
+    DocumentSnapshot documentSnapshot = await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .doc(messageId)
+        .get();
     bool isPin = documentSnapshot['isPin'];
-    if(isPin){
+    if (isPin) {
       return true;
-    }else return false;
+    } else
+      return false;
   }
 
-  static Stream<QuerySnapshot<Map<String,dynamic>>> getPinMessage(String chatroomId) {
-    return firestore.collection('chatrooms').doc(chatroomId).collection('messages').where('isPin', isEqualTo: true).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getPinMessage(
+      String chatroomId) {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .where('isPin', isEqualTo: true)
+        .snapshots();
   }
 }
