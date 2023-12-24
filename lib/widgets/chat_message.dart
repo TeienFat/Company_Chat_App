@@ -6,8 +6,10 @@ import 'package:company_chat_app_demo/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessage extends StatefulWidget {
-  const ChatMessage({super.key, required this.chatRoom});
+  const ChatMessage(
+      {super.key, required this.chatRoom, required this.onMessageSwipe});
   final ChatRoom chatRoom;
+  final Function(MessageChat messageChat, bool isMe) onMessageSwipe;
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }
@@ -102,6 +104,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: false,
                 isLastMessage: true,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
 
@@ -114,6 +117,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: true,
                 isLastMessage: true,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
             if (!prevUserIsSame &&
@@ -127,6 +131,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: true,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
 
@@ -139,6 +144,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: true,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
 
@@ -152,6 +158,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: false,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             } else
               return MessageBubble.first(
@@ -162,6 +169,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: false,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
           },
         );

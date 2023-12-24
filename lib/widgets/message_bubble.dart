@@ -4,26 +4,29 @@ import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/widgets/bubble_image.dart';
 import 'package:company_chat_app_demo/widgets/bubble_video.dart';
 import 'package:flutter/material.dart';
+import 'package:swipe_to/swipe_to.dart';
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble.first({
-    super.key,
-    required this.message,
-    required this.chatRoomId,
-    required this.isMe,
-    required this.typeChat,
-    required this.isLastInSequence,
-    required this.isLastMessage,
-  }) : isFirstInSequence = true;
-  MessageBubble.second({
-    super.key,
-    required this.chatRoomId,
-    required this.message,
-    required this.isMe,
-    required this.typeChat,
-    required this.isLastInSequence,
-    required this.isLastMessage,
-  }) : isFirstInSequence = false;
+  MessageBubble.first(
+      {super.key,
+      required this.message,
+      required this.chatRoomId,
+      required this.isMe,
+      required this.typeChat,
+      required this.isLastInSequence,
+      required this.isLastMessage,
+      required this.onSwipe})
+      : isFirstInSequence = true;
+  MessageBubble.second(
+      {super.key,
+      required this.chatRoomId,
+      required this.message,
+      required this.isMe,
+      required this.typeChat,
+      required this.isLastInSequence,
+      required this.isLastMessage,
+      required this.onSwipe})
+      : isFirstInSequence = false;
   final MessageChat message;
   final String chatRoomId;
   final bool typeChat;
@@ -31,6 +34,7 @@ class MessageBubble extends StatelessWidget {
   final bool isFirstInSequence;
   final bool isLastInSequence;
   final bool isLastMessage;
+  final Function(MessageChat messageChat, bool isMe) onSwipe;
 
   @override
   Widget build(BuildContext context) {
@@ -77,77 +81,114 @@ class MessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Container(
-                    decoration: message.type! == Type.text
-                        ? BoxDecoration(
-                            color: isMe
-                                ? Colors.grey[300]
-                                : theme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.only(
-                              topLeft: !isMe
-                                  ? Radius.zero
-                                  : const Radius.circular(12),
-                              topRight: isMe
-                                  ? Radius.zero
-                                  : const Radius.circular(12),
-                              bottomLeft: const Radius.circular(12),
-                              bottomRight: const Radius.circular(12),
-                            ),
-                          )
-                        : null,
-                    constraints: const BoxConstraints(maxWidth: 295),
-                    padding: message.type! == Type.text
-                        ? const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 14,
-                          )
-                        : null,
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 0,
+                  SwipeTo(
+                    swipeSensitivity: 10,
+                    animationDuration: Duration(milliseconds: 200),
+                    offsetDx: 0.8,
+                    leftSwipeWidget: Container(
+                      width: 30,
+                      height: 30,
+                      child: Icon(
+                        Icons.reply,
+                        color: Colors.white,
+                      ),
+                      decoration: BoxDecoration(
+                          color: Colors.black45,
+                          borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: Column(
-                      crossAxisAlignment: isMe
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.end,
-                      children: [
-                        message.type! == Type.text
-                            ? Text(
-                                message.msg!,
-                                style: TextStyle(
-                                  height: 1.3,
-                                  color: isMe
-                                      ? Colors.black87
-                                      : theme.colorScheme.onPrimaryContainer,
-                                ),
-                                softWrap: true,
-                              )
-                            : message.type! == Type.image
-                                ? ImageBubble(
-                                    imageUrl: message.msg!, isMe: isMe)
-                                : message.type! == Type.video
-                                    ? VideoBubble(
-                                        videoUrl: message.msg!,
-                                        isMe: isMe,
-                                      )
-                                    : SizedBox(),
-                        if (isLastInSequence)
-                          SizedBox(
-                            height: 10,
-                          ),
-                        if (isLastInSequence)
-                          Text(
-                            MyDateUtil.getFormattedTime(
-                                context: context,
-                                time: message.sent.toString()),
-                            style: TextStyle(
-                              fontSize: 12,
+                    rightSwipeWidget: Container(
+                      width: 30,
+                      height: 30,
+                      child: Icon(
+                        Icons.reply,
+                        color: Colors.white,
+                      ),
+                      decoration: BoxDecoration(
+                          color: Colors.black45,
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onLeftSwipe: isMe
+                        ? (details) {
+                            onSwipe(message, isMe);
+                          }
+                        : null,
+                    onRightSwipe: isMe
+                        ? null
+                        : (details) {
+                            onSwipe(message, isMe);
+                          },
+                    child: Container(
+                      decoration: message.type! == Type.text
+                          ? BoxDecoration(
                               color: isMe
-                                  ? Colors.black87
-                                  : theme.colorScheme.onPrimaryContainer,
+                                  ? Colors.grey[300]
+                                  : theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.only(
+                                topLeft: !isMe
+                                    ? Radius.zero
+                                    : const Radius.circular(12),
+                                topRight: isMe
+                                    ? Radius.zero
+                                    : const Radius.circular(12),
+                                bottomLeft: const Radius.circular(12),
+                                bottomRight: const Radius.circular(12),
+                              ),
+                            )
+                          : null,
+                      constraints: const BoxConstraints(maxWidth: 295),
+                      padding: message.type! == Type.text
+                          ? const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 14,
+                            )
+                          : null,
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: isMe
+                            ? CrossAxisAlignment.start
+                            : CrossAxisAlignment.end,
+                        children: [
+                          message.type! == Type.text
+                              ? Text(
+                                  message.msg!,
+                                  style: TextStyle(
+                                    height: 1.3,
+                                    color: isMe
+                                        ? Colors.black87
+                                        : theme.colorScheme.onPrimaryContainer,
+                                  ),
+                                  softWrap: true,
+                                )
+                              : message.type! == Type.image
+                                  ? ImageBubble(
+                                      imageUrl: message.msg!, isMe: isMe)
+                                  : message.type! == Type.video
+                                      ? VideoBubble(
+                                          videoUrl: message.msg!,
+                                          isMe: isMe,
+                                        )
+                                      : SizedBox(),
+                          if (isLastInSequence)
+                            SizedBox(
+                              height: 10,
                             ),
-                          ),
-                      ],
+                          if (isLastInSequence)
+                            Text(
+                              MyDateUtil.getFormattedTime(
+                                  context: context,
+                                  time: message.sent.toString()),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isMe
+                                    ? Colors.black87
+                                    : theme.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                   if (isMe && isLastMessage && message.read!.isNotEmpty)

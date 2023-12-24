@@ -494,10 +494,7 @@ class APIs {
         "notification": {
           "title": userChat.username,
           "body": msg,
-<<<<<<< HEAD
-=======
           "android_channel_id": "chat"
->>>>>>> main
         },
       };
       var response =
