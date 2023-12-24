@@ -36,7 +36,9 @@ class _ChatScreenState extends State<ChatScreen> {
       userName: "",
       userImage: "",
       type: Type.text,
-      receivers: []);
+      receivers: [],
+      isPin: false);
+
   Future<void> goSettingScreen(BuildContext context) async {
     final hasBlock = await Navigator.of(context).push(
       MaterialPageRoute(

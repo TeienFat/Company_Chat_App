@@ -273,16 +273,16 @@ class APIs {
     UserChat user = UserChat.fromMap(userData.data()!);
 
     final MessageChat message = MessageChat(
-      messageId: messageId,
-      fromId: firebaseAuth.currentUser!.uid,
-      msg: msg,
-      read: '',
-      sent: now,
-      userName: user.username,
-      userImage: user.imageUrl,
-      type: type,
-      receivers: participantsMap.keys.toList(),
-    );
+        messageId: messageId,
+        fromId: firebaseAuth.currentUser!.uid,
+        msg: msg,
+        read: '',
+        sent: now,
+        userName: user.username,
+        userImage: user.imageUrl,
+        type: type,
+        receivers: participantsMap.keys.toList(),
+        isPin: false);
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -304,7 +304,16 @@ class APIs {
             .get();
         UserChat userChat = UserChat.fromMap(userChatData.data()!);
         sendNotification(
-            userChat, user, type == Type.text ? msg : 'Đã gửi một file');
+            userChat,
+            user.username!,
+            chatRoom,
+            type == Type.text
+                ? msg
+                : (type == Type.image
+                    ? 'Đã gửi một ảnh'
+                    : (type == Type.video
+                        ? 'Đã gửi một video'
+                        : 'Đã gửi một file')));
       });
     });
   }
@@ -487,16 +496,31 @@ class APIs {
   }
 
   static Future<void> sendNotification(
-      UserChat user, UserChat userChat, String msg) async {
+      UserChat userChat, String username, ChatRoom chatroom, String msg) async {
     try {
-      final body = {
-        "to": user.token,
-        "notification": {
-          "title": userChat.username,
-          "body": msg,
-          "android_channel_id": "chat"
-        },
-      };
+      String chatRoomName = await getChatRoomName(chatroom);
+      final body;
+      if (chatroom.type!) {
+        body = {
+          "to": userChat.token,
+          "notification": {
+            "title": username,
+            "body": msg,
+            "android_channel_id": "chat"
+          },
+        };
+      } else {
+        body = {
+          "to": userChat.token,
+          "notification": {
+            "title": chatroom.chatroomname!.isNotEmpty
+                ? chatroom.chatroomname!
+                : chatRoomName,
+            "body": username + ": " + msg,
+            "android_channel_id": "chat"
+          },
+        };
+      }
       var response =
           await post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
               headers: {
@@ -510,5 +534,40 @@ class APIs {
     } catch (e) {
       print('\nSendNotification: $e');
     }
+  }
+
+  static Future<void> pinMessage(
+      String messageId, String chatroomId, bool pin) async {
+    await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .doc(messageId)
+        .update({'isPin': pin});
+  }
+
+  static Future<bool> checkPinMessage(
+      String messageId, String chatroomId) async {
+    DocumentSnapshot documentSnapshot = await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .doc(messageId)
+        .get();
+    bool isPin = documentSnapshot['isPin'];
+    if (isPin) {
+      return true;
+    } else
+      return false;
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getPinMessage(
+      String chatroomId) {
+    return firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .where('isPin', isEqualTo: true)
+        .snapshots();
   }
 }
