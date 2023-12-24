@@ -2,6 +2,7 @@ import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/list_user_in_group.dart';
+import 'package:company_chat_app_demo/screens/chat/pin_messages.dart';
 import 'package:company_chat_app_demo/screens/chat/search_message.dart';
 import 'package:company_chat_app_demo/screens/main_screen.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
     );
   }
 
-  Future<void> _blockUser(String userid) async{
+  Future<void> _blockUser(String userid) async {
     await APIs.blockUser(userid);
   }
 
@@ -68,13 +69,14 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            if(widget.chatRoom.type!)
-            Navigator.of(context).pop(APIs.hasBlockOther(widget.userChat!.id!));
-            else Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.arrow_back)
-        ),
+            onPressed: () {
+              if (widget.chatRoom.type!)
+                Navigator.of(context)
+                    .pop(APIs.hasBlockOther(widget.userChat!.id!));
+              else
+                Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back)),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 20, right: 5, left: 5),
@@ -140,46 +142,18 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                 ),
               ),
             ),
-            widget.chatRoom.type!
-                ? Text(
-                    "Hành động khác",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : Text(
-                    "Thông tin về đoạn chat",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-            widget.chatRoom.type!
-            ? InkWell(
-              onTap: () {
-              },
-              child: Container(
-                height: 55,
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Tạo nhóm chat với " + APIs.getLastWordOfName(widget.userChat!.username!) ,
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    Icon(Icons.group)
-                  ],
-                ),
+            Text(
+              "Hành động khác",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
               ),
-            )
-            : InkWell(
+            ),
+            InkWell(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ListUserInGroup(chatRoom: widget.chatRoom),
-                  ),
-                );
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ListPinMessage(
+                          chatroom: widget.chatRoom,
+                        )));
               },
               child: Container(
                 height: 55,
@@ -188,14 +162,47 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Xem thành viên trong đoạn chat",
+                      'Xem tin nhắn đã ghim',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    Icon(Icons.arrow_forward_ios)
+                    Icon(Icons.pin_invoke)
                   ],
                 ),
               ),
             ),
+            if (!widget.chatRoom.type!)
+              Text(
+                "Thông tin về đoạn chat",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            
+            if (!widget.chatRoom.type!)
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ListUserInGroup(chatRoom: widget.chatRoom),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 55,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Xem thành viên trong đoạn chat",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Icon(Icons.arrow_forward_ios)
+                    ],
+                  ),
+                ),
+              ),
             Text(
               "Quyền riêng tư và hỗ trợ",
               style: TextStyle(

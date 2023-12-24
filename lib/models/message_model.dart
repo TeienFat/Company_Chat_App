@@ -8,6 +8,7 @@ class MessageChat {
   String? userImage;
   Type? type;
   List<String>? receivers;
+  bool? isPin;
 
   MessageChat(
       {required this.messageId,
@@ -18,7 +19,8 @@ class MessageChat {
       required this.userName,
       required this.userImage,
       required this.type,
-      required this.receivers});
+      required this.receivers,
+      required this.isPin});
 
   MessageChat.fromMap(Map<String, dynamic> map) {
     messageId = map['messageId'];
@@ -36,6 +38,7 @@ class MessageChat {
                 ? Type.video
                 : Type.sound;
     receivers = List<String>.from(map['receivers']);
+    isPin = map['isPin'];
   }
 
   Map<String, dynamic> toMap() {
@@ -49,6 +52,7 @@ class MessageChat {
       'userImage': userImage,
       'type': type!.name,
       'receivers': receivers,
+      'isPin': isPin,
     });
   }
 }

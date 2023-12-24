@@ -282,6 +282,7 @@ class APIs {
       userImage: user.imageUrl,
       type: type,
       receivers: participantsMap.keys.toList(),
+      isPin: false
     );
     await firestore
         .collection('chatrooms')
@@ -532,5 +533,20 @@ class APIs {
     } catch (e) {
       print('\nSendNotification: $e');
     }
+  }
+  static Future<void> pinMessage(String messageId, String chatroomId,bool pin) async{
+    await firestore.collection('chatrooms').doc(chatroomId).collection('messages').doc(messageId).update({'isPin': pin});
+  }
+
+  static Future<bool> checkPinMessage(String messageId, String chatroomId) async{
+    DocumentSnapshot documentSnapshot = await firestore.collection('chatrooms').doc(chatroomId).collection('messages').doc(messageId).get();
+    bool isPin = documentSnapshot['isPin'];
+    if(isPin){
+      return true;
+    }else return false;
+  }
+
+  static Stream<QuerySnapshot<Map<String,dynamic>>> getPinMessage(String chatroomId) {
+    return firestore.collection('chatrooms').doc(chatroomId).collection('messages').where('isPin', isEqualTo: true).snapshots();
   }
 }
