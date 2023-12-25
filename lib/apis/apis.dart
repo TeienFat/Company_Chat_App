@@ -137,6 +137,19 @@ class APIs {
     return userchat;
   }
 
+  static Future<MessageChat> getMessageFromId(
+      String chatRoomId, String messageId) async {
+    DocumentSnapshot docSnap = await firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .doc(messageId)
+        .get();
+    MessageChat messageChat =
+        MessageChat.fromMap(docSnap.data() as Map<String, dynamic>);
+    return messageChat;
+  }
+
   static Future<void> updateUserName(String userName) async {
     return firestore
         .collection('user')
@@ -220,7 +233,7 @@ class APIs {
         .doc(chatRoomId)
         .set(chatroom.toMap());
     await sendMessage(
-        chatroom, userchat.username! + " đã tạo nhóm", Type.sound);
+        chatroom, userchat.username! + " đã tạo nhóm", Type.notification, null);
     return chatroom;
   }
 
@@ -243,7 +256,7 @@ class APIs {
   }
 
   static Future<void> sendMessage(
-      ChatRoom chatRoom, String msg, Type type) async {
+      ChatRoom chatRoom, String msg, Type type, String? messRepId) async {
     DocumentSnapshot documentSnapshot =
         await firestore.collection('chatrooms').doc(chatRoom.chatroomid).get();
 
@@ -282,7 +295,8 @@ class APIs {
         userImage: user.imageUrl,
         type: type,
         receivers: participantsMap.keys.toList(),
-        isPin: false);
+        isPin: false,
+        messageReplyId: messRepId != null ? messRepId : null);
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -319,19 +333,21 @@ class APIs {
   }
 
   static Future<void> sendMediaMessage(
-      int type, ChatRoom chatRoom, File mediaFile) async {
+      int type, ChatRoom chatRoom, File mediaFile, String? messRepId) async {
     final mediaName = DateTime.now().millisecondsSinceEpoch;
     var mediaUrl;
     switch (type) {
       case 0:
         mediaUrl = await saveMedia(
             0, mediaName.toString(), mediaFile, 'message_images');
-        await sendMessage(chatRoom, mediaUrl, Type.image);
+        await sendMessage(chatRoom, mediaUrl, Type.image,
+            messRepId != null ? messRepId : null);
         break;
       case 1:
         mediaUrl = await saveMedia(
             1, mediaName.toString(), mediaFile, 'message_images');
-        await sendMessage(chatRoom, mediaUrl, Type.video);
+        await sendMessage(chatRoom, mediaUrl, Type.video,
+            messRepId != null ? messRepId : null);
         break;
     }
   }

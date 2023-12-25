@@ -15,11 +15,12 @@ class NewMessage extends StatefulWidget {
     required this.chatRoom,
     required this.onUpload,
   }) : messageReplyId = null;
-  NewMessage.reply(
-      {super.key,
-      required this.chatRoom,
-      required this.onUpload,
-      required this.messageReplyId});
+  NewMessage.reply({
+    super.key,
+    required this.chatRoom,
+    required this.onUpload,
+    required this.messageReplyId,
+  });
   final ChatRoom chatRoom;
   final Function(bool upLoad) onUpload;
   final String? messageReplyId;
@@ -29,8 +30,9 @@ class NewMessage extends StatefulWidget {
 
 class _NewMessageState extends State<NewMessage> {
   bool _isTyping = false;
-  TextEditingController _messageController = TextEditingController();
+  String? messReplyId;
 
+  TextEditingController _messageController = TextEditingController();
   void _sendTextMessage() {
     final enteredMessage = _messageController.text;
     if (enteredMessage.trim().isEmpty) {
@@ -39,7 +41,8 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
-    APIs.sendMessage(widget.chatRoom, enteredMessage.trim(), Type.text);
+    APIs.sendMessage(widget.chatRoom, enteredMessage.trim(), Type.text,
+        widget.messageReplyId);
   }
 
   @override
@@ -58,7 +61,8 @@ class _NewMessageState extends State<NewMessage> {
         setState(() {
           widget.onUpload(true);
         });
-        await APIs.sendMediaMessage(0, widget.chatRoom, File(pickedImage.path));
+        await APIs.sendMediaMessage(
+            0, widget.chatRoom, File(pickedImage.path), widget.messageReplyId);
         setState(() {
           widget.onUpload(false);
         });
@@ -74,7 +78,8 @@ class _NewMessageState extends State<NewMessage> {
           widget.onUpload(true);
         });
         for (var i in pickedImage) {
-          await APIs.sendMediaMessage(0, widget.chatRoom, File(i.path));
+          await APIs.sendMediaMessage(
+              0, widget.chatRoom, File(i.path), widget.messageReplyId);
         }
         setState(() {
           widget.onUpload(false);
@@ -94,7 +99,8 @@ class _NewMessageState extends State<NewMessage> {
         setState(() {
           widget.onUpload(true);
         });
-        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        await APIs.sendMediaMessage(
+            1, widget.chatRoom, File(pickedImage.path), widget.messageReplyId);
         setState(() {
           widget.onUpload(false);
         });
@@ -107,7 +113,8 @@ class _NewMessageState extends State<NewMessage> {
         setState(() {
           widget.onUpload(true);
         });
-        await APIs.sendMediaMessage(1, widget.chatRoom, File(pickedImage.path));
+        await APIs.sendMediaMessage(
+            1, widget.chatRoom, File(pickedImage.path), widget.messageReplyId);
         setState(() {
           widget.onUpload(false);
         });
@@ -233,7 +240,7 @@ class _NewMessageState extends State<NewMessage> {
             color: Theme.of(context).colorScheme.primary,
             onPressed: _sendTextMessage,
             icon: Icon(Icons.send),
-          )
+          ),
         ],
       ),
     );

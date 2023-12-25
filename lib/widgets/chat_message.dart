@@ -6,8 +6,11 @@ import 'package:company_chat_app_demo/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessage extends StatefulWidget {
-  const ChatMessage(
-      {super.key, required this.chatRoom, required this.onMessageSwipe});
+  const ChatMessage({
+    super.key,
+    required this.chatRoom,
+    required this.onMessageSwipe,
+  });
   final ChatRoom chatRoom;
   final Function(MessageChat messageChat, bool isMe) onMessageSwipe;
   @override
@@ -16,6 +19,14 @@ class ChatMessage extends StatefulWidget {
 
 class _ChatMessageState extends State<ChatMessage> {
   List<MessageChat> listMessage = [];
+  int? indexToScroll;
+  final _scrollController = ScrollController();
+  void _scrollToIndex(String messageIdToScroll) {
+    indexToScroll = listMessage
+        .indexWhere((element) => element.messageId == messageIdToScroll);
+    _scrollController.animateTo(80.0 * indexToScroll!,
+        duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +81,13 @@ class _ChatMessageState extends State<ChatMessage> {
           }
           return 0;
         });
+
         return ListView.builder(
+          controller: _scrollController,
           padding: const EdgeInsets.all(13),
           reverse: true,
           itemCount: listMessage.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (_, index) {
             final chatMessage = listMessage[index];
             final nextChatMessage =
                 index + 1 < listMessage.length ? listMessage[index + 1] : null;
@@ -87,7 +100,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 prevChatMessage != null ? prevChatMessage.fromId : null;
             final nextUserIsSame = nextMessageUserId == currentMessageUserId;
             final prevUserIsSame = prevMessageUserId == currentMessageUserId;
-            if (chatMessage.type == Type.sound) {
+            if (chatMessage.type == Type.notification) {
               return Center(
                   child: Text(
                 chatMessage.msg!,
@@ -105,6 +118,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastMessage: true,
                 typeChat: widget.chatRoom.type!,
                 onSwipe: widget.onMessageSwipe,
+                onTapReply: (messageIdToScroll) {
+                  _scrollToIndex(messageIdToScroll);
+                },
+                isScrollTo: index == indexToScroll,
               );
             }
 
@@ -118,6 +135,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastMessage: true,
                 typeChat: widget.chatRoom.type!,
                 onSwipe: widget.onMessageSwipe,
+                onTapReply: (messageIdToScroll) {
+                  _scrollToIndex(messageIdToScroll);
+                },
+                isScrollTo: index == indexToScroll,
               );
             }
             if (!prevUserIsSame &&
@@ -132,6 +153,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
                 onSwipe: widget.onMessageSwipe,
+                onTapReply: (messageIdToScroll) {
+                  _scrollToIndex(messageIdToScroll);
+                },
+                isScrollTo: index == indexToScroll,
               );
             }
 
@@ -145,6 +170,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
                 onSwipe: widget.onMessageSwipe,
+                onTapReply: (messageIdToScroll) {
+                  _scrollToIndex(messageIdToScroll);
+                },
+                isScrollTo: index == indexToScroll,
               );
             }
 
@@ -159,6 +188,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
                 onSwipe: widget.onMessageSwipe,
+                onTapReply: (messageIdToScroll) {
+                  _scrollToIndex(messageIdToScroll);
+                },
+                isScrollTo: index == indexToScroll,
               );
             } else
               return MessageBubble.first(
@@ -170,6 +203,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
                 onSwipe: widget.onMessageSwipe,
+                onTapReply: (messageIdToScroll) {
+                  _scrollToIndex(messageIdToScroll);
+                },
+                isScrollTo: index == indexToScroll,
               );
           },
         );
