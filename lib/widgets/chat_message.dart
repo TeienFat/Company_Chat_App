@@ -6,14 +6,16 @@ import 'package:company_chat_app_demo/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessage extends StatefulWidget {
-  const ChatMessage({super.key, required this.chatRoom});
+  const ChatMessage(
+      {super.key, required this.chatRoom, required this.onMessageSwipe});
   final ChatRoom chatRoom;
+  final Function(MessageChat messageChat, bool isMe) onMessageSwipe;
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }
 
 class _ChatMessageState extends State<ChatMessage> {
-  List<Message> listMessage = [];
+  List<MessageChat> listMessage = [];
 
   @override
   Widget build(BuildContext context) {
@@ -59,14 +61,15 @@ class _ChatMessageState extends State<ChatMessage> {
           );
         }
         final data = messageSnapshot.data!.docs;
-        listMessage = data.map((e) => Message.fromMap(e.data())).toList();
-        listMessage.sort((a,b) {
-          if(int.parse(a.sent!) > (int.parse(b.sent!))){
-            return 0;
+        listMessage = data.map((e) => MessageChat.fromMap(e.data())).toList();
+        listMessage.sort((a, b) {
+          if (int.parse(a.sent!) < (int.parse(b.sent!))) {
+            return 1;
+          } else if (int.parse(a.sent!) > int.parse(b.sent!)) {
+            return -1;
           }
-          return 1;
-        } );
-
+          return 0;
+        });
         return ListView.builder(
           padding: const EdgeInsets.all(13),
           reverse: true,
@@ -84,7 +87,13 @@ class _ChatMessageState extends State<ChatMessage> {
                 prevChatMessage != null ? prevChatMessage.fromId : null;
             final nextUserIsSame = nextMessageUserId == currentMessageUserId;
             final prevUserIsSame = prevMessageUserId == currentMessageUserId;
-
+            if (chatMessage.type == Type.sound) {
+              return Center(
+                  child: Text(
+                chatMessage.msg!,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ));
+            }
             if (APIs.firebaseAuth.currentUser!.uid == currentMessageUserId &&
                 prevChatMessage != null &&
                 prevChatMessage.read == '') {
@@ -95,6 +104,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: false,
                 isLastMessage: true,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
 
@@ -107,6 +117,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: true,
                 isLastMessage: true,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
             if (!prevUserIsSame &&
@@ -120,6 +131,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: true,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
 
@@ -132,6 +144,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: true,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             }
 
@@ -145,6 +158,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: false,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
             } else
               return MessageBubble.first(
@@ -155,6 +169,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 isLastInSequence: false,
                 isLastMessage: false,
                 typeChat: widget.chatRoom.type!,
+                onSwipe: widget.onMessageSwipe,
               );
           },
         );

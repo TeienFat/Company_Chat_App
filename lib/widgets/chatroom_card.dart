@@ -24,7 +24,8 @@ class ChatRoomCard extends StatefulWidget {
 }
 
 class _ChatRoomCardState extends State<ChatRoomCard> {
-  Message? _message;
+  MessageChat? _message;
+  String? msg;
   void _openAddGroupOverlay(BuildContext ctx, String chatRoomId) {
     showModalBottomSheet(
       useSafeArea: true,
@@ -82,8 +83,27 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
               );
             }
             final data = lastMessageSnapshot.data!.docs;
-            final list = data.map((e) => Message.fromMap(e.data())).toList();
+            final list =
+                data.map((e) => MessageChat.fromMap(e.data())).toList();
             if (list.isNotEmpty) _message = list[0];
+            switch (_message!.type) {
+              case Type.image:
+                msg = 'Đã gửi một ảnh';
+                break;
+              case Type.video:
+                msg = 'Đã gửi một video';
+                break;
+              default:
+                msg = _message!.msg;
+            }
+            if (_message!.fromId == APIs.firebaseAuth.currentUser!.uid &&
+                _message!.type! != Type.sound) {
+              msg = "Bạn: " + msg!;
+            }
+            if (_message!.fromId != APIs.firebaseAuth.currentUser!.uid &&
+                _message!.type! != Type.sound) {
+              msg = APIs.getLastWordOfName(_message!.userName!) + ": " + msg!;
+            }
             return Container(
               margin: const EdgeInsets.only(bottom: 12, top: 16),
               child: Row(
@@ -155,46 +175,13 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
                         children: [
                           _message == null
                               ? SizedBox()
-                              : _message!.fromId ==
-                                      APIs.firebaseAuth.currentUser!.uid
-                                  ? Text('Bạn: ')
-                                  : !widget.chatRoom.type!
-                                      ? FutureBuilder(
-                                          future: APIs.getUserFormId(
-                                              _message!.fromId!),
-                                          builder: (context, userSnapshot) {
-                                            if (userSnapshot.connectionState ==
-                                                ConnectionState.done) {
-                                              UserChat userChat =
-                                                  userSnapshot.data!;
-                                              return _message!.read!.isNotEmpty
-                                                  ? Text(APIs.getLastWordOfName(
-                                                          userChat.username!) +
-                                                      ": ")
-                                                  : Text(
-                                                      APIs.getLastWordOfName(
-                                                              userChat
-                                                                  .username!) +
-                                                          ": ",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 16),
-                                                    );
-                                            } else
-                                              return SizedBox();
-                                          },
-                                        )
-                                      : SizedBox(),
-                          _message == null
-                              ? SizedBox()
                               : Container(
-                                  width: widget.chatRoom.type! ? 185 : 91,
+                                  width: 190,
                                   child: _message!.read!.isEmpty &&
                                           _message!.fromId !=
                                               APIs.firebaseAuth.currentUser!.uid
                                       ? Text(
-                                          _message!.msg!,
+                                          msg!,
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
@@ -202,7 +189,7 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
                                           overflow: TextOverflow.ellipsis,
                                         )
                                       : Text(
-                                          _message!.msg!,
+                                          msg!,
                                           overflow: TextOverflow.ellipsis,
                                         )),
                           SizedBox(

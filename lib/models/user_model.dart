@@ -5,6 +5,7 @@ class UserChat{
   bool? isOnline;
   String? email;
   List<String>? blockUsers;
+  String? token;
 
   UserChat({
     required this.id,
@@ -13,6 +14,7 @@ class UserChat{
     required this.isOnline,
     required this.email,
     required this.blockUsers,
+    required this.token,
   });
 
   UserChat.fromMap(Map<String, dynamic> map) {
@@ -22,6 +24,7 @@ class UserChat{
     isOnline = map['isOnline'];
     email = map['email'];
     blockUsers = List<String>.from(map['blockUsers']);
+    token = map['token'];
   }
   Map<String, dynamic> toMap() {
     return ({
@@ -30,7 +33,8 @@ class UserChat{
       "username": username,
       "isOnline": isOnline,
       "email": email,
-      "blockUsers": blockUsers
+      "blockUsers": blockUsers,
+      "token": token
     });
   }
 }

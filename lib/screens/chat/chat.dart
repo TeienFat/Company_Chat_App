@@ -1,9 +1,11 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/screens/chat/chat_setting.dart';
 import 'package:company_chat_app_demo/widgets/chat_message.dart';
 import 'package:company_chat_app_demo/widgets/new_message.dart';
+import 'package:company_chat_app_demo/widgets/reply_new_message.dart';
 import 'package:company_chat_app_demo/widgets/requests_message.dart';
 import 'package:flutter/material.dart';
 
@@ -23,21 +25,35 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   bool isSearching = false;
   bool _hasBlock = false;
-  Future<void> goSettingScreen(BuildContext context) async{
-     final hasBlock = await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => widget.chatRoom.type!
-                      ? ChatSettingScreen.direct(
-                          chatRoom: widget.chatRoom, userChat: widget.userChat)
-                      : ChatSettingScreen.group(
-                          chatRoom: widget.chatRoom,
-                          groupName: widget.groupName),
-                ),
-              );
-        setState(() {
-          _hasBlock = hasBlock;
-        });
+  bool _hasReply = false;
+  bool _isMe = false;
+  MessageChat _messageChat = MessageChat(
+      messageId: "",
+      fromId: "",
+      msg: "",
+      read: "",
+      sent: "",
+      userName: "",
+      userImage: "",
+      type: Type.text,
+      receivers: [],
+      isPin: false);
+
+  Future<void> goSettingScreen(BuildContext context) async {
+    final hasBlock = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => widget.chatRoom.type!
+            ? ChatSettingScreen.direct(
+                chatRoom: widget.chatRoom, userChat: widget.userChat)
+            : ChatSettingScreen.group(
+                chatRoom: widget.chatRoom, groupName: widget.groupName),
+      ),
+    );
+    setState(() {
+      _hasBlock = hasBlock;
+    });
   }
+
   late bool isRequests = widget.chatRoom.type! &&
       widget.chatRoom.isRequests! != ({}) &&
       widget.chatRoom.isRequests!['to'] == APIs.firebaseAuth.currentUser!.uid;
@@ -51,6 +67,25 @@ class _ChatScreenState extends State<ChatScreen> {
   void _onUpload(bool upLoad) {
     setState(() {
       _isUploading = upLoad;
+    });
+  }
+
+  void _onReply(bool isMe, MessageChat messageChat) {
+    setState(() {
+      _hasReply = true;
+      _isMe = isMe;
+      _messageChat = messageChat;
+    });
+    if (isMe) {
+      print("Reply to me");
+    } else {
+      print("Reply to you");
+    }
+  }
+
+  void _cancelReply() {
+    setState(() {
+      _hasReply = false;
     });
   }
 
@@ -100,7 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: (){
+            onPressed: () {
               goSettingScreen(context);
             },
             icon: Icon(Icons.info),
@@ -112,6 +147,9 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: ChatMessage(
               chatRoom: widget.chatRoom,
+              onMessageSwipe: (messageChat, isMe) {
+                _onReply(isMe, messageChat);
+              },
             ),
           ),
           if (_isUploading)
@@ -122,6 +160,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: CircularProgressIndicator(),
               ),
             ),
+          if (_hasReply)
+            ReplyNewMessage(
+              isMe: _isMe,
+              messageChat: _messageChat,
+              onCancel: _cancelReply,
+            ),
           isRequests
               ? Padding(
                   padding: const EdgeInsets.only(bottom: 30.0),
@@ -130,12 +174,21 @@ class _ChatScreenState extends State<ChatScreen> {
                       chatRoomId: widget.chatRoom.chatroomid!,
                       reLoad: reLoad),
                 )
-              : _hasBlock ? Text('Bạn đã chặn người dùng này'):  NewMessage(
-                  chatRoom: widget.chatRoom,
-                  onUpload: (upLoad) {
-                    _onUpload(upLoad);
-                  },
-                ),
+              : _hasBlock
+                  ? Text('Bạn đã chặn người dùng này')
+                  : _hasReply
+                      ? NewMessage.reply(
+                          chatRoom: widget.chatRoom,
+                          onUpload: (upLoad) {
+                            _onUpload(upLoad);
+                          },
+                          messageReplyId: _messageChat.messageId)
+                      : NewMessage(
+                          chatRoom: widget.chatRoom,
+                          onUpload: (upLoad) {
+                            _onUpload(upLoad);
+                          },
+                        ),
         ],
       ),
     );

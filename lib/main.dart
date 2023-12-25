@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:company_chat_app_demo/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
 
 var kColorScheme =
     ColorScheme.fromSeed(seedColor: const Color.fromARGB(1, 207, 46, 46));
@@ -17,7 +19,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  await FlutterNotificationChannel.registerNotificationChannel(
+    description: 'Your channel description',
+    id: 'chat',
+    importance: NotificationImportance.IMPORTANCE_HIGH,
+    name: 'chats',
+  );
   runApp(const MyApp());
 }
 

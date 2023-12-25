@@ -10,9 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class NewMessage extends StatefulWidget {
-  const NewMessage({super.key, required this.chatRoom, required this.onUpload});
+  NewMessage({
+    super.key,
+    required this.chatRoom,
+    required this.onUpload,
+  }) : messageReplyId = null;
+  NewMessage.reply(
+      {super.key,
+      required this.chatRoom,
+      required this.onUpload,
+      required this.messageReplyId});
   final ChatRoom chatRoom;
   final Function(bool upLoad) onUpload;
+  final String? messageReplyId;
   @override
   State<NewMessage> createState() => _NewMessageState();
 }
