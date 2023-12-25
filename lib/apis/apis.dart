@@ -295,7 +295,7 @@ class APIs {
         userImage: user.imageUrl,
         type: type,
         receivers: participantsMap.keys.toList(),
-        isPin: false,
+        isPin: "",
         messageReplyId: messRepId != null ? messRepId : null);
     await firestore
         .collection('chatrooms')
@@ -554,12 +554,22 @@ class APIs {
 
   static Future<void> pinMessage(
       String messageId, String chatroomId, bool pin) async {
-    await firestore
+        if(pin){
+        final now = DateTime.now().millisecondsSinceEpoch.toString();
+          await firestore
         .collection('chatrooms')
         .doc(chatroomId)
         .collection('messages')
         .doc(messageId)
-        .update({'isPin': pin});
+        .update({'isPin': now});
+        }else{
+          await firestore
+        .collection('chatrooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .doc(messageId)
+        .update({'isPin': ""});
+        }
   }
 
   static Future<bool> checkPinMessage(
@@ -570,8 +580,8 @@ class APIs {
         .collection('messages')
         .doc(messageId)
         .get();
-    bool isPin = documentSnapshot['isPin'];
-    if (isPin) {
+    String isPin = documentSnapshot['isPin'];
+    if (isPin.isNotEmpty) {
       return true;
     } else
       return false;
@@ -583,7 +593,7 @@ class APIs {
         .collection('chatrooms')
         .doc(chatroomId)
         .collection('messages')
-        .where('isPin', isEqualTo: true)
+        .where('isPin', isNotEqualTo: "")
         .snapshots();
   }
 }

@@ -37,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
       userImage: "",
       type: Type.text,
       receivers: [],
-      isPin: false,
+      isPin: "",
       messageReplyId: null);
 
   Future<void> goSettingScreen(BuildContext context) async {
