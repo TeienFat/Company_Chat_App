@@ -4,6 +4,7 @@ import 'package:company_chat_app_demo/models/message_model.dart';
 import 'package:company_chat_app_demo/widgets/bubble_image.dart';
 import 'package:company_chat_app_demo/widgets/bubble_video.dart';
 import 'package:company_chat_app_demo/widgets/menu_option_chatscreen.dart';
+import 'package:company_chat_app_demo/widgets/reply_message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:swipe_to/swipe_to.dart';
 
@@ -16,7 +17,9 @@ class MessageBubble extends StatelessWidget {
       required this.typeChat,
       required this.isLastInSequence,
       required this.isLastMessage,
-      required this.onSwipe})
+      required this.onSwipe,
+      required this.onTapReply,
+      required this.isScrollTo})
       : isFirstInSequence = true;
   MessageBubble.second(
       {super.key,
@@ -26,7 +29,9 @@ class MessageBubble extends StatelessWidget {
       required this.typeChat,
       required this.isLastInSequence,
       required this.isLastMessage,
-      required this.onSwipe})
+      required this.onSwipe,
+      required this.onTapReply,
+      required this.isScrollTo})
       : isFirstInSequence = false;
   final MessageChat message;
   final String chatRoomId;
@@ -36,13 +41,17 @@ class MessageBubble extends StatelessWidget {
   final bool isLastInSequence;
   final bool isLastMessage;
   final Function(MessageChat messageChat, bool isMe) onSwipe;
+  final Function(String messageIdToScroll) onTapReply;
+  final bool isScrollTo;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    Color? colorMess;
     if (!isMe && message.read!.isEmpty) {
       APIs.updateMessageReadStatus(chatRoomId, message.messageId!);
     }
+    if (isMe && isScrollTo) {}
     return Stack(
       children: [
         if (message.userImage != null && isFirstInSequence)
@@ -135,80 +144,107 @@ class MessageBubble extends StatelessWidget {
                               : (details) {
                                   onSwipe(message, isMe);
                                 },
-                          child: Container(
-                            decoration: message.type! == Type.text
-                                ? BoxDecoration(
-                                    color: isMe
-                                        ? Colors.grey[300]
-                                        : theme.colorScheme.primaryContainer,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: !isMe
-                                          ? Radius.zero
-                                          : const Radius.circular(12),
-                                      topRight: isMe
-                                          ? Radius.zero
-                                          : const Radius.circular(12),
-                                      bottomLeft: const Radius.circular(12),
-                                      bottomRight: const Radius.circular(12),
-                                    ),
-                                  )
-                                : null,
-                            constraints: const BoxConstraints(maxWidth: 295),
-                            padding: message.type! == Type.text
-                                ? const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 14,
-                                  )
-                                : null,
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 0,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: isMe
-                                  ? CrossAxisAlignment.start
-                                  : CrossAxisAlignment.end,
-                              children: [
-                                message.type! == Type.text
-                                    ? Text(
-                                        message.msg!,
+                          child: Column(
+                            crossAxisAlignment: isMe
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              if (message.messageReplyId != null)
+                                InkWell(
+                                  onTap: () {
+                                    onTapReply(message.messageReplyId!);
+                                  },
+                                  child: ReplyBubble(
+                                      chatRoomId: chatRoomId,
+                                      messageReplyId: message.messageReplyId!,
+                                      messageSent: message,
+                                      isMe: isMe),
+                                ),
+                              Container(
+                                decoration: message.type! == Type.text
+                                    ? BoxDecoration(
+                                        color: isMe && isScrollTo
+                                            ? Colors.grey
+                                            : isMe
+                                                ? Colors.grey[300]
+                                                : isScrollTo
+                                                    ? Colors.red[200]
+                                                    : theme.colorScheme
+                                                        .primaryContainer,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: !isMe
+                                              ? Radius.zero
+                                              : const Radius.circular(12),
+                                          topRight: isMe
+                                              ? Radius.zero
+                                              : const Radius.circular(12),
+                                          bottomLeft: const Radius.circular(12),
+                                          bottomRight:
+                                              const Radius.circular(12),
+                                        ),
+                                      )
+                                    : null,
+                                constraints:
+                                    const BoxConstraints(maxWidth: 295),
+                                padding: message.type! == Type.text
+                                    ? const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                        horizontal: 14,
+                                      )
+                                    : null,
+                                margin: message.messageReplyId == null
+                                    ? const EdgeInsets.symmetric(
+                                        vertical: 4,
+                                      )
+                                    : EdgeInsets.only(bottom: 4),
+                                child: Column(
+                                  crossAxisAlignment: isMe
+                                      ? CrossAxisAlignment.start
+                                      : CrossAxisAlignment.end,
+                                  children: [
+                                    message.type! == Type.text
+                                        ? Text(
+                                            message.msg!,
+                                            style: TextStyle(
+                                              height: 1.3,
+                                              color: isMe
+                                                  ? Colors.black87
+                                                  : theme.colorScheme
+                                                      .onPrimaryContainer,
+                                            ),
+                                            softWrap: true,
+                                          )
+                                        : message.type! == Type.image
+                                            ? ImageBubble(
+                                                imageUrl: message.msg!,
+                                                isMe: isMe)
+                                            : message.type! == Type.video
+                                                ? VideoBubble(
+                                                    videoUrl: message.msg!,
+                                                    isMe: isMe,
+                                                  )
+                                                : SizedBox(),
+                                    if (isLastInSequence)
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                    if (isLastInSequence)
+                                      Text(
+                                        MyDateUtil.getFormattedTime(
+                                            context: context,
+                                            time: message.sent.toString()),
                                         style: TextStyle(
-                                          height: 1.3,
+                                          fontSize: 12,
                                           color: isMe
                                               ? Colors.black87
                                               : theme.colorScheme
                                                   .onPrimaryContainer,
                                         ),
-                                        softWrap: true,
-                                      )
-                                    : message.type! == Type.image
-                                        ? ImageBubble(
-                                            imageUrl: message.msg!, isMe: isMe)
-                                        : message.type! == Type.video
-                                            ? VideoBubble(
-                                                videoUrl: message.msg!,
-                                                isMe: isMe,
-                                              )
-                                            : SizedBox(),
-                                if (isLastInSequence)
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                if (isLastInSequence)
-                                  Text(
-                                    MyDateUtil.getFormattedTime(
-                                        context: context,
-                                        time: message.sent.toString()),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isMe
-                                          ? Colors.black87
-                                          : theme
-                                              .colorScheme.onPrimaryContainer,
-                                    ),
-                                  ),
-                              ],
-                            ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (message.isPin!)
