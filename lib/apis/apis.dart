@@ -130,7 +130,7 @@ class APIs {
   }
 
   static Future<void> updateUserName(String userName) async {
-    return firestore
+    return await firestore
         .collection('user')
         .doc(firebaseAuth.currentUser!.uid)
         .update({'username': userName});
@@ -208,7 +208,7 @@ class APIs {
 
   static Future<void> updateNameChatRoom(
       String chatRomID, String chatRoomName) async {
-    return firestore
+    return await firestore
         .collection('chatrooms')
         .doc(chatRomID)
         .update({'chatroomname': chatRoomName});
@@ -431,5 +431,16 @@ class APIs {
         .orderBy('sent', descending: true)
         .limit(1)
         .snapshots();
+  }
+
+  static Future<void> updateImageUser(String userID, File imageFile) async {
+    final storageRef =
+        await fireStorage.ref().child('user_images').child('${userID}.jpg');
+    await storageRef.delete();
+    String imgURL = await saveMedia(0, userID, imageFile, 'user_images');
+    return await firestore
+        .collection('user')
+        .doc(userID)
+        .update({'imageUrl': imgURL});
   }
 }
