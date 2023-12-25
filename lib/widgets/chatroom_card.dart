@@ -111,28 +111,18 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
                   Stack(
                     children: [
                       Container(
-                          width: 60,
-                          height: 60,
-                          padding: const EdgeInsets.all(4),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: widget.chatRoom.type!
-                                        ? (widget.userchat!.imageUrl!.isNotEmpty
-                                            ? NetworkImage(
-                                                widget.userchat!.imageUrl!)
-                                            : AssetImage(
-                                                    'assets/images/user.png')
-                                                as ImageProvider)
-                                        : (widget.chatRoom.imageUrl != ''
-                                            ? NetworkImage(
-                                                widget.chatRoom.imageUrl!)
-                                            : AssetImage(
-                                                    'assets/images/group.png')
-                                                as ImageProvider)),
-                                borderRadius: BorderRadius.circular(16)),
-                          )),
+                        child: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: widget.chatRoom.type!
+                                ? (widget.userchat!.imageUrl!.isNotEmpty
+                                    ? NetworkImage(widget.userchat!.imageUrl!)
+                                    : AssetImage('assets/images/user.png')
+                                        as ImageProvider)
+                                : (widget.chatRoom.imageUrl != ''
+                                    ? NetworkImage(widget.chatRoom.imageUrl!)
+                                    : AssetImage('assets/images/group.png')
+                                        as ImageProvider)),
+                      ),
                       if (widget.chatRoom.type! && widget.userchat!.isOnline!)
                         Positioned(
                           right: -1,

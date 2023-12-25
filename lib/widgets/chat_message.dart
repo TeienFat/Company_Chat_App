@@ -27,7 +27,7 @@ class _ChatMessageState extends State<ChatMessage> {
     _scrollController.animateTo(80.0 * indexToScroll!,
         duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -87,7 +87,7 @@ class _ChatMessageState extends State<ChatMessage> {
           padding: const EdgeInsets.all(13),
           reverse: true,
           itemCount: listMessage.length,
-          itemBuilder: (_, index) {
+          itemBuilder: (context, index) {
             final chatMessage = listMessage[index];
             final nextChatMessage =
                 index + 1 < listMessage.length ? listMessage[index + 1] : null;

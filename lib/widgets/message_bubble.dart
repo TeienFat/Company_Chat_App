@@ -106,60 +106,60 @@ class MessageBubble extends StatelessWidget {
                           ),
                         ),
                       ),
-                    Stack(
-                      children: [
-                        SwipeTo(
-                          swipeSensitivity: 10,
-                          animationDuration: Duration(milliseconds: 200),
-                          offsetDx: 0.8,
-                          leftSwipeWidget: Container(
-                            width: 30,
-                            height: 30,
-                            child: Icon(
-                              Icons.reply,
-                              color: Colors.white,
+                    SwipeTo(
+                      swipeSensitivity: 10,
+                      animationDuration: Duration(milliseconds: 200),
+                      offsetDx: 0.8,
+                      leftSwipeWidget: Container(
+                        width: 30,
+                        height: 30,
+                        child: Icon(
+                          Icons.reply,
+                          color: Colors.white,
+                        ),
+                        decoration: BoxDecoration(
+                            color: Colors.black45,
+                            borderRadius: BorderRadius.circular(30)),
+                      ),
+                      rightSwipeWidget: Container(
+                        width: 30,
+                        height: 30,
+                        child: Icon(
+                          Icons.reply,
+                          color: Colors.white,
+                        ),
+                        decoration: BoxDecoration(
+                            color: Colors.black45,
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
+                      onLeftSwipe: isMe
+                          ? (details) {
+                              onSwipe(message, isMe);
+                            }
+                          : null,
+                      onRightSwipe: isMe
+                          ? null
+                          : (details) {
+                              onSwipe(message, isMe);
+                            },
+                      child: Column(
+                        crossAxisAlignment: isMe
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          if (message.messageReplyId != null)
+                            InkWell(
+                              onTap: () {
+                                onTapReply(message.messageReplyId!);
+                              },
+                              child: ReplyBubble(
+                                  chatRoomId: chatRoomId,
+                                  messageReplyId: message.messageReplyId!,
+                                  messageSent: message,
+                                  isMe: isMe),
                             ),
-                            decoration: BoxDecoration(
-                                color: Colors.black45,
-                                borderRadius: BorderRadius.circular(30)),
-                          ),
-                          rightSwipeWidget: Container(
-                            width: 30,
-                            height: 30,
-                            child: Icon(
-                              Icons.reply,
-                              color: Colors.white,
-                            ),
-                            decoration: BoxDecoration(
-                                color: Colors.black45,
-                                borderRadius: BorderRadius.circular(20)),
-                          ),
-                          onLeftSwipe: isMe
-                              ? (details) {
-                                  onSwipe(message, isMe);
-                                }
-                              : null,
-                          onRightSwipe: isMe
-                              ? null
-                              : (details) {
-                                  onSwipe(message, isMe);
-                                },
-                          child: Column(
-                            crossAxisAlignment: isMe
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
+                          Stack(
                             children: [
-                              if (message.messageReplyId != null)
-                                InkWell(
-                                  onTap: () {
-                                    onTapReply(message.messageReplyId!);
-                                  },
-                                  child: ReplyBubble(
-                                      chatRoomId: chatRoomId,
-                                      messageReplyId: message.messageReplyId!,
-                                      messageSent: message,
-                                      isMe: isMe),
-                                ),
                               Container(
                                 decoration: message.type! == Type.text
                                     ? BoxDecoration(
@@ -244,30 +244,30 @@ class MessageBubble extends StatelessWidget {
                                   ],
                                 ),
                               ),
+                              if (message.isPin!)
+                                isMe
+                                    ? Positioned.fill(
+                                        left: -3,
+                                        child: Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Icon(
+                                              Icons.push_pin,
+                                              size: 16,
+                                              color: Colors.red,
+                                            )))
+                                    : Positioned.fill(
+                                        right: -3,
+                                        child: Align(
+                                            alignment: Alignment.topRight,
+                                            child: Icon(
+                                              Icons.push_pin,
+                                              size: 16,
+                                              color: Colors.red,
+                                            )))
                             ],
                           ),
-                        ),
-                        if (message.isPin!)
-                          isMe
-                              ? Positioned.fill(
-                                  left: -3,
-                                  child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Icon(
-                                        Icons.push_pin,
-                                        size: 16,
-                                        color: Colors.red,
-                                      )))
-                              : Positioned.fill(
-                                  right: -3,
-                                  child: Align(
-                                      alignment: Alignment.topRight,
-                                      child: Icon(
-                                        Icons.push_pin,
-                                        size: 16,
-                                        color: Colors.red,
-                                      )))
-                      ],
+                        ],
+                      ),
                     ),
                     if (isMe && isLastMessage && message.read!.isNotEmpty)
                       Icon(
