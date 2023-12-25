@@ -3,6 +3,7 @@ import 'package:company_chat_app_demo/helper/helper.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/widgets/user_card.dart';
 import 'package:flutter/material.dart';
+import 'package:tiengviet/tiengviet.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
@@ -30,10 +31,10 @@ class _ContactScreenState extends State<ContactScreen> {
   void _runFilter(String _enteredKeyword) {
     _searchList.clear();
     for (var user in _list) {
-      if (user.username!
-          .toLowerCase()
-          .contains(_enteredKeyword.toLowerCase())) {
-        _searchList.add(user);
+      if (TiengViet.parse(user.username!)
+        .toLowerCase()
+        .contains(TiengViet.parse(_enteredKeyword).toLowerCase())) {
+      _searchList.add(user);
       }
     }
     setState(() {
