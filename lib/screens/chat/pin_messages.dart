@@ -33,6 +33,14 @@ class ListPinMessage extends StatelessWidget {
           final data = pinMessageSnapshot.data!.docs;
           listPinMessage =
               data.map((e) => MessageChat.fromMap(e.data())).toList();
+          listPinMessage.sort((a, b) {
+          if (int.parse(a.isPin!) < (int.parse(b.isPin!))) {
+            return 1;
+          } else if (int.parse(a.isPin!) > int.parse(b.isPin!)) {
+            return -1;
+          }
+          return 0;
+        });
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

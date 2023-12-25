@@ -8,7 +8,7 @@ class MessageChat {
   String? userImage;
   Type? type;
   List<String>? receivers;
-  bool? isPin;
+  String? isPin;
   String? messageReplyId;
 
   MessageChat(

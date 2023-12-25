@@ -244,7 +244,7 @@ class MessageBubble extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              if (message.isPin!)
+                              if (message.isPin!.isNotEmpty)
                                 isMe
                                     ? Positioned.fill(
                                         left: -3,
