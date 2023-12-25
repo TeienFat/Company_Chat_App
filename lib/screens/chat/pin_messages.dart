@@ -43,6 +43,7 @@ class ListPinMessage extends StatelessWidget {
                       return Column(
                         children: [
                           InkWell(
+                            onTap: () {},
                             onLongPress: () {
                               showModalBottomSheet(
                                 useSafeArea: true,
@@ -94,7 +95,8 @@ class ListPinMessage extends StatelessWidget {
                                             Container(
                                               width: 200,
                                               child: Text(
-                                                listPinMessage[index].msg!,
+                                                listPinMessage[index].type! == Type.text 
+                                                  ? listPinMessage[index].msg! : (listPinMessage[index].type! == Type.video ? 'Một video' : 'Một ảnh'),
                                                 style: TextStyle(
                                                     color: const Color.fromARGB(
                                                         255, 93, 93, 93)),

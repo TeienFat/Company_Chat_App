@@ -87,36 +87,97 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<UserChat> list;
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: widget.chatRoom.type!
+        ? StreamBuilder(
+          stream: APIs.getInfoUser(widget.userChat!.id.toString()),
+          builder: (ctx, usersnapshot) {
+            if (usersnapshot.hasData) {
+              final data = usersnapshot.data!.docs;
+              list = data
+                  .map((e) => UserChat.fromMap(e.data()))
+                  .toList();
+              return Row(
           children: [
-            widget.chatRoom.type!
-                ? CircleAvatar(
-                    backgroundImage: widget.userChat!.imageUrl!.isNotEmpty
-                        ? NetworkImage(widget.userChat!.imageUrl!)
+            Stack(
+              children: [
+                  CircleAvatar(
+                    backgroundImage: list[0].imageUrl!.isNotEmpty
+                        ? NetworkImage(list[0].imageUrl!)
                         : AssetImage('assets/images/user.png') as ImageProvider,
-                  )
-                : CircleAvatar(
-                    backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
-                        ? NetworkImage(widget.chatRoom.imageUrl!)
-                        : AssetImage('assets/images/group.png')
-                            as ImageProvider,
                   ),
+                  if (list[0].isOnline!)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 13,
+                      height: 13,
+                      decoration: const BoxDecoration(
+                          color: Color.fromRGBO(44, 192, 105, 1),
+                          shape: BoxShape.circle,
+                          border: Border.symmetric(
+                              horizontal:
+                                  BorderSide(width: 2, color: Colors.white),
+                              vertical:
+                                  BorderSide(width: 2, color: Colors.white))),
+                    ),
+                  ),
+              ],
+            ),
             SizedBox(
               width: 10,
             ),
-            widget.chatRoom.type!
-                ? Container(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                  Container(
                     width: 225.4,
                     child: Text(
-                      widget.userChat!.username!,
+                      list[0].username!,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
-                  )
-                : Container(
+                  ),
+                  list[0].isOnline!
+                        ? const Text(
+                            'Online',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,),
+                          )
+                        : const Text(
+                            'Offline',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,),
+                          )
+              ],
+            ),
+          ],
+        );
+            } else
+              return Container();
+          },
+        )
+        : Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
+                  ? NetworkImage(widget.chatRoom.imageUrl!)
+                  : AssetImage('assets/images/group.png')
+                      as ImageProvider,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
                     width: 225.4,
                     child: Text(
                       widget.chatRoom.chatroomname!.isNotEmpty
@@ -127,6 +188,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+              ],
+            ),
           ],
         ),
         actions: [
