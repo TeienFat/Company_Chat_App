@@ -420,7 +420,9 @@ class APIs {
         .toList();
     List<MessageChat> listSearchMessage = [];
     for (MessageChat message in listMessage) {
-      if (TiengViet.parse(message.msg!).toLowerCase().contains(TiengViet.parse(_enteredWord).toLowerCase())) {
+      if (TiengViet.parse(message.msg!)
+          .toLowerCase()
+          .contains(TiengViet.parse(_enteredWord).toLowerCase())) {
         listSearchMessage.add(message);
       }
     }
@@ -604,5 +606,38 @@ class APIs {
         .collection('messages')
         .where('isPin', isNotEqualTo: "")
         .snapshots();
+  }
+
+  static Future<void> updateImageUser(
+      String userID, File imageFile, String imgID) async {
+    final storageRef =
+        await fireStorage.ref().child('user_images').child('${userID}.jpg');
+
+    if (imgID != '') {
+      await storageRef.delete();
+    }
+
+    String imgURL = await saveMedia(0, userID, imageFile, 'user_images');
+    return await firestore
+        .collection('user')
+        .doc(userID)
+        .update({'imageUrl': imgURL});
+  }
+
+  static Future<void> updateImageChatRoom(
+      String chatRoomID, File imageFile, String imgID) async {
+    final storageRef = await fireStorage
+        .ref()
+        .child('chatroom_images')
+        .child('${chatRoomID}.jpg');
+    if (imgID != '') {
+      await storageRef.delete();
+    }
+    String imgURL =
+        await saveMedia(0, chatRoomID, imageFile, 'chatroom_images');
+    return await firestore
+        .collection('chatrooms')
+        .doc(chatRoomID)
+        .update({'imageUrl': imgURL});
   }
 }

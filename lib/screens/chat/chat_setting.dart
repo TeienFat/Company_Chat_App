@@ -1,10 +1,12 @@
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
+import 'package:company_chat_app_demo/screens/change_name_image_group.dart';
 import 'package:company_chat_app_demo/screens/chat/list_user_in_group.dart';
 import 'package:company_chat_app_demo/screens/chat/pin_messages.dart';
 import 'package:company_chat_app_demo/screens/chat/search_message.dart';
 import 'package:company_chat_app_demo/screens/main_screen.dart';
+import 'package:company_chat_app_demo/screens/profile_of_others.dart';
 import 'package:flutter/material.dart';
 
 class ChatSettingScreen extends StatefulWidget {
@@ -88,8 +90,7 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                     radius: 60,
                     backgroundImage: widget.userChat!.imageUrl!.isNotEmpty
                         ? NetworkImage(widget.userChat!.imageUrl!)
-                        : AssetImage('assets/images/group.png')
-                            as ImageProvider,
+                        : AssetImage('assets/images/user.png') as ImageProvider,
                   )
                 : CircleAvatar(
                     radius: 60,
@@ -117,8 +118,36 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                     ),
                   ),
             SizedBox(
-              height: 50,
+              height: 20,
             ),
+            widget.chatRoom.type!
+                ? TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProfileOfOthersScreen(
+                                  id: widget.userChat!.id!)));
+                    },
+                    child: Text(
+                      'Xem trang cá nhân',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ))
+                : TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                          useSafeArea: true,
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (context) =>
+                              ChangeNameImageGroup(chatRoom: widget.chatRoom));
+                    },
+                    child: Text(
+                      'Đổi ảnh hoặc tên',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    )),
             InkWell(
               borderRadius: BorderRadius.all(Radius.circular(5)),
               onTap: () {
@@ -177,7 +206,6 @@ class _ChatSettingScreenState extends State<ChatSettingScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            
             if (!widget.chatRoom.type!)
               InkWell(
                 onTap: () {

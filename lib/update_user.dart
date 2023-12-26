@@ -27,7 +27,8 @@ class _UpdateUserState extends State<UpdateUser> {
       if (pickedImage == null) {
         return;
       }
-      await APIs.updateImageUser(widget.userChat!.id!, File(pickedImage.path));
+      await APIs.updateImageUser(widget.userChat!.id!, File(pickedImage.path),
+          widget.userChat!.imageUrl!);
     } else {
       pickedImage = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -37,7 +38,8 @@ class _UpdateUserState extends State<UpdateUser> {
       if (pickedImage == null) {
         return;
       }
-      await APIs.updateImageUser(widget.userChat!.id!, File(pickedImage.path));
+      await APIs.updateImageUser(widget.userChat!.id!, File(pickedImage.path),
+          widget.userChat!.imageUrl!);
     }
   }
 
@@ -105,7 +107,7 @@ class _UpdateUserState extends State<UpdateUser> {
                   ),
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 450,
                 ),
                 ElevatedButton(
                   onPressed: () async {
