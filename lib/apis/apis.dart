@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart';
+import 'package:tiengviet/tiengviet.dart';
 import 'package:uuid/uuid.dart';
 
 var uuid = Uuid();
@@ -419,7 +420,7 @@ class APIs {
         .toList();
     List<MessageChat> listSearchMessage = [];
     for (MessageChat message in listMessage) {
-      if (message.msg!.toLowerCase().contains(_enteredWord.toLowerCase())) {
+      if (TiengViet.parse(message.msg!).toLowerCase().contains(TiengViet.parse(_enteredWord).toLowerCase())) {
         listSearchMessage.add(message);
       }
     }
