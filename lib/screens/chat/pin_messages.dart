@@ -33,6 +33,14 @@ class ListPinMessage extends StatelessWidget {
           final data = pinMessageSnapshot.data!.docs;
           listPinMessage =
               data.map((e) => MessageChat.fromMap(e.data())).toList();
+          listPinMessage.sort((a, b) {
+          if (int.parse(a.isPin!) < (int.parse(b.isPin!))) {
+            return 1;
+          } else if (int.parse(a.isPin!) > int.parse(b.isPin!)) {
+            return -1;
+          }
+          return 0;
+        });
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -43,6 +51,7 @@ class ListPinMessage extends StatelessWidget {
                       return Column(
                         children: [
                           InkWell(
+                            onTap: () {},
                             onLongPress: () {
                               showModalBottomSheet(
                                 useSafeArea: true,
@@ -94,7 +103,8 @@ class ListPinMessage extends StatelessWidget {
                                             Container(
                                               width: 200,
                                               child: Text(
-                                                listPinMessage[index].msg!,
+                                                listPinMessage[index].type! == Type.text 
+                                                  ? listPinMessage[index].msg! : (listPinMessage[index].type! == Type.video ? 'Một video' : 'Một ảnh'),
                                                 style: TextStyle(
                                                     color: const Color.fromARGB(
                                                         255, 93, 93, 93)),

@@ -4,6 +4,7 @@ import 'package:company_chat_app_demo/models/chatroom_model.dart';
 import 'package:company_chat_app_demo/models/user_model.dart';
 import 'package:company_chat_app_demo/widgets/chatroom_card.dart';
 import 'package:flutter/material.dart';
+import 'package:tiengviet/tiengviet.dart';
 
 class ChatHomeScreen extends StatefulWidget {
   const ChatHomeScreen({super.key});
@@ -24,7 +25,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
     List<String> _searchListId = [];
     _searchListChatRoom.clear();
     for (var name in nameList) {
-      if (name.toLowerCase().contains(enteredKeyword.toLowerCase())) {
+      if (TiengViet.parse(name).toLowerCase().contains(TiengViet.parse(enteredKeyword).toLowerCase())) {
         var key = mapName.keys.firstWhere((value) => mapName[value] == name);
         _searchListId.add(key);
       }

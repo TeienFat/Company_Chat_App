@@ -24,7 +24,7 @@ class _ChatMessageState extends State<ChatMessage> {
   void _scrollToIndex(String messageIdToScroll) {
     indexToScroll = listMessage
         .indexWhere((element) => element.messageId == messageIdToScroll);
-    _scrollController.animateTo(80.0 * indexToScroll!,
+    _scrollController.animateTo(60.0 * indexToScroll!,
         duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
   }
 
@@ -87,7 +87,7 @@ class _ChatMessageState extends State<ChatMessage> {
           padding: const EdgeInsets.all(13),
           reverse: true,
           itemCount: listMessage.length,
-          itemBuilder: (_, index) {
+          itemBuilder: (context, index) {
             final chatMessage = listMessage[index];
             final nextChatMessage =
                 index + 1 < listMessage.length ? listMessage[index + 1] : null;
@@ -102,9 +102,12 @@ class _ChatMessageState extends State<ChatMessage> {
             final prevUserIsSame = prevMessageUserId == currentMessageUserId;
             if (chatMessage.type == Type.notification) {
               return Center(
-                  child: Text(
-                chatMessage.msg!,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  chatMessage.msg!,
+                  style: TextStyle(fontSize: 12),
+                ),
               ));
             }
             if (APIs.firebaseAuth.currentUser!.uid == currentMessageUserId &&

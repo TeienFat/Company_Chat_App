@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart';
+import 'package:tiengviet/tiengviet.dart';
 import 'package:uuid/uuid.dart';
 
 var uuid = Uuid();
@@ -256,7 +257,7 @@ class APIs {
   }
 
   static Future<void> sendMessage(
-      ChatRoom chatRoom, String msg, Type type, String? messRepId) async {
+      ChatRoom chatRoom, String msg, Type type, MessageChat? messRep) async {
     DocumentSnapshot documentSnapshot =
         await firestore.collection('chatrooms').doc(chatRoom.chatroomid).get();
 
@@ -295,8 +296,16 @@ class APIs {
         userImage: user.imageUrl,
         type: type,
         receivers: participantsMap.keys.toList(),
-        isPin: false,
-        messageReplyId: messRepId != null ? messRepId : null);
+        isPin: "",
+        messageReply: messRep != null
+            ? ({
+                'messageId': messRep.messageId,
+                'fromId': messRep.fromId,
+                'userName': messRep.userName,
+                'type': messRep.type!.name,
+                'msg': messRep.msg
+              })
+            : ({}));
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -333,21 +342,21 @@ class APIs {
   }
 
   static Future<void> sendMediaMessage(
-      int type, ChatRoom chatRoom, File mediaFile, String? messRepId) async {
+      int type, ChatRoom chatRoom, File mediaFile, MessageChat? messRep) async {
     final mediaName = DateTime.now().millisecondsSinceEpoch;
     var mediaUrl;
     switch (type) {
       case 0:
         mediaUrl = await saveMedia(
             0, mediaName.toString(), mediaFile, 'message_images');
-        await sendMessage(chatRoom, mediaUrl, Type.image,
-            messRepId != null ? messRepId : null);
+        await sendMessage(
+            chatRoom, mediaUrl, Type.image, messRep != null ? messRep : null);
         break;
       case 1:
         mediaUrl = await saveMedia(
             1, mediaName.toString(), mediaFile, 'message_images');
-        await sendMessage(chatRoom, mediaUrl, Type.video,
-            messRepId != null ? messRepId : null);
+        await sendMessage(
+            chatRoom, mediaUrl, Type.video, messRep != null ? messRep : null);
         break;
     }
   }
@@ -411,7 +420,7 @@ class APIs {
         .toList();
     List<MessageChat> listSearchMessage = [];
     for (MessageChat message in listMessage) {
-      if (message.msg!.toLowerCase().contains(_enteredWord.toLowerCase())) {
+      if (TiengViet.parse(message.msg!).toLowerCase().contains(TiengViet.parse(_enteredWord).toLowerCase())) {
         listSearchMessage.add(message);
       }
     }
@@ -554,12 +563,22 @@ class APIs {
 
   static Future<void> pinMessage(
       String messageId, String chatroomId, bool pin) async {
-    await firestore
-        .collection('chatrooms')
-        .doc(chatroomId)
-        .collection('messages')
-        .doc(messageId)
-        .update({'isPin': pin});
+    if (pin) {
+      final now = DateTime.now().millisecondsSinceEpoch.toString();
+      await firestore
+          .collection('chatrooms')
+          .doc(chatroomId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'isPin': now});
+    } else {
+      await firestore
+          .collection('chatrooms')
+          .doc(chatroomId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'isPin': ""});
+    }
   }
 
   static Future<bool> checkPinMessage(
@@ -570,8 +589,8 @@ class APIs {
         .collection('messages')
         .doc(messageId)
         .get();
-    bool isPin = documentSnapshot['isPin'];
-    if (isPin) {
+    String isPin = documentSnapshot['isPin'];
+    if (isPin.isNotEmpty) {
       return true;
     } else
       return false;
@@ -583,7 +602,7 @@ class APIs {
         .collection('chatrooms')
         .doc(chatroomId)
         .collection('messages')
-        .where('isPin', isEqualTo: true)
+        .where('isPin', isNotEqualTo: "")
         .snapshots();
   }
 

@@ -96,19 +96,13 @@ class _UserCardState extends State<UserCard> {
             Stack(
               children: [
                 Container(
-                    width: 60,
-                    height: 60,
-                    padding: const EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: widget.user.imageUrl!.isNotEmpty
-                                  ? NetworkImage(widget.user.imageUrl!)
-                                  : AssetImage('assets/images/user.png')
-                                      as ImageProvider),
-                          borderRadius: BorderRadius.circular(16)),
-                    )),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: widget.user.imageUrl!.isNotEmpty
+                        ? NetworkImage(widget.user.imageUrl!)
+                        : AssetImage('assets/images/user.png') as ImageProvider,
+                  ),
+                ),
                 if (widget.user.isOnline!)
                   Positioned(
                     right: -1,
@@ -164,8 +158,7 @@ class _UserCardState extends State<UserCard> {
                       ),
               ],
             ),
-            if(widget.room == 'createGroup')
-            Spacer(),
+            if (widget.room == 'createGroup') Spacer(),
             if (widget.room == 'createGroup')
               Padding(
                 padding: const EdgeInsets.only(right: 10.0),

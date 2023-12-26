@@ -14,23 +14,22 @@ class NewMessage extends StatefulWidget {
     super.key,
     required this.chatRoom,
     required this.onUpload,
-  }) : messageReplyId = null;
+  }) : messageReply = null;
   NewMessage.reply({
     super.key,
     required this.chatRoom,
     required this.onUpload,
-    required this.messageReplyId,
+    required this.messageReply,
   });
   final ChatRoom chatRoom;
   final Function(bool upLoad) onUpload;
-  final String? messageReplyId;
+  final MessageChat? messageReply;
   @override
   State<NewMessage> createState() => _NewMessageState();
 }
 
 class _NewMessageState extends State<NewMessage> {
   bool _isTyping = false;
-  String? messReplyId;
 
   TextEditingController _messageController = TextEditingController();
   void _sendTextMessage() {
@@ -41,8 +40,8 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
-    APIs.sendMessage(widget.chatRoom, enteredMessage.trim(), Type.text,
-        widget.messageReplyId);
+    APIs.sendMessage(
+        widget.chatRoom, enteredMessage.trim(), Type.text, widget.messageReply);
   }
 
   @override
@@ -62,7 +61,7 @@ class _NewMessageState extends State<NewMessage> {
           widget.onUpload(true);
         });
         await APIs.sendMediaMessage(
-            0, widget.chatRoom, File(pickedImage.path), widget.messageReplyId);
+            0, widget.chatRoom, File(pickedImage.path), widget.messageReply);
         setState(() {
           widget.onUpload(false);
         });
@@ -79,7 +78,7 @@ class _NewMessageState extends State<NewMessage> {
         });
         for (var i in pickedImage) {
           await APIs.sendMediaMessage(
-              0, widget.chatRoom, File(i.path), widget.messageReplyId);
+              0, widget.chatRoom, File(i.path), widget.messageReply);
         }
         setState(() {
           widget.onUpload(false);
@@ -100,7 +99,7 @@ class _NewMessageState extends State<NewMessage> {
           widget.onUpload(true);
         });
         await APIs.sendMediaMessage(
-            1, widget.chatRoom, File(pickedImage.path), widget.messageReplyId);
+            1, widget.chatRoom, File(pickedImage.path), widget.messageReply);
         setState(() {
           widget.onUpload(false);
         });
@@ -114,7 +113,7 @@ class _NewMessageState extends State<NewMessage> {
           widget.onUpload(true);
         });
         await APIs.sendMediaMessage(
-            1, widget.chatRoom, File(pickedImage.path), widget.messageReplyId);
+            1, widget.chatRoom, File(pickedImage.path), widget.messageReply);
         setState(() {
           widget.onUpload(false);
         });

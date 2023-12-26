@@ -8,7 +8,7 @@ import 'package:company_chat_app_demo/widgets/reply_message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:swipe_to/swipe_to.dart';
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
   MessageBubble.first(
       {super.key,
       required this.message,
@@ -45,22 +45,59 @@ class MessageBubble extends StatelessWidget {
   final bool isScrollTo;
 
   @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> animation;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+      lowerBound: 0.5,
+      upperBound: 1,
+    );
+    animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOutBack,
+    );
+    if (widget.isScrollTo) {
+      _animationController.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    Color? colorMess;
-    if (!isMe && message.read!.isEmpty) {
-      APIs.updateMessageReadStatus(chatRoomId, message.messageId!);
+    Map<String, dynamic> _messageReply = ({});
+    if (widget.message.messageReply != ({})) {
+      _messageReply = widget.message.messageReply!;
     }
-    if (isMe && isScrollTo) {}
+    if (!widget.isMe && widget.message.read!.isEmpty) {
+      APIs.updateMessageReadStatus(
+          widget.chatRoomId, widget.message.messageId!);
+    }
+
     return Stack(
       children: [
-        if (message.userImage != null && isFirstInSequence)
+        if (widget.message.userImage != null && widget.isFirstInSequence)
           Positioned(
             top: 15,
             child: CircleAvatar(
-              backgroundImage: message.userImage!.isNotEmpty
+              backgroundImage: widget.message.userImage!.isNotEmpty
                   ? NetworkImage(
-                      message.userImage!,
+                      widget.message.userImage!,
                     )
                   : AssetImage('assets/images/user.png') as ImageProvider,
               radius: 18,
@@ -68,216 +105,334 @@ class MessageBubble extends StatelessWidget {
           ),
         GestureDetector(
           onLongPress: () async {
-            final bool isPin =
-                await APIs.checkPinMessage(message.messageId!, chatRoomId);
+            final bool isPin = await APIs.checkPinMessage(
+                widget.message.messageId!, widget.chatRoomId);
             showModalBottomSheet(
               useSafeArea: true,
               isScrollControlled: true,
               context: context,
               builder: (context) => MenuChatScreen(
-                chatroomId: chatRoomId,
-                messageId: message.messageId!,
+                chatroomId: widget.chatRoomId,
+                messageId: widget.message.messageId!,
                 isPin: isPin,
               ),
             );
           },
           child: Container(
-            margin: isMe ? null : const EdgeInsets.symmetric(horizontal: 45),
+            margin:
+                widget.isMe ? null : const EdgeInsets.symmetric(horizontal: 45),
             child: Row(
               mainAxisAlignment:
-                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
               children: [
                 Column(
-                  crossAxisAlignment:
-                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  crossAxisAlignment: widget.isMe
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
-                    if (isFirstInSequence) const SizedBox(height: 30),
-                    if (message.userName != null && !typeChat)
+                    if (widget.isFirstInSequence) const SizedBox(height: 30),
+                    if (widget.message.userName != null && !widget.typeChat)
                       Padding(
                         padding: const EdgeInsets.only(
                           left: 13,
                           right: 13,
                         ),
                         child: Text(
-                          message.userName!,
+                          widget.message.userName!,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
                       ),
-                    Stack(
-                      children: [
-                        SwipeTo(
-                          swipeSensitivity: 10,
-                          animationDuration: Duration(milliseconds: 200),
-                          offsetDx: 0.8,
-                          leftSwipeWidget: Container(
-                            width: 30,
-                            height: 30,
-                            child: Icon(
-                              Icons.reply,
-                              color: Colors.white,
-                            ),
-                            decoration: BoxDecoration(
-                                color: Colors.black45,
-                                borderRadius: BorderRadius.circular(30)),
-                          ),
-                          rightSwipeWidget: Container(
-                            width: 30,
-                            height: 30,
-                            child: Icon(
-                              Icons.reply,
-                              color: Colors.white,
-                            ),
-                            decoration: BoxDecoration(
-                                color: Colors.black45,
-                                borderRadius: BorderRadius.circular(20)),
-                          ),
-                          onLeftSwipe: isMe
-                              ? (details) {
-                                  onSwipe(message, isMe);
-                                }
-                              : null,
-                          onRightSwipe: isMe
-                              ? null
-                              : (details) {
-                                  onSwipe(message, isMe);
+                    SwipeTo(
+                      swipeSensitivity: 10,
+                      animationDuration: Duration(milliseconds: 200),
+                      offsetDx: 0.8,
+                      leftSwipeWidget: Container(
+                        width: 30,
+                        height: 30,
+                        child: Icon(
+                          Icons.reply,
+                          color: Colors.white,
+                        ),
+                        decoration: BoxDecoration(
+                            color: Colors.black45,
+                            borderRadius: BorderRadius.circular(30)),
+                      ),
+                      rightSwipeWidget: Container(
+                        width: 30,
+                        height: 30,
+                        child: Icon(
+                          Icons.reply,
+                          color: Colors.white,
+                        ),
+                        decoration: BoxDecoration(
+                            color: Colors.black45,
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
+                      onLeftSwipe: widget.isMe
+                          ? (details) {
+                              widget.onSwipe(widget.message, widget.isMe);
+                            }
+                          : null,
+                      onRightSwipe: widget.isMe
+                          ? null
+                          : (details) {
+                              widget.onSwipe(widget.message, widget.isMe);
+                            },
+                      child: Column(
+                        crossAxisAlignment: widget.isMe
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          if (_messageReply.isNotEmpty)
+                            InkWell(
+                                onTap: () {
+                                  widget.onTapReply(_messageReply['messageId']);
                                 },
-                          child: Column(
-                            crossAxisAlignment: isMe
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
+                                child: ReplyBubble(
+                                    chatRoomId: widget.chatRoomId,
+                                    messageReplyFromId: _messageReply['fromId'],
+                                    messageReplyUserName:
+                                        _messageReply['userName'],
+                                    messageReplyMsg: _messageReply['msg'],
+                                    messageReplyType:
+                                        _messageReply['type'] == Type.text.name
+                                            ? Type.text
+                                            : _messageReply['type'] ==
+                                                    Type.image.name
+                                                ? Type.image
+                                                : _messageReply['type'] ==
+                                                        Type.video.name
+                                                    ? Type.video
+                                                    : Type.notification,
+                                    messageSent: widget.message,
+                                    isMe: widget.isMe)),
+                          Stack(
                             children: [
-                              if (message.messageReplyId != null)
-                                InkWell(
-                                  onTap: () {
-                                    onTapReply(message.messageReplyId!);
-                                  },
-                                  child: ReplyBubble(
-                                      chatRoomId: chatRoomId,
-                                      messageReplyId: message.messageReplyId!,
-                                      messageSent: message,
-                                      isMe: isMe),
-                                ),
-                              Container(
-                                decoration: message.type! == Type.text
-                                    ? BoxDecoration(
-                                        color: isMe && isScrollTo
-                                            ? Colors.grey
-                                            : isMe
-                                                ? Colors.grey[300]
-                                                : isScrollTo
-                                                    ? Colors.red[200]
+                              widget.isScrollTo
+                                  ? AnimatedBuilder(
+                                      animation: _animationController,
+                                      builder: (context, child) =>
+                                          ScaleTransition(
+                                        scale: animation,
+                                        child: child,
+                                      ),
+                                      child: Container(
+                                        decoration: widget.message.type! ==
+                                                Type.text
+                                            ? BoxDecoration(
+                                                color: widget.isMe
+                                                    ? Colors.grey[300]
                                                     : theme.colorScheme
                                                         .primaryContainer,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: !isMe
-                                              ? Radius.zero
-                                              : const Radius.circular(12),
-                                          topRight: isMe
-                                              ? Radius.zero
-                                              : const Radius.circular(12),
-                                          bottomLeft: const Radius.circular(12),
-                                          bottomRight:
-                                              const Radius.circular(12),
-                                        ),
-                                      )
-                                    : null,
-                                constraints:
-                                    const BoxConstraints(maxWidth: 295),
-                                padding: message.type! == Type.text
-                                    ? const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                        horizontal: 14,
-                                      )
-                                    : null,
-                                margin: message.messageReplyId == null
-                                    ? const EdgeInsets.symmetric(
-                                        vertical: 4,
-                                      )
-                                    : EdgeInsets.only(bottom: 4),
-                                child: Column(
-                                  crossAxisAlignment: isMe
-                                      ? CrossAxisAlignment.start
-                                      : CrossAxisAlignment.end,
-                                  children: [
-                                    message.type! == Type.text
-                                        ? Text(
-                                            message.msg!,
-                                            style: TextStyle(
-                                              height: 1.3,
-                                              color: isMe
-                                                  ? Colors.black87
-                                                  : theme.colorScheme
-                                                      .onPrimaryContainer,
-                                            ),
-                                            softWrap: true,
-                                          )
-                                        : message.type! == Type.image
-                                            ? ImageBubble(
-                                                imageUrl: message.msg!,
-                                                isMe: isMe)
-                                            : message.type! == Type.video
-                                                ? VideoBubble(
-                                                    videoUrl: message.msg!,
-                                                    isMe: isMe,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: !widget.isMe
+                                                      ? Radius.zero
+                                                      : const Radius.circular(
+                                                          12),
+                                                  topRight: widget.isMe
+                                                      ? Radius.zero
+                                                      : const Radius.circular(
+                                                          12),
+                                                  bottomLeft:
+                                                      const Radius.circular(12),
+                                                  bottomRight:
+                                                      const Radius.circular(12),
+                                                ),
+                                              )
+                                            : null,
+                                        constraints:
+                                            const BoxConstraints(maxWidth: 295),
+                                        padding:
+                                            widget.message.type! == Type.text
+                                                ? const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 14,
                                                   )
-                                                : SizedBox(),
-                                    if (isLastInSequence)
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                    if (isLastInSequence)
-                                      Text(
-                                        MyDateUtil.getFormattedTime(
-                                            context: context,
-                                            time: message.sent.toString()),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: isMe
-                                              ? Colors.black87
-                                              : theme.colorScheme
-                                                  .onPrimaryContainer,
+                                                : null,
+                                        margin: _messageReply.isEmpty
+                                            ? const EdgeInsets.symmetric(
+                                                vertical: 4,
+                                              )
+                                            : EdgeInsets.only(bottom: 4),
+                                        child: Column(
+                                          crossAxisAlignment: widget.isMe
+                                              ? CrossAxisAlignment.end
+                                              : CrossAxisAlignment.start,
+                                          children: [
+                                            widget.message.type! == Type.text
+                                                ? Text(
+                                                    widget.message.msg!,
+                                                    style: TextStyle(
+                                                      height: 1.3,
+                                                      color: widget.isMe
+                                                          ? Colors.black87
+                                                          : theme.colorScheme
+                                                              .onPrimaryContainer,
+                                                    ),
+                                                    softWrap: true,
+                                                  )
+                                                : widget.message.type! ==
+                                                        Type.image
+                                                    ? ImageBubble(
+                                                        imageUrl:
+                                                            widget.message.msg!,
+                                                        isMe: widget.isMe)
+                                                    : widget.message.type! ==
+                                                            Type.video
+                                                        ? VideoBubble(
+                                                            videoUrl: widget
+                                                                .message.msg!,
+                                                            isMe: widget.isMe,
+                                                          )
+                                                        : SizedBox(),
+                                            if (widget.isLastInSequence)
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                            if (widget.isLastInSequence)
+                                              Text(
+                                                MyDateUtil.getFormattedTime(
+                                                    context: context,
+                                                    time: widget.message.sent
+                                                        .toString()),
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: widget.isMe
+                                                      ? Colors.black87
+                                                      : theme.colorScheme
+                                                          .onPrimaryContainer,
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                       ),
-                                  ],
-                                ),
-                              ),
+                                    )
+                                  : Container(
+                                      decoration: widget.message.type! ==
+                                              Type.text
+                                          ? BoxDecoration(
+                                              color: widget.isMe
+                                                  ? Colors.grey[300]
+                                                  : theme.colorScheme
+                                                      .primaryContainer,
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: !widget.isMe
+                                                    ? Radius.zero
+                                                    : const Radius.circular(12),
+                                                topRight: widget.isMe
+                                                    ? Radius.zero
+                                                    : const Radius.circular(12),
+                                                bottomLeft:
+                                                    const Radius.circular(12),
+                                                bottomRight:
+                                                    const Radius.circular(12),
+                                              ),
+                                            )
+                                          : null,
+                                      constraints:
+                                          const BoxConstraints(maxWidth: 295),
+                                      padding: widget.message.type! == Type.text
+                                          ? const EdgeInsets.symmetric(
+                                              vertical: 10,
+                                              horizontal: 14,
+                                            )
+                                          : null,
+                                      margin: _messageReply.isEmpty
+                                          ? const EdgeInsets.symmetric(
+                                              vertical: 4,
+                                            )
+                                          : EdgeInsets.only(bottom: 4),
+                                      child: Column(
+                                        crossAxisAlignment: widget.isMe
+                                            ? CrossAxisAlignment.start
+                                            : CrossAxisAlignment.end,
+                                        children: [
+                                          widget.message.type! == Type.text
+                                              ? Text(
+                                                  widget.message.msg!,
+                                                  style: TextStyle(
+                                                    height: 1.3,
+                                                    color: widget.isMe
+                                                        ? Colors.black87
+                                                        : theme.colorScheme
+                                                            .onPrimaryContainer,
+                                                  ),
+                                                  softWrap: true,
+                                                )
+                                              : widget.message.type! ==
+                                                      Type.image
+                                                  ? ImageBubble(
+                                                      imageUrl:
+                                                          widget.message.msg!,
+                                                      isMe: widget.isMe)
+                                                  : widget.message.type! ==
+                                                          Type.video
+                                                      ? VideoBubble(
+                                                          videoUrl: widget
+                                                              .message.msg!,
+                                                          isMe: widget.isMe,
+                                                        )
+                                                      : SizedBox(),
+                                          if (widget.isLastInSequence)
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                          if (widget.isLastInSequence)
+                                            Text(
+                                              MyDateUtil.getFormattedTime(
+                                                  context: context,
+                                                  time: widget.message.sent
+                                                      .toString()),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: widget.isMe
+                                                    ? Colors.black87
+                                                    : theme.colorScheme
+                                                        .onPrimaryContainer,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                              if (widget.message.isPin!.isNotEmpty)
+                                widget.isMe
+                                    ? Positioned.fill(
+                                        left: -3,
+                                        child: Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Icon(
+                                              Icons.push_pin,
+                                              size: 16,
+                                              color: Colors.red,
+                                            )))
+                                    : Positioned.fill(
+                                        right: -3,
+                                        child: Align(
+                                            alignment: Alignment.topRight,
+                                            child: Icon(
+                                              Icons.push_pin,
+                                              size: 16,
+                                              color: Colors.red,
+                                            )))
                             ],
                           ),
-                        ),
-                        if (message.isPin!)
-                          isMe
-                              ? Positioned.fill(
-                                  left: -3,
-                                  child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Icon(
-                                        Icons.push_pin,
-                                        size: 16,
-                                        color: Colors.red,
-                                      )))
-                              : Positioned.fill(
-                                  right: -3,
-                                  child: Align(
-                                      alignment: Alignment.topRight,
-                                      child: Icon(
-                                        Icons.push_pin,
-                                        size: 16,
-                                        color: Colors.red,
-                                      )))
-                      ],
+                        ],
+                      ),
                     ),
-                    if (isMe && isLastMessage && message.read!.isNotEmpty)
+                    if (widget.isMe &&
+                        widget.isLastMessage &&
+                        widget.message.read!.isNotEmpty)
                       Icon(
                         Icons.done_all_rounded,
                         color: Colors.green,
                       ),
-                    if (isMe &&
-                        isLastMessage &&
-                        isLastInSequence &&
-                        message.read!.isEmpty)
+                    if (widget.isMe &&
+                        widget.isLastMessage &&
+                        widget.isLastInSequence &&
+                        widget.message.read!.isEmpty)
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey,
@@ -290,7 +445,7 @@ class MessageBubble extends StatelessWidget {
                             'Đã gửi',
                             style: TextStyle(
                               fontSize: 12,
-                              color: isMe
+                              color: widget.isMe
                                   ? Colors.white
                                   : theme.colorScheme.onPrimaryContainer,
                             ),
