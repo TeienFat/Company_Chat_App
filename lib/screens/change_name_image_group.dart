@@ -26,8 +26,8 @@ class _Change_Name_Image_GroupState extends State<ChangeNameImageGroup> {
       if (pickedImage == null) {
         return;
       }
-      await APIs.updateImageChatRoom(
-          widget.chatRoom.chatroomid!, File(pickedImage.path));
+      await APIs.updateImageChatRoom(widget.chatRoom.chatroomid!,
+          File(pickedImage.path), widget.chatRoom.imageUrl!);
     } else {
       pickedImage = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -37,8 +37,8 @@ class _Change_Name_Image_GroupState extends State<ChangeNameImageGroup> {
       if (pickedImage == null) {
         return;
       }
-      await APIs.updateImageChatRoom(
-          widget.chatRoom.chatroomid!, File(pickedImage.path));
+      await APIs.updateImageChatRoom(widget.chatRoom.chatroomid!,
+          File(pickedImage.path), widget.chatRoom.imageUrl!);
     }
   }
 
@@ -110,7 +110,7 @@ class _Change_Name_Image_GroupState extends State<ChangeNameImageGroup> {
                         isScrollControlled: true,
                         context: context,
                         builder: (context) => MenuPickImage(
-                          onPickImage: (type) => _updateImages(type),
+                          onPickImage: (type) => this._updateImages(type),
                         ),
                       );
                     },
