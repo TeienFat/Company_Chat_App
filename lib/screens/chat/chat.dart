@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
       type: Type.text,
       receivers: [],
       isPin: "",
-      messageReplyId: null);
+      messageReply: ({}));
 
   Future<void> goSettingScreen(BuildContext context) async {
     final hasBlock = await Navigator.of(context).push(
@@ -91,107 +91,108 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: widget.chatRoom.type!
-        ? StreamBuilder(
-          stream: APIs.getInfoUser(widget.userChat!.id.toString()),
-          builder: (ctx, usersnapshot) {
-            if (usersnapshot.hasData) {
-              final data = usersnapshot.data!.docs;
-              list = data
-                  .map((e) => UserChat.fromMap(e.data()))
-                  .toList();
-              return Row(
-          children: [
-            Stack(
-              children: [
+            ? StreamBuilder(
+                stream: APIs.getInfoUser(widget.userChat!.id.toString()),
+                builder: (ctx, usersnapshot) {
+                  if (usersnapshot.hasData) {
+                    final data = usersnapshot.data!.docs;
+                    list = data.map((e) => UserChat.fromMap(e.data())).toList();
+                    return Row(
+                      children: [
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: list[0].imageUrl!.isNotEmpty
+                                  ? NetworkImage(list[0].imageUrl!)
+                                  : AssetImage('assets/images/user.png')
+                                      as ImageProvider,
+                            ),
+                            if (list[0].isOnline!)
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 13,
+                                  height: 13,
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromRGBO(44, 192, 105, 1),
+                                      shape: BoxShape.circle,
+                                      border: Border.symmetric(
+                                          horizontal: BorderSide(
+                                              width: 2, color: Colors.white),
+                                          vertical: BorderSide(
+                                              width: 2, color: Colors.white))),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 225.4,
+                              child: Text(
+                                list[0].username!,
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            list[0].isOnline!
+                                ? const Text(
+                                    'Online',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Offline',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  )
+                          ],
+                        ),
+                      ],
+                    );
+                  } else
+                    return Container();
+                },
+              )
+            : Row(
+                children: [
                   CircleAvatar(
-                    backgroundImage: list[0].imageUrl!.isNotEmpty
-                        ? NetworkImage(list[0].imageUrl!)
-                        : AssetImage('assets/images/user.png') as ImageProvider,
+                    backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
+                        ? NetworkImage(widget.chatRoom.imageUrl!)
+                        : AssetImage('assets/images/group.png')
+                            as ImageProvider,
                   ),
-                  if (list[0].isOnline!)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 13,
-                      height: 13,
-                      decoration: const BoxDecoration(
-                          color: Color.fromRGBO(44, 192, 105, 1),
-                          shape: BoxShape.circle,
-                          border: Border.symmetric(
-                              horizontal:
-                                  BorderSide(width: 2, color: Colors.white),
-                              vertical:
-                                  BorderSide(width: 2, color: Colors.white))),
-                    ),
+                  SizedBox(
+                    width: 10,
                   ),
-              ],
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                  Container(
-                    width: 225.4,
-                    child: Text(
-                      list[0].username!,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 225.4,
+                        child: Text(
+                          widget.chatRoom.chatroomname!.isNotEmpty
+                              ? widget.chatRoom.chatroomname!
+                              : widget.groupName,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  list[0].isOnline!
-                        ? const Text(
-                            'Online',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,),
-                          )
-                        : const Text(
-                            'Offline',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,),
-                          )
-              ],
-            ),
-          ],
-        );
-            } else
-              return Container();
-          },
-        )
-        : Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: widget.chatRoom.imageUrl!.isNotEmpty
-                  ? NetworkImage(widget.chatRoom.imageUrl!)
-                  : AssetImage('assets/images/group.png')
-                      as ImageProvider,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    width: 225.4,
-                    child: Text(
-                      widget.chatRoom.chatroomname!.isNotEmpty
-                          ? widget.chatRoom.chatroomname!
-                          : widget.groupName,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
         actions: [
           IconButton(
             onPressed: () {
@@ -241,7 +242,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           onUpload: (upLoad) {
                             _onUpload(upLoad);
                           },
-                          messageReplyId: _messageChat.messageId)
+                          messageReply: _messageChat)
                       : NewMessage(
                           chatRoom: widget.chatRoom,
                           onUpload: (upLoad) {

@@ -9,7 +9,7 @@ class MessageChat {
   Type? type;
   List<String>? receivers;
   String? isPin;
-  String? messageReplyId;
+  Map<String, dynamic>? messageReply;
 
   MessageChat(
       {required this.messageId,
@@ -22,7 +22,7 @@ class MessageChat {
       required this.type,
       required this.receivers,
       required this.isPin,
-      required this.messageReplyId});
+      required this.messageReply});
 
   MessageChat.fromMap(Map<String, dynamic> map) {
     messageId = map['messageId'];
@@ -41,7 +41,7 @@ class MessageChat {
                 : Type.notification;
     receivers = List<String>.from(map['receivers']);
     isPin = map['isPin'];
-    messageReplyId = map['messageReplyId'];
+    messageReply = Map<String, dynamic>.from(map['messageReply']);
   }
 
   Map<String, dynamic> toMap() {
@@ -56,7 +56,7 @@ class MessageChat {
       'type': type!.name,
       'receivers': receivers,
       'isPin': isPin,
-      'messageReplyId': messageReplyId,
+      'messageReply': messageReply,
     });
   }
 }
