@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:company_chat_app_demo/apis/apis.dart';
 import 'package:company_chat_app_demo/models/chatroom_model.dart';
+import 'package:company_chat_app_demo/widgets/menu_pick_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChangeNameImageGroup extends StatefulWidget {
   const ChangeNameImageGroup({super.key, required this.chatRoom});
@@ -11,6 +15,33 @@ class ChangeNameImageGroup extends StatefulWidget {
 
 class _Change_Name_Image_GroupState extends State<ChangeNameImageGroup> {
   TextEditingController txtTenNhom = TextEditingController();
+  void _updateImages(bool pickerType) async {
+    var pickedImage;
+    if (pickerType) {
+      pickedImage = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 100,
+        maxWidth: 295,
+      );
+      if (pickedImage == null) {
+        return;
+      }
+      await APIs.updateImageChatRoom(
+          widget.chatRoom.chatroomid!, File(pickedImage.path));
+    } else {
+      pickedImage = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+        maxWidth: 295,
+      );
+      if (pickedImage == null) {
+        return;
+      }
+      await APIs.updateImageChatRoom(
+          widget.chatRoom.chatroomid!, File(pickedImage.path));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -73,7 +104,16 @@ class _Change_Name_Image_GroupState extends State<ChangeNameImageGroup> {
                     height: 20,
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showModalBottomSheet(
+                        useSafeArea: true,
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (context) => MenuPickImage(
+                          onPickImage: (type) => _updateImages(type),
+                        ),
+                      );
+                    },
                     icon: Icon(Icons.camera_alt_rounded),
                   ),
                   Text(
