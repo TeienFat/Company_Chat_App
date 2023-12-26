@@ -257,7 +257,7 @@ class APIs {
   }
 
   static Future<void> sendMessage(
-      ChatRoom chatRoom, String msg, Type type, String? messRepId) async {
+      ChatRoom chatRoom, String msg, Type type, MessageChat? messRep) async {
     DocumentSnapshot documentSnapshot =
         await firestore.collection('chatrooms').doc(chatRoom.chatroomid).get();
 
@@ -297,7 +297,15 @@ class APIs {
         type: type,
         receivers: participantsMap.keys.toList(),
         isPin: "",
-        messageReplyId: messRepId != null ? messRepId : null);
+        messageReply: messRep != null
+            ? ({
+                'messageId': messRep.messageId,
+                'fromId': messRep.fromId,
+                'userName': messRep.userName,
+                'type': messRep.type!.name,
+                'msg': messRep.msg
+              })
+            : ({}));
     await firestore
         .collection('chatrooms')
         .doc(chatRoom.chatroomid)
@@ -334,21 +342,21 @@ class APIs {
   }
 
   static Future<void> sendMediaMessage(
-      int type, ChatRoom chatRoom, File mediaFile, String? messRepId) async {
+      int type, ChatRoom chatRoom, File mediaFile, MessageChat? messRep) async {
     final mediaName = DateTime.now().millisecondsSinceEpoch;
     var mediaUrl;
     switch (type) {
       case 0:
         mediaUrl = await saveMedia(
             0, mediaName.toString(), mediaFile, 'message_images');
-        await sendMessage(chatRoom, mediaUrl, Type.image,
-            messRepId != null ? messRepId : null);
+        await sendMessage(
+            chatRoom, mediaUrl, Type.image, messRep != null ? messRep : null);
         break;
       case 1:
         mediaUrl = await saveMedia(
             1, mediaName.toString(), mediaFile, 'message_images');
-        await sendMessage(chatRoom, mediaUrl, Type.video,
-            messRepId != null ? messRepId : null);
+        await sendMessage(
+            chatRoom, mediaUrl, Type.video, messRep != null ? messRep : null);
         break;
     }
   }
@@ -555,22 +563,22 @@ class APIs {
 
   static Future<void> pinMessage(
       String messageId, String chatroomId, bool pin) async {
-        if(pin){
-        final now = DateTime.now().millisecondsSinceEpoch.toString();
-          await firestore
-        .collection('chatrooms')
-        .doc(chatroomId)
-        .collection('messages')
-        .doc(messageId)
-        .update({'isPin': now});
-        }else{
-          await firestore
-        .collection('chatrooms')
-        .doc(chatroomId)
-        .collection('messages')
-        .doc(messageId)
-        .update({'isPin': ""});
-        }
+    if (pin) {
+      final now = DateTime.now().millisecondsSinceEpoch.toString();
+      await firestore
+          .collection('chatrooms')
+          .doc(chatroomId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'isPin': now});
+    } else {
+      await firestore
+          .collection('chatrooms')
+          .doc(chatroomId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'isPin': ""});
+    }
   }
 
   static Future<bool> checkPinMessage(
